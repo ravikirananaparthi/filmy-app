@@ -1,10 +1,13 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { AnimatedHeader } from '@/components/ui/animated-header';
+import { useScrollContext } from '@/contexts/scroll-context';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -13,7 +16,7 @@ const CARD_WIDTH = (SCREEN_WIDTH - 52) / 2;
 // Simple colors for wallpaper placeholders
 const CARD_COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
-// Varying heights for masonry effect - simulating wallpapers with different aspect ratios
+// Varying heights for masonry effect
 const CARD_HEIGHTS = [160, 220, 180, 200, 170, 240, 190, 210];
 
 interface FavoriteItem {
@@ -25,7 +28,6 @@ interface FavoriteItem {
   height: number;
 }
 
-// Memoized card component - Important: no key prop inside, let FlashList handle it
 const FavoriteCard = memo(function FavoriteCard({ item }: { item: FavoriteItem }) {
   const backgroundColor = CARD_COLORS[item.colorIndex % CARD_COLORS.length];
 
@@ -39,7 +41,6 @@ const FavoriteCard = memo(function FavoriteCard({ item }: { item: FavoriteItem }
       activeOpacity={0.8} 
       style={styles.favoriteCard}
     >
-      {/* Wallpaper placeholder with varying height */}
       <View style={[styles.cardImagePlaceholder, { backgroundColor, height: item.height }]}>
         <View style={styles.playButton}>
           <Ionicons name="expand-outline" size={20} color="#FFFFFF" />
@@ -49,7 +50,6 @@ const FavoriteCard = memo(function FavoriteCard({ item }: { item: FavoriteItem }
         </View>
       </View>
 
-      {/* Card Info */}
       <View style={styles.cardInfo}>
         <ThemedText style={styles.cardCategory}>{item.category}</ThemedText>
         <ThemedText style={styles.cardTitle} numberOfLines={1}>{item.title}</ThemedText>
@@ -62,7 +62,6 @@ const FavoriteCard = memo(function FavoriteCard({ item }: { item: FavoriteItem }
   );
 });
 
-// Generate wallpaper data with varying heights
 const favoritesData: FavoriteItem[] = [
   { id: '1', title: 'Mountain Sunset', category: 'Nature', rating: 9.3, colorIndex: 0, height: CARD_HEIGHTS[0] },
   { id: '2', title: 'City Lights', category: 'Urban', rating: 9.5, colorIndex: 1, height: CARD_HEIGHTS[1] },
@@ -78,7 +77,6 @@ const favoritesData: FavoriteItem[] = [
   { id: '12', title: 'Minimal Lines', category: 'Minimal', rating: 8.5, colorIndex: 5, height: CARD_HEIGHTS[3] },
 ];
 
-// Stats bar component
 const StatsBar = memo(function StatsBar() {
   return (
     <View style={styles.statsBar}>
@@ -102,6 +100,13 @@ const StatsBar = memo(function StatsBar() {
 
 export default function FavoritesScreen() {
   const insets = useSafeAreaInsets();
+  const { scrollY } = useScrollContext();
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
 
   const renderItem = useCallback(({ item }: { item: FavoriteItem }) => (
     <FavoriteCard item={item} />
@@ -109,52 +114,45 @@ export default function FavoritesScreen() {
 
   const keyExtractor = useCallback((item: FavoriteItem) => item.id, []);
 
-  // Override item layout for masonry - provides height for each item
   const overrideItemLayout = useCallback((layout: { size?: number }, item: FavoriteItem) => {
-    // Total height = image height + card info height (approx 70px)
     layout.size = item.height + 70;
   }, []);
 
-  const ListHeaderComponent = useCallback(() => (
-    <>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.headerIcon}>
-            <Ionicons name="heart" size={28} color="#EC4899" />
-          </View>
-          <View>
-            <ThemedText type="title" style={styles.headerTitle}>Favorites</ThemedText>
-            <ThemedText style={styles.headerSubtitle}>{favoritesData.length} wallpapers saved</ThemedText>
-          </View>
-        </View>
-      </View>
-
-      {/* Stats Bar */}
-      <StatsBar />
-    </>
-  ), []);
-
   return (
     <ThemedView style={styles.container}>
-      {/* FlashList v2 with masonry layout for Pinterest-like wallpaper grid */}
-      <FlashList
-        data={favoritesData}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        numColumns={2}
-        masonry
-        optimizeItemArrangement
-        estimatedItemSize={200}
-        overrideItemLayout={overrideItemLayout}
+      {/* Animated Header */}
+      <AnimatedHeader
+        title="❤️ Favorites"
+        subtitle={`${favoritesData.length} wallpapers saved`}
+        scrollY={scrollY}
+      />
+
+      {/* Masonry FlashList with scroll handler */}
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingTop: insets.top + 20,
+          paddingTop: 100 + insets.top,
           paddingBottom: 120,
           paddingHorizontal: 16,
         }}
-        ListHeaderComponent={ListHeaderComponent}
-      />
+      >
+        <StatsBar />
+        <View style={styles.flashListContainer}>
+          <FlashList
+            data={favoritesData}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            numColumns={2}
+            masonry
+            optimizeItemArrangement
+            estimatedItemSize={200}
+            overrideItemLayout={overrideItemLayout}
+            scrollEnabled={false}
+          />
+        </View>
+      </Animated.ScrollView>
     </ThemedView>
   );
 }
@@ -164,32 +162,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0F0F19',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  headerIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: 'rgba(236, 72, 153, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 28,
-  },
-  headerSubtitle: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontSize: 14,
+  flashListContainer: {
+    minHeight: 1200,
   },
   statsBar: {
     flexDirection: 'row',

@@ -1,9 +1,12 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { AnimatedHeader } from '@/components/ui/animated-header';
+import { useScrollContext } from '@/contexts/scroll-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
-import { FlatList, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface MenuItemProps {
@@ -75,6 +78,11 @@ export default function MenuScreen() {
   const insets = useSafeAreaInsets();
   const [darkMode, setDarkMode] = React.useState(true);
   const [notifications, setNotifications] = React.useState(true);
+  const { scrollY } = useScrollContext();
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => { scrollY.value = event.contentOffset.y; },
+  });
 
   const handleDarkModeChange = useCallback((value: boolean) => {
     setDarkMode(value);
@@ -88,10 +96,13 @@ export default function MenuScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <FlatList
-        data={[{ id: 'content' }]}
-        renderItem={() => (
-          <>
+      <AnimatedHeader title="👤 Profile" subtitle="Manage your account" scrollY={scrollY} />
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingTop: 100 + insets.top, paddingBottom: 120 }}
+        showsVerticalScrollIndicator={false}
+      >
             {/* Profile Section */}
             <View style={styles.profileSection}>
               <View style={styles.profileAvatar}>
@@ -202,12 +213,7 @@ export default function MenuScreen() {
             <View style={styles.versionContainer}>
               <ThemedText style={styles.versionText}>Filmy v1.0.0</ThemedText>
             </View>
-          </>
-        )}
-        keyExtractor={() => 'content'}
-        contentContainerStyle={{ paddingTop: insets.top + 20, paddingBottom: 120 }}
-        showsVerticalScrollIndicator={false}
-      />
+      </Animated.ScrollView>
     </ThemedView>
   );
 }

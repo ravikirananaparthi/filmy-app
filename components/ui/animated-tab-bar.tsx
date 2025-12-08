@@ -1,3 +1,4 @@
+import { useScrollContext } from '@/contexts/scroll-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
@@ -16,10 +17,10 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TAB_BAR_MARGIN = 16;
-const TAB_BAR_HEIGHT = 68;
-const TAB_ITEM_SIZE = 52;
+const TAB_BAR_HEIGHT = 64;
+const TAB_ITEM_SIZE = 48;
 
-// Spring config - optimized for performance
+// Spring config for smooth animations
 const SPRING_CONFIG = {
   damping: 15,
   stiffness: 180,
@@ -49,7 +50,7 @@ const AnimatedTabItem = memo(function AnimatedTabItem({
 
   const containerStyle = useAnimatedStyle(() => {
     return {
-      width: interpolate(progress.value, [0, 1], [TAB_ITEM_SIZE, TAB_ITEM_SIZE + 20], Extrapolation.CLAMP),
+      width: interpolate(progress.value, [0, 1], [TAB_ITEM_SIZE, TAB_ITEM_SIZE + 16], Extrapolation.CLAMP),
       height: TAB_ITEM_SIZE,
     };
   });
@@ -107,16 +108,57 @@ const AnimatedTabItem = memo(function AnimatedTabItem({
   );
 });
 
-// Main TabBar component - NOT wrapped in memo to avoid the "Component is not a function" error
+// Main TabBar component with scroll-coordinated animation
 export function AnimatedTabBar({
   state,
   descriptors,
   navigation,
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { scrollY } = useScrollContext();
+
+  // Animate tab bar based on scroll - coordinated with FAB
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    // Tab bar slides down when scrolling
+    const translateY = interpolate(
+      scrollY.value,
+      [0, 100, 200],
+      [0, 0, 100],
+      Extrapolation.CLAMP
+    );
+
+    const opacity = interpolate(
+      scrollY.value,
+      [0, 100, 200],
+      [1, 1, 0],
+      Extrapolation.CLAMP
+    );
+
+    // Slight scale for depth effect
+    const scale = interpolate(
+      scrollY.value,
+      [0, 100],
+      [1, 0.95],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      transform: [
+        { translateY },
+        { scale },
+      ],
+      opacity,
+    };
+  });
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <Animated.View 
+      style={[
+        styles.container, 
+        { paddingBottom: Math.max(insets.bottom, 8) },
+        animatedContainerStyle,
+      ]}
+    >
       <View style={styles.tabBarWrapper}>
         {/* Background */}
         <View style={styles.background} />
@@ -166,7 +208,7 @@ export function AnimatedTabBar({
                   options.tabBarIcon?.({
                     focused: isFocused,
                     color: iconColor,
-                    size: 22,
+                    size: 17,
                   }) ?? null
                 }
                 label={label}
@@ -177,7 +219,7 @@ export function AnimatedTabBar({
           })}
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -192,17 +234,17 @@ const styles = StyleSheet.create({
   },
   tabBarWrapper: {
     height: TAB_BAR_HEIGHT,
-    borderRadius: 24,
+    borderRadius: 40,
     overflow: 'hidden',
   },
   background: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(15, 15, 25, 0.95)',
-    borderRadius: 24,
+    borderRadius: 40,
   },
   glowBorder: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 24,
+    borderRadius: 40,
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.25)',
   },
@@ -211,18 +253,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 14,
-    paddingHorizontal: 8,
+    borderRadius: 40,
+    paddingHorizontal: 6,
   },
   tabBackground: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#8B5CF6',
-    borderRadius: 14,
+    borderRadius: 40,
   },
   iconContainer: {
     zIndex: 10,
@@ -231,7 +273,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
     color: '#FFFFFF',
-    marginTop: 2,
+    marginTop: 1,
     zIndex: 10,
   },
 });

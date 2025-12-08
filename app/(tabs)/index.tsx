@@ -1,5 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { AnimatedHeader } from '@/components/ui/animated-header';
+import { useScrollContext } from '@/contexts/scroll-context';
 import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
@@ -10,16 +12,12 @@ import {
   View,
 } from 'react-native';
 import Animated, {
-  Extrapolation,
-  interpolate,
   useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const HEADER_HEIGHT = 80;
+const HEADER_HEIGHT = 100;
 const CARD_HEIGHT = 100;
 
 // Color palette for card accents
@@ -104,32 +102,13 @@ const MOCK_DATA = generateMockData();
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const scrollY = useSharedValue(0);
+  const { scrollY } = useScrollContext();
 
+  // Update shared scroll value - this drives FAB and tab bar animations
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
     },
-  });
-
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 100],
-      [0, -20],
-      Extrapolation.CLAMP
-    );
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 50],
-      [1, 0.9],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      transform: [{ translateY }],
-      opacity,
-    };
   });
 
   const handleItemPress = useCallback(() => {
@@ -153,39 +132,34 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {/* Animated Header */}
-      <Animated.View
-        style={[
-          styles.header,
-          { paddingTop: insets.top + 16 },
-          headerAnimatedStyle,
+      {/* Animated Header - reacts to scroll */}
+      <AnimatedHeader
+        title="🎬 Filmy"
+        subtitle="Discover amazing content"
+        scrollY={scrollY}
+      />
+
+      {/* FlashList with scroll handler */}
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: HEADER_HEIGHT + insets.top, paddingBottom: 120 },
         ]}
       >
-        <View style={styles.headerBackground} />
-        <View style={styles.headerContent}>
-          <ThemedText type="title" style={styles.headerTitle}>
-            🎬 Filmy
-          </ThemedText>
-          <ThemedText style={styles.headerSubtitle}>
-            Discover amazing content
-          </ThemedText>
+        <ListHeaderComponent />
+        <View style={styles.flashListContainer}>
+          <FlashList
+            data={MOCK_DATA}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            estimatedItemSize={CARD_HEIGHT + 12}
+            scrollEnabled={false}
+          />
         </View>
-      </Animated.View>
-
-      {/* FlashList v2 */}
-      <FlashList
-        data={MOCK_DATA}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        estimatedItemSize={CARD_HEIGHT + 12}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: HEADER_HEIGHT + insets.top + 24,
-          paddingBottom: 120,
-          paddingHorizontal: 16,
-        }}
-        ListHeaderComponent={ListHeaderComponent}
-      />
+      </Animated.ScrollView>
     </ThemedView>
   );
 }
@@ -195,32 +169,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0F0F19',
   },
-  header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 100,
-    height: HEADER_HEIGHT + 60,
-    paddingHorizontal: 20,
-    justifyContent: 'flex-end',
-    paddingBottom: 16,
+  scrollContent: {
+    paddingHorizontal: 16,
   },
-  headerBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0F0F19',
-  },
-  headerContent: {
-    gap: 4,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
+  flashListContainer: {
+    minHeight: (CARD_HEIGHT + 12) * 45,
   },
   sectionHeader: {
     flexDirection: 'row',
