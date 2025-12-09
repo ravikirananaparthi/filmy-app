@@ -5868,6 +5868,11 @@ react-native-is-edge-to-edge@^1.1.6, react-native-is-edge-to-edge@^1.2.1:
   resolved "https://registry.npmjs.org/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.2.1.tgz"
   integrity sha512-FLbPWl/MyYQWz+KwqOZsSyj2JmLKglHatd3xLZWskXOpRaio4LfEDEz8E/A6uD8QoTHW6Aobw1jbEwK7KMgR7Q==
 
+react-native-motionify@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-motionify/-/react-native-motionify-1.0.1.tgz#4833bf46c83288bb5be861130c3feee0559a6990"
+  integrity sha512-SJE/49CBcU3wnn4jUEFbvcFb+wmXUvI9WifqElDWo+1VsXwDeLVgnDesZbg9avuIGVHK0ajQKfVrUuhHVAnilw==
+
 react-native-reanimated@~4.1.1:
   version "4.1.5"
   resolved "https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-4.1.5.tgz"
