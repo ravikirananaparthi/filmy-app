@@ -28,6 +28,7 @@
     },
     "plugins": [
       "expo-router",
+      "@rnrepo/expo-config-plugin",
       [
         "expo-splash-screen",
         {
@@ -43,7 +44,10 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": true,
+      "buildCacheProvider": {
+        "name": "expo-build-disk-cache"
+      }
     }
   }
 }
