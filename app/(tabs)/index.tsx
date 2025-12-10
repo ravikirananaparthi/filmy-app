@@ -1,34 +1,16 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AnimatedHeader } from '@/components/ui/animated-header';
-import { useScrollContext } from '@/contexts/scroll-context';
-import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import Animated, {
-  useAnimatedScrollHandler,
-} from 'react-native-reanimated';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useMotionify } from 'react-native-motionify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HEADER_HEIGHT = 100;
 const CARD_HEIGHT = 100;
 
-// Color palette for card accents
-const ACCENT_COLORS = [
-  '#8B5CF6',
-  '#EC4899',
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#EF4444',
-];
+const ACCENT_COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
 interface ListItemData {
   id: string;
@@ -37,19 +19,12 @@ interface ListItemData {
   colorIndex: number;
 }
 
-// Memoized list item component for better performance
 const ListItem = memo(function ListItem({ item, onPress }: { item: ListItemData; onPress: () => void }) {
   const accentColor = ACCENT_COLORS[item.colorIndex % ACCENT_COLORS.length];
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      style={styles.listItem}
-    >
-      {/* Left accent bar */}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.listItem}>
       <View style={[styles.cardAccent, { backgroundColor: accentColor }]} />
-      
       <View style={styles.cardContent}>
         <ThemedText style={styles.cardTitle}>{item.title}</ThemedText>
         <ThemedText style={styles.cardSubtitle}>{item.subtitle}</ThemedText>
@@ -64,7 +39,6 @@ const ListItem = memo(function ListItem({ item, onPress }: { item: ListItemData;
   );
 });
 
-// Generate mock data once
 const generateMockData = (): ListItemData[] => {
   const items = [
     { title: 'Welcome to Filmy', subtitle: 'Discover amazing content' },
@@ -87,12 +61,7 @@ const generateMockData = (): ListItemData[] => {
   const result: ListItemData[] = [];
   for (let i = 0; i < 3; i++) {
     items.forEach((item, index) => {
-      result.push({
-        id: `${i}-${index}`,
-        title: item.title,
-        subtitle: item.subtitle,
-        colorIndex: index,
-      });
+      result.push({ id: `${i}-${index}`, title: item.title, subtitle: item.subtitle, colorIndex: index });
     });
   }
   return result;
@@ -102,14 +71,8 @@ const MOCK_DATA = generateMockData();
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const { scrollY } = useScrollContext();
-
-  // Update shared scroll value - this drives FAB and tab bar animations
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
+  // Get onScroll from motionify - this drives FAB and tab bar animations
+  const { onScroll } = useMotionify();
 
   const handleItemPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -132,109 +95,44 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {/* Animated Header - reacts to scroll */}
-      <AnimatedHeader
-        title="🎬 Filmy"
-        subtitle="Discover amazing content"
-        scrollY={scrollY}
-      />
+      {/* Animated Header */}
+      <AnimatedHeader title="🎬 Filmy" subtitle="Discover amazing content" />
 
-      {/* FlashList with scroll handler */}
-      <Animated.ScrollView
-        onScroll={scrollHandler}
+      {/* FlatList with motionify onScroll - drives coordinated animations */}
+      <FlatList
+        data={MOCK_DATA}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingTop: HEADER_HEIGHT + insets.top, paddingBottom: 120 },
         ]}
-      >
-        <ListHeaderComponent />
-        <View style={styles.flashListContainer}>
-          <FlashList
-            data={MOCK_DATA}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            estimatedItemSize={CARD_HEIGHT + 12}
-            scrollEnabled={false}
-          />
-        </View>
-      </Animated.ScrollView>
+        ListHeaderComponent={ListHeaderComponent}
+        removeClippedSubviews={true}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+      />
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0F0F19',
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-  },
-  flashListContainer: {
-    minHeight: (CARD_HEIGHT + 12) * 45,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    color: '#FFFFFF',
-  },
-  seeAll: {
-    color: '#8B5CF6',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  listItem: {
-    height: CARD_HEIGHT,
-    borderRadius: 16,
-    marginBottom: 12,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(30, 30, 45, 0.9)',
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.15)',
-    flexDirection: 'row',
-  },
-  cardAccent: {
-    width: 4,
-    height: '100%',
-  },
-  cardContent: {
-    flex: 1,
-    padding: 14,
-    justifyContent: 'center',
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: 8,
-  },
-  cardMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  timestamp: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
+  container: { flex: 1, backgroundColor: '#0F0F19' },
+  scrollContent: { paddingHorizontal: 16 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  sectionTitle: { color: '#FFFFFF' },
+  seeAll: { color: '#8B5CF6', fontSize: 14, fontWeight: '600' },
+  listItem: { height: CARD_HEIGHT, borderRadius: 16, marginBottom: 12, overflow: 'hidden', backgroundColor: 'rgba(30, 30, 45, 0.9)', borderWidth: 1, borderColor: 'rgba(139, 92, 246, 0.15)', flexDirection: 'row' },
+  cardAccent: { width: 4, height: '100%' },
+  cardContent: { flex: 1, padding: 14, justifyContent: 'center' },
+  cardTitle: { fontSize: 16, fontWeight: '600', color: '#FFFFFF', marginBottom: 4 },
+  cardSubtitle: { fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', marginBottom: 8 },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  badge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10 },
+  badgeText: { fontSize: 10, fontWeight: '600' },
+  timestamp: { fontSize: 11, color: 'rgba(255, 255, 255, 0.4)' },
 });

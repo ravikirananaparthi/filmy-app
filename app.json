@@ -44,10 +44,10 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true,
-      "buildCacheProvider": {
-        "name": "expo-build-disk-cache"
-      }
+      "reactCompiler": true
+    },
+    "buildCacheProvider": {
+      "plugin": "expo-build-disk-cache"
     }
   }
 }

@@ -1,87 +1,22 @@
 import { ThemedText } from '@/components/themed-text';
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, {
-    Extrapolation,
-    interpolate,
-    SharedValue,
-    useAnimatedStyle,
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface AnimatedHeaderProps {
   title: string;
   subtitle?: string;
-  scrollY: SharedValue<number>;
 }
 
+// Simple header without scroll animations for better performance
 export const AnimatedHeader = memo(function AnimatedHeader({
   title,
   subtitle,
-  scrollY,
 }: AnimatedHeaderProps) {
   const insets = useSafeAreaInsets();
 
-  // Header animates based on scroll
-  const animatedStyle = useAnimatedStyle(() => {
-    // Translate up when scrolling
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 100],
-      [0, -30],
-      Extrapolation.CLAMP
-    );
-
-    // Fade slightly when scrolling
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 80],
-      [1, 0.85],
-      Extrapolation.CLAMP
-    );
-
-    // Scale down slightly
-    const scale = interpolate(
-      scrollY.value,
-      [0, 100],
-      [1, 0.95],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      transform: [
-        { translateY },
-        { scale },
-      ],
-      opacity,
-    };
-  });
-
-  // Background blur/fade effect
-  const backgroundStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 50],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      opacity,
-    };
-  });
-
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        { paddingTop: insets.top + 16 },
-        animatedStyle,
-      ]}
-    >
-      {/* Background that fades in on scroll */}
-      <Animated.View style={[styles.background, backgroundStyle]} />
-      
+    <View style={[styles.container, { paddingTop: insets.top + 16 }]}>
       <View style={styles.content}>
         <ThemedText type="title" style={styles.title}>
           {title}
@@ -92,7 +27,7 @@ export const AnimatedHeader = memo(function AnimatedHeader({
           </ThemedText>
         )}
       </View>
-    </Animated.View>
+    </View>
   );
 });
 
@@ -105,10 +40,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
     paddingHorizontal: 20,
     paddingBottom: 16,
-  },
-  background: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 15, 25, 0.9)',
+    backgroundColor: '#0F0F19',
   },
   content: {
     gap: 4,

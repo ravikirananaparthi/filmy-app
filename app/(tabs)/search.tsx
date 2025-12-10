@@ -1,13 +1,11 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AnimatedHeader } from '@/components/ui/animated-header';
-import { useScrollContext } from '@/contexts/scroll-context';
 import { Ionicons } from '@expo/vector-icons';
-import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
+import { FlatList, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { useMotionify } from 'react-native-motionify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface SearchItem { id: string; label: string; }
@@ -43,9 +41,8 @@ export default function SearchScreen() {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const { scrollY } = useScrollContext();
+  const { onScroll } = useMotionify();
 
-  const scrollHandler = useAnimatedScrollHandler({ onScroll: (event) => { scrollY.value = event.contentOffset.y; } });
   const setSearch = useCallback((text: string) => setSearchQuery(text), []);
   const renderChip = useCallback(({ item }: { item: SearchItem }) => <SearchChip label={item.label} onPress={() => setSearch(item.label)} />, [setSearch]);
   const keyExtractor = useCallback((item: SearchItem) => item.id, []);
@@ -53,8 +50,8 @@ export default function SearchScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <AnimatedHeader title="🔍 Search" subtitle="Find your perfect wallpaper" scrollY={scrollY} />
-      <Animated.ScrollView onScroll={scrollHandler} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 100 + insets.top, paddingBottom: 120 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <AnimatedHeader title="🔍 Search" subtitle="Find your perfect wallpaper" />
+      <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 100 + insets.top, paddingBottom: 120 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={[styles.searchContainer, isFocused && styles.searchContainerFocused]}>
           <Ionicons name="search" size={20} color={isFocused ? '#8B5CF6' : 'rgba(255,255,255,0.5)'} />
           <TextInput style={styles.searchInput} placeholder="Search wallpapers..." placeholderTextColor="rgba(255,255,255,0.4)" value={searchQuery} onChangeText={setSearchQuery} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} />
@@ -62,14 +59,14 @@ export default function SearchScreen() {
         </View>
         <View style={styles.section}>
           <View style={styles.sectionHeader}><Ionicons name="time-outline" size={18} color="rgba(255,255,255,0.6)" /><ThemedText type="subtitle" style={styles.sectionTitle}>Recent</ThemedText></View>
-          <View style={styles.flashListContainer}><FlashList horizontal data={recentSearches} renderItem={renderChip} keyExtractor={keyExtractor} estimatedItemSize={100} showsHorizontalScrollIndicator={false} /></View>
+          <FlatList horizontal data={recentSearches} renderItem={renderChip} keyExtractor={keyExtractor} showsHorizontalScrollIndicator={false} />
         </View>
         <View style={styles.section}>
           <View style={styles.sectionHeader}><Ionicons name="trending-up" size={18} color="#EC4899" /><ThemedText type="subtitle" style={styles.sectionTitle}>Trending</ThemedText></View>
-          <View style={styles.flashListContainer}><FlashList horizontal data={trendingSearches} renderItem={renderChip} keyExtractor={keyExtractor} estimatedItemSize={100} showsHorizontalScrollIndicator={false} /></View>
+          <FlatList horizontal data={trendingSearches} renderItem={renderChip} keyExtractor={keyExtractor} showsHorizontalScrollIndicator={false} />
         </View>
         <View style={styles.section}><ThemedText type="subtitle" style={styles.sectionTitle}>Categories</ThemedText><View style={styles.categoryGrid}>{categories.map((cat, i) => <CategoryCard key={cat} name={cat} color={CATEGORY_COLORS[i]} />)}</View></View>
-      </Animated.ScrollView>
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -82,7 +79,6 @@ const styles = StyleSheet.create({
   section: { marginTop: 32, paddingLeft: 20 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
   sectionTitle: { color: '#FFFFFF' },
-  flashListContainer: { height: 44 },
   chip: { backgroundColor: 'rgba(30,30,45,0.9)', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(139,92,246,0.2)', marginRight: 10 },
   chipText: { color: 'rgba(255,255,255,0.8)', fontSize: 14 },
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 8, paddingRight: 20 },

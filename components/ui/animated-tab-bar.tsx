@@ -1,4 +1,3 @@
-import { useScrollContext } from '@/contexts/scroll-context';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
@@ -108,57 +107,12 @@ const AnimatedTabItem = memo(function AnimatedTabItem({
   );
 });
 
-// Main TabBar component with scroll-coordinated animation
-export function AnimatedTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps) {
+// Main TabBar component - used with MotionifyBottomTab
+export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const { scrollY } = useScrollContext();
-
-  // Animate tab bar based on scroll - coordinated with FAB
-  const animatedContainerStyle = useAnimatedStyle(() => {
-    // Tab bar slides down when scrolling
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 100, 200],
-      [0, 0, 100],
-      Extrapolation.CLAMP
-    );
-
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 100, 200],
-      [1, 1, 0],
-      Extrapolation.CLAMP
-    );
-
-    // Slight scale for depth effect
-    const scale = interpolate(
-      scrollY.value,
-      [0, 100],
-      [1, 0.95],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      transform: [
-        { translateY },
-        { scale },
-      ],
-      opacity,
-    };
-  });
 
   return (
-    <Animated.View 
-      style={[
-        styles.container, 
-        { paddingBottom: Math.max(insets.bottom, 8) },
-        animatedContainerStyle,
-      ]}
-    >
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       <View style={styles.tabBarWrapper}>
         {/* Background */}
         <View style={styles.background} />
@@ -219,18 +173,15 @@ export function AnimatedTabBar({
           })}
         </View>
       </View>
-    </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     paddingHorizontal: TAB_BAR_MARGIN,
     paddingTop: 8,
+    backgroundColor: 'transparent', // Transparent so content shows through
   },
   tabBarWrapper: {
     height: TAB_BAR_HEIGHT,

@@ -1,13 +1,11 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AnimatedHeader } from '@/components/ui/animated-header';
-import { useScrollContext } from '@/contexts/scroll-context';
 import { Ionicons } from '@expo/vector-icons';
-import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
+import { Dimensions, FlatList, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useMotionify } from 'react-native-motionify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -31,12 +29,8 @@ const TrendingCard = memo(function TrendingCard({ item }: { item: TrendingItem }
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8} style={[styles.trendingCard, { backgroundColor }]}>
       <View style={styles.trendingCardContent}>
-        <View style={styles.rankBadge}>
-          <ThemedText style={styles.rankText}>#{item.rank}</ThemedText>
-        </View>
-        <View style={styles.playButton}>
-          <Ionicons name="play" size={24} color="#FFFFFF" />
-        </View>
+        <View style={styles.rankBadge}><ThemedText style={styles.rankText}>#{item.rank}</ThemedText></View>
+        <View style={styles.playButton}><Ionicons name="play" size={24} color="#FFFFFF" /></View>
         <View style={styles.cardInfo}>
           <ThemedText style={styles.cardCategory}>{item.category}</ThemedText>
           <ThemedText style={styles.cardTitle}>{item.title}</ThemedText>
@@ -59,21 +53,17 @@ const trendingData: TrendingItem[] = [
 
 export default function TrendingScreen() {
   const insets = useSafeAreaInsets();
-  const { scrollY } = useScrollContext();
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => { scrollY.value = event.contentOffset.y; },
-  });
+  const { onScroll } = useMotionify();
 
   const renderItem = useCallback(({ item }: { item: TrendingItem }) => <TrendingCard item={item} />, []);
   const keyExtractor = useCallback((item: TrendingItem) => item.id, []);
 
   return (
     <ThemedView style={styles.container}>
-      <AnimatedHeader title="🔥 Trending" subtitle="What's hot right now" scrollY={scrollY} />
-      <Animated.ScrollView onScroll={scrollHandler} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 100 + insets.top, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+      <AnimatedHeader title="🔥 Trending" subtitle="What's hot right now" />
+      <ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: 100 + insets.top, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         <View style={styles.flashListContainer}>
-          <FlashList horizontal data={trendingData} renderItem={renderItem} keyExtractor={keyExtractor} estimatedItemSize={CARD_WIDTH + 16} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }} />
+          <FlatList horizontal data={trendingData} renderItem={renderItem} keyExtractor={keyExtractor} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }} />
         </View>
         <View style={styles.statsSection}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>This Week</ThemedText>
@@ -83,7 +73,7 @@ export default function TrendingScreen() {
             <View style={styles.statCard}><ThemedText style={styles.statValue}>45K</ThemedText><ThemedText style={styles.statLabel}>Shares</ThemedText></View>
           </View>
         </View>
-      </Animated.ScrollView>
+      </ScrollView>
     </ThemedView>
   );
 }

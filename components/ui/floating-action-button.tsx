@@ -1,60 +1,25 @@
-import { useScrollContext } from '@/contexts/scroll-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
-    Extrapolation,
-    interpolate,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SPRING_CONFIG = {
   damping: 15,
   stiffness: 150,
 };
 
+// Simple FAB component - motionify handles the scroll hide/show
 export const FloatingActionButton = memo(function FloatingActionButton() {
-  const insets = useSafeAreaInsets();
-  const { scrollY } = useScrollContext();
   const scale = useSharedValue(1);
 
-  // Animate based on scroll - hide when scrolling down
-  const animatedStyle = useAnimatedStyle(() => {
-    // FAB slides down and fades when scrolling
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 100, 200],
-      [0, 0, 100],
-      Extrapolation.CLAMP
-    );
-
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 100, 200],
-      [1, 1, 0],
-      Extrapolation.CLAMP
-    );
-
-    // Scale animation for morphing effect
-    const fabScale = interpolate(
-      scrollY.value,
-      [0, 50],
-      [1, 0.9],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      transform: [
-        { translateY },
-        { scale: fabScale * scale.value },
-      ],
-      opacity,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const handlePressIn = useCallback(() => {
     scale.value = withSpring(0.9, SPRING_CONFIG);
@@ -66,17 +31,11 @@ export const FloatingActionButton = memo(function FloatingActionButton() {
 
   const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Add your filter/compose action here
+    // Add your filter/action here
   }, []);
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        { bottom: 100 + insets.bottom },
-        animatedStyle,
-      ]}
-    >
+    <Animated.View style={[styles.container, animatedStyle]}>
       <Pressable
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
@@ -93,9 +52,7 @@ export const FloatingActionButton = memo(function FloatingActionButton() {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    right: 20,
-    zIndex: 100,
+    // Position is handled by MotionifyView wrapper in _layout.tsx
   },
   button: {
     width: 56,
