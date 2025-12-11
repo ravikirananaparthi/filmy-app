@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AnimatedHeader } from '@/components/ui/animated-header';
+import { Theme } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
@@ -10,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH * 0.7;
-const CARD_COLORS = ['#EC4899', '#8B5CF6', '#3B82F6', '#10B981'];
+const CARD_COLORS = [Theme.palette.accent, Theme.palette.primary, Theme.palette.primaryDark, Theme.palette.primaryLight];
 
 interface TrendingItem {
   id: string;
@@ -30,12 +31,12 @@ const TrendingCard = memo(function TrendingCard({ item }: { item: TrendingItem }
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8} style={[styles.trendingCard, { backgroundColor }]}>
       <View style={styles.trendingCardContent}>
         <View style={styles.rankBadge}><ThemedText style={styles.rankText}>#{item.rank}</ThemedText></View>
-        <View style={styles.playButton}><Ionicons name="play" size={24} color="#FFFFFF" /></View>
+        <View style={styles.playButton}><Ionicons name="play" size={24} color={Theme.colors.text.primary} /></View>
         <View style={styles.cardInfo}>
           <ThemedText style={styles.cardCategory}>{item.category}</ThemedText>
           <ThemedText style={styles.cardTitle}>{item.title}</ThemedText>
           <View style={styles.ratingRow}>
-            <Ionicons name="star" size={14} color="#FBBF24" />
+            <Ionicons name="star" size={14} color={Theme.colors.status.warning} />
             <ThemedText style={styles.ratingText}>{item.rating}</ThemedText>
           </View>
         </View>
@@ -79,22 +80,22 @@ export default function TrendingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F19' },
+  container: { flex: 1, backgroundColor: Theme.colors.background.dark },
   flashListContainer: { height: 216 },
   trendingCard: { width: CARD_WIDTH, height: 200, borderRadius: 24, overflow: 'hidden', marginRight: 16 },
   trendingCardContent: { flex: 1, padding: 20, justifyContent: 'space-between' },
-  rankBadge: { position: 'absolute', top: 16, left: 16, backgroundColor: 'rgba(0,0,0,0.3)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  rankText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 },
-  playButton: { position: 'absolute', top: '50%', left: '50%', marginLeft: -24, marginTop: -24, width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
+  rankBadge: { position: 'absolute', top: 16, left: 16, backgroundColor: Theme.colors.overlay.dark, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  rankText: { color: Theme.colors.text.primary, fontWeight: 'bold', fontSize: 14 },
+  playButton: { position: 'absolute', top: '50%', left: '50%', marginLeft: -24, marginTop: -24, width: 48, height: 48, borderRadius: 24, backgroundColor: Theme.colors.overlay.medium, justifyContent: 'center', alignItems: 'center' },
   cardInfo: { marginTop: 'auto' },
-  cardCategory: { color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
-  cardTitle: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', marginTop: 4 },
+  cardCategory: { color: Theme.colors.text.secondary, fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
+  cardTitle: { color: Theme.colors.text.primary, fontSize: 20, fontWeight: 'bold', marginTop: 4 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
-  ratingText: { color: '#FBBF24', fontSize: 14, fontWeight: '600' },
+  ratingText: { color: Theme.colors.status.warning, fontSize: 14, fontWeight: '600' },
   statsSection: { marginTop: 32, paddingHorizontal: 20 },
-  sectionTitle: { color: '#FFFFFF', marginBottom: 16 },
+  sectionTitle: { color: Theme.colors.text.primary, marginBottom: 16 },
   statsGrid: { flexDirection: 'row', gap: 12 },
-  statCard: { flex: 1, height: 100, borderRadius: 20, backgroundColor: 'rgba(30,30,45,0.8)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(139,92,246,0.2)' },
-  statValue: { color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' },
-  statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 4 },
+  statCard: { flex: 1, height: 100, borderRadius: 20, backgroundColor: Theme.colors.background.surface.dark, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: `${Theme.palette.primary}33` },
+  statValue: { color: Theme.colors.text.primary, fontSize: 24, fontWeight: 'bold' },
+  statLabel: { color: Theme.colors.text.secondary, fontSize: 12, marginTop: 4 },
 });
