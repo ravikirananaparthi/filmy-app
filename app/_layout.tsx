@@ -1,11 +1,12 @@
+import { Theme } from '@/constants/theme';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-// If you’re loading custom fonts later, keep this ready
+// If you're loading custom fonts later, keep this ready
 // import { useFonts } from 'expo-font';
 
 export default function RootLayout() {
@@ -19,14 +20,14 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider value={DarkTheme}>
-          <View style={{ flex: 1, backgroundColor: '#0B0B10' }}>
+          <View style={{ flex: 1, backgroundColor: Theme.colors.background.dark }}>
             <StatusBar style="light" />
             <Stack
               screenOptions={{
                 headerShown: false,
                 animation: 'fade',
                 contentStyle: {
-                  backgroundColor: '#0B0B10',
+                  backgroundColor: Theme.colors.background.dark,
                 },
               }}
             >
