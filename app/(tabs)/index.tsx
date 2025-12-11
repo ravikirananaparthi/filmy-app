@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AnimatedHeader } from '@/components/ui/animated-header';
+import { Theme } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -10,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const HEADER_HEIGHT = 100;
 const CARD_HEIGHT = 100;
 
-const ACCENT_COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+const ACCENT_COLORS = [Theme.palette.primary, Theme.palette.accent, Theme.palette.primaryDark, Theme.palette.primaryLight, Theme.palette.muted, Theme.colors.status.error];
 
 interface ListItemData {
   id: string;
@@ -121,18 +122,18 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F19' },
+  container: { flex: 1, backgroundColor: Theme.colors.background.dark },
   scrollContent: { paddingHorizontal: 16 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  sectionTitle: { color: '#FFFFFF' },
-  seeAll: { color: '#8B5CF6', fontSize: 14, fontWeight: '600' },
-  listItem: { height: CARD_HEIGHT, borderRadius: 16, marginBottom: 12, overflow: 'hidden', backgroundColor: 'rgba(30, 30, 45, 0.9)', borderWidth: 1, borderColor: 'rgba(139, 92, 246, 0.15)', flexDirection: 'row' },
+  sectionTitle: { color: Theme.colors.text.primary },
+  seeAll: { color: Theme.palette.primary, fontSize: 14, fontWeight: '600' },
+  listItem: { height: CARD_HEIGHT, borderRadius: 16, marginBottom: 12, overflow: 'hidden', backgroundColor: Theme.colors.background.surface.dark, borderWidth: 1, borderColor: `${Theme.palette.primary}25`, flexDirection: 'row' },
   cardAccent: { width: 4, height: '100%' },
   cardContent: { flex: 1, padding: 14, justifyContent: 'center' },
-  cardTitle: { fontSize: 16, fontWeight: '600', color: '#FFFFFF', marginBottom: 4 },
-  cardSubtitle: { fontSize: 13, color: 'rgba(255, 255, 255, 0.6)', marginBottom: 8 },
+  cardTitle: { fontSize: 16, fontWeight: '600', color: Theme.colors.text.primary, marginBottom: 4 },
+  cardSubtitle: { fontSize: 13, color: Theme.colors.text.secondary, marginBottom: 8 },
   cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   badge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10 },
   badgeText: { fontSize: 10, fontWeight: '600' },
-  timestamp: { fontSize: 11, color: 'rgba(255, 255, 255, 0.4)' },
+  timestamp: { fontSize: 11, color: Theme.colors.text.muted },
 });
