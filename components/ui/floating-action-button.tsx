@@ -1,13 +1,13 @@
+import { Theme } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from 'react-native-reanimated';
-
 const SPRING_CONFIG = {
   damping: 15,
   stiffness: 150,
@@ -43,7 +43,7 @@ export const FloatingActionButton = memo(function FloatingActionButton() {
         style={styles.button}
       >
         <View style={styles.gradient}>
-          <Ionicons name="filter" size={24} color="#FFFFFF" />
+          <Ionicons name="filter" size={24} color={Theme.colors.text.primary} />
         </View>
       </Pressable>
     </Animated.View>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     // Shadow
-    shadowColor: '#8B5CF6',
+    shadowColor: Theme.colors.background.light,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Theme.colors.background.light,
     justifyContent: 'center',
     alignItems: 'center',
   },
