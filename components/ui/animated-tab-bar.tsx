@@ -1,3 +1,4 @@
+import { Theme } from '@/constants/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
@@ -98,10 +99,6 @@ const AnimatedTabItem = memo(function AnimatedTabItem({
           {icon}
         </Animated.View>
 
-        {/* Label */}
-        {focused && (
-          <Animated.Text style={[styles.label, labelStyle]}>{label}</Animated.Text>
-        )}
       </Animated.View>
     </TouchableOpacity>
   );
@@ -112,11 +109,11 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
       <View style={styles.tabBarWrapper}>
         {/* Background */}
         <View style={styles.background} />
-        
+
         {/* Border glow */}
         <View style={styles.glowBorder} />
 
@@ -128,8 +125,8 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
               options.tabBarLabel !== undefined
                 ? String(options.tabBarLabel)
                 : options.title !== undefined
-                ? options.title
-                : route.name;
+                  ? options.title
+                  : route.name;
 
             const isFocused = state.index === index;
 
@@ -152,7 +149,7 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
               });
             };
 
-            const iconColor = isFocused ? '#FFFFFF' : 'rgba(156, 163, 175, 0.8)';
+            const iconColor = isFocused ? Theme.colors.text.primary : Theme.colors.text.tertiary;
 
             return (
               <AnimatedTabItem
@@ -190,31 +187,31 @@ const styles = StyleSheet.create({
   },
   background: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 15, 25, 0.95)',
+    backgroundColor: `${Theme.colors.background.surface.dark}F2`, // 95% opacity
     borderRadius: 40,
   },
   glowBorder: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 40,
     borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.25)',
+    borderColor: `${Theme.palette.primary}40`,
   },
   tabBarContent: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 40,
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
   },
   tabBackground: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#8B5CF6',
+    backgroundColor: Theme.palette.primary,
     borderRadius: 40,
   },
   iconContainer: {
@@ -223,7 +220,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: Theme.colors.text.primary,
     marginTop: 1,
     zIndex: 10,
   },
