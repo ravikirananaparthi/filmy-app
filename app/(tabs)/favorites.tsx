@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { AnimatedHeader } from '@/components/ui/animated-header';
+import { Theme } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
@@ -10,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 52) / 2;
-const CARD_COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+const CARD_COLORS = [Theme.palette.primary, Theme.palette.accent, Theme.palette.primaryDark, Theme.palette.primaryLight, Theme.palette.muted, Theme.colors.status.error];
 
 interface FavoriteItem {
   id: string;
@@ -27,14 +28,14 @@ const FavoriteCard = memo(function FavoriteCard({ item }: { item: FavoriteItem }
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.8} style={styles.favoriteCard}>
       <View style={[styles.cardImagePlaceholder, { backgroundColor }]}>
-        <View style={styles.playButton}><Ionicons name="expand-outline" size={20} color="#FFFFFF" /></View>
-        <View style={styles.favoriteBadge}><Ionicons name="heart" size={14} color="#EC4899" /></View>
+        <View style={styles.playButton}><Ionicons name="expand-outline" size={20} color={Theme.colors.text.primary} /></View>
+        <View style={styles.favoriteBadge}><Ionicons name="heart" size={14} color={Theme.palette.accent} /></View>
       </View>
       <View style={styles.cardInfo}>
         <ThemedText style={styles.cardCategory}>{item.category}</ThemedText>
         <ThemedText style={styles.cardTitle} numberOfLines={1}>{item.title}</ThemedText>
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={12} color="#FBBF24" />
+          <Ionicons name="star" size={12} color={Theme.colors.status.warning} />
           <ThemedText style={styles.ratingText}>{item.rating}</ThemedText>
         </View>
       </View>
@@ -97,20 +98,20 @@ export default function FavoritesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F19' },
-  statsBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingVertical: 16, borderRadius: 20, backgroundColor: 'rgba(30,30,45,0.8)', borderWidth: 1, borderColor: 'rgba(139,92,246,0.2)', marginBottom: 20 },
+  container: { flex: 1, backgroundColor: Theme.colors.background.dark },
+  statsBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingVertical: 16, borderRadius: 20, backgroundColor: Theme.colors.background.surface.dark, borderWidth: 1, borderColor: `${Theme.palette.primary}33`, marginBottom: 20 },
   statItem: { alignItems: 'center' },
-  statValue: { color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' },
-  statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 2 },
-  statDivider: { width: 1, height: 30, backgroundColor: 'rgba(139,92,246,0.3)' },
+  statValue: { color: Theme.colors.text.primary, fontSize: 20, fontWeight: 'bold' },
+  statLabel: { color: Theme.colors.text.secondary, fontSize: 12, marginTop: 2 },
+  statDivider: { width: 1, height: 30, backgroundColor: `${Theme.palette.primary}4D` },
   columnWrapper: { gap: 16, marginBottom: 16 },
-  favoriteCard: { width: CARD_WIDTH, borderRadius: 20, overflow: 'hidden', backgroundColor: 'rgba(30,30,45,0.8)', borderWidth: 1, borderColor: 'rgba(139,92,246,0.2)' },
+  favoriteCard: { width: CARD_WIDTH, borderRadius: 20, overflow: 'hidden', backgroundColor: Theme.colors.background.surface.dark, borderWidth: 1, borderColor: `${Theme.palette.primary}33` },
   cardImagePlaceholder: { height: 140, justifyContent: 'center', alignItems: 'center' },
-  playButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
-  favoriteBadge: { position: 'absolute', top: 10, right: 10, width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
+  playButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: Theme.colors.overlay.dark, justifyContent: 'center', alignItems: 'center' },
+  favoriteBadge: { position: 'absolute', top: 10, right: 10, width: 28, height: 28, borderRadius: 14, backgroundColor: Theme.colors.overlay.dark, justifyContent: 'center', alignItems: 'center' },
   cardInfo: { padding: 12 },
-  cardCategory: { color: 'rgba(255,255,255,0.6)', fontSize: 11, textTransform: 'uppercase', fontWeight: '600' },
-  cardTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '600', marginTop: 2 },
+  cardCategory: { color: Theme.colors.text.secondary, fontSize: 11, textTransform: 'uppercase', fontWeight: '600' },
+  cardTitle: { color: Theme.colors.text.primary, fontSize: 14, fontWeight: '600', marginTop: 2 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
-  ratingText: { color: '#FBBF24', fontSize: 12, fontWeight: '600' },
+  ratingText: { color: Theme.colors.status.warning, fontSize: 12, fontWeight: '600' },
 });
