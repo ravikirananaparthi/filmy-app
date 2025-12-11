@@ -1,6 +1,5 @@
 import { AnimatedTabBar } from '@/components/ui/animated-tab-bar';
-import { FloatingActionButton } from '@/components/ui/floating-action-button';
-import { Colors } from '@/constants/theme';
+import { Theme } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
@@ -17,7 +16,7 @@ function TabLayoutContent() {
     <View style={styles.container}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          tabBarActiveTintColor: colorScheme === 'dark' ? Theme.palette.primaryLight : Theme.palette.primary,
           headerShown: false,
           tabBarStyle: styles.hiddenTabBar,
         }}
@@ -73,7 +72,7 @@ function TabLayoutContent() {
       </Tabs>
 
       {/* Floating Action Button - fades and scales down when scrolling */}
-      <MotionifyView
+      {/* <MotionifyView
         animatedY
         fadeScale
         hideOn="down"
@@ -82,7 +81,7 @@ function TabLayoutContent() {
         style={[styles.fabContainer, { bottom: 100 + insets.bottom }]}
       >
         <FloatingActionButton />
-      </MotionifyView>
+      </MotionifyView> */}
     </View>
   );
 }
