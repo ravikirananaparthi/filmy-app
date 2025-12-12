@@ -1,123 +1,143 @@
+import {
+  FavoritesIcon,
+  FavoritesIconUF,
+  HomeIcon,
+  HomeIconUF,
+  MenuIcon,
+  MenuIconUF,
+  SearchIcon,
+  SearchIconUF,
+  TrendingIcon,
+  TrendingIconUF,
+} from '@/components/icons/tab-bar';
 import { Theme } from '@/constants/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect } from 'react';
 import {
+  Dimensions,
+  Pressable,
   StyleSheet,
-  TouchableOpacity,
+  useColorScheme,
   View,
 } from 'react-native';
 import Animated, {
-  Extrapolation,
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const TAB_BAR_MARGIN = 16;
-const TAB_BAR_HEIGHT = 64;
-const TAB_ITEM_SIZE = 48;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const TAB_BAR_MARGIN = 20; // Reduced margin for wider bar
+const TAB_BAR_HEIGHT = 62;
+const TAB_COUNT = 5;
+const TAB_BAR_WIDTH = SCREEN_WIDTH - TAB_BAR_MARGIN * 2;
 
-// Spring config for smooth animations
+const TAB_ITEM_WIDTH = TAB_BAR_WIDTH / TAB_COUNT;
+const INDICATOR_SIZE = 50;
+const INDICATOR_PADDING = (TAB_ITEM_WIDTH - INDICATOR_SIZE) / 2;
+
+// Spring config for smooth, snappy animations
 const SPRING_CONFIG = {
-  damping: 15,
-  stiffness: 180,
-  mass: 0.5,
+  damping: 25,
+  stiffness: 250,
+  mass: 0.8,
 };
 
-interface AnimatedTabItemProps {
-  focused: boolean;
-  icon: React.ReactNode;
-  label: string;
+// Icon mapping for filled and unfilled states
+const TAB_ICONS: Record<string, { filled: React.FC<any>; unfilled: React.FC<any> }> = {
+  index: { filled: HomeIcon, unfilled: HomeIconUF },
+  trending: { filled: TrendingIcon, unfilled: TrendingIconUF },
+  search: { filled: SearchIcon, unfilled: SearchIconUF },
+  favorites: { filled: FavoritesIcon, unfilled: FavoritesIconUF },
+  menu: { filled: MenuIcon, unfilled: MenuIconUF },
+};
+
+interface TabItemProps {
+  routeName: string;
+  isFocused: boolean;
   onPress: () => void;
   onLongPress: () => void;
+  label: string;
 }
 
-const AnimatedTabItem = memo(function AnimatedTabItem({
-  focused,
-  icon,
-  label,
+const TabItem = memo(function TabItem({
+  routeName,
+  isFocused,
   onPress,
   onLongPress,
-}: AnimatedTabItemProps) {
-  const progress = useSharedValue(focused ? 1 : 0);
-
-  React.useEffect(() => {
-    progress.value = withSpring(focused ? 1 : 0, SPRING_CONFIG);
-  }, [focused, progress]);
-
-  const containerStyle = useAnimatedStyle(() => {
-    return {
-      width: interpolate(progress.value, [0, 1], [TAB_ITEM_SIZE, TAB_ITEM_SIZE + 16], Extrapolation.CLAMP),
-      height: TAB_ITEM_SIZE,
-    };
-  });
-
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: interpolate(progress.value, [0, 1], [1, 1.1], Extrapolation.CLAMP) },
-      { translateY: interpolate(progress.value, [0, 1], [0, -2], Extrapolation.CLAMP) },
-    ],
-  }));
-
-  const labelStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [
-      { scale: interpolate(progress.value, [0, 1], [0.8, 1], Extrapolation.CLAMP) },
-    ],
-  }));
-
-  const backgroundStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [
-      { scale: interpolate(progress.value, [0, 1], [0.9, 1], Extrapolation.CLAMP) },
-    ],
-  }));
+  label,
+}: TabItemProps) {
+  const colorScheme = useColorScheme();
 
   const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onPress();
   }, [onPress]);
 
+  // Get the appropriate icon component
+  const iconConfig = TAB_ICONS[routeName];
+  if (!iconConfig) return null;
+
+  const IconComponent = isFocused ? iconConfig.filled : iconConfig.unfilled;
+
+  // Icon colors - Reference shows White for active, Grey for inactive
+  const iconColor = '#FFFFFF';
+
   return (
-    <TouchableOpacity
+    <Pressable
       accessibilityRole="button"
-      accessibilityState={focused ? { selected: true } : {}}
+      accessibilityState={isFocused ? { selected: true } : {}}
       accessibilityLabel={label}
       onPress={handlePress}
       onLongPress={onLongPress}
-      activeOpacity={0.8}
+      style={styles.tabItem}
     >
-      <Animated.View style={[styles.tabItem, containerStyle]}>
-        {/* Background */}
-        <Animated.View style={[styles.tabBackground, backgroundStyle]} />
-
-        {/* Icon */}
-        <Animated.View style={[styles.iconContainer, iconStyle]}>
-          {icon}
-        </Animated.View>
-
-      </Animated.View>
-    </TouchableOpacity>
+      <IconComponent size={24} color={iconColor} />
+    </Pressable>
   );
 });
 
-// Main TabBar component - used with MotionifyBottomTab
 export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const colorScheme = useColorScheme();
+  // Reference implies dark bar in BOTH modes
+  const isDark = true;
+
+  // Animated position of the sliding indicator
+  const indicatorPosition = useSharedValue(state.index * TAB_ITEM_WIDTH + INDICATOR_PADDING);
+
+  // Update indicator position when tab changes
+  useEffect(() => {
+    indicatorPosition.value = withSpring(
+      state.index * TAB_ITEM_WIDTH + INDICATOR_PADDING,
+      SPRING_CONFIG
+    );
+  }, [state.index, indicatorPosition]);
+
+  // Animated style for the sliding indicator
+  const indicatorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: indicatorPosition.value }],
+  }));
+
+  // Theme overrides for the specific "Artistry" look
+  const tabBarBackground = '#121212'; // Deep matte black
+  const indicatorColor = Theme.palette.primary; // User requested primary color
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-      <View style={styles.tabBarWrapper}>
-        {/* Background */}
-        <View style={styles.background} />
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+      <View style={[styles.tabBarWrapper, { backgroundColor: tabBarBackground }]}>
+        {/* Sliding Indicator */}
+        <Animated.View
+          style={[
+            styles.indicator,
+            indicatorStyle,
+            { backgroundColor: indicatorColor },
+          ]}
+        />
 
-        {/* Border glow */}
-        <View style={styles.glowBorder} />
-
-        {/* Tab items */}
+        {/* Tab Items */}
         <View style={styles.tabBarContent}>
           {state.routes.map((route, index) => {
             const { options } = descriptors[route.key];
@@ -149,22 +169,14 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
               });
             };
 
-            const iconColor = isFocused ? Theme.colors.text.primary : Theme.colors.text.tertiary;
-
             return (
-              <AnimatedTabItem
+              <TabItem
                 key={route.key}
-                focused={isFocused}
-                icon={
-                  options.tabBarIcon?.({
-                    focused: isFocused,
-                    color: iconColor,
-                    size: 17,
-                  }) ?? null
-                }
-                label={label}
+                routeName={route.name}
+                isFocused={isFocused}
                 onPress={onPress}
                 onLongPress={onLongPress}
+                label={label}
               />
             );
           })}
@@ -177,51 +189,42 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: TAB_BAR_MARGIN,
-    paddingTop: 8,
-    backgroundColor: 'transparent', // Transparent so content shows through
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    width: '100%',
   },
   tabBarWrapper: {
+    width: TAB_BAR_WIDTH,
     height: TAB_BAR_HEIGHT,
-    borderRadius: 40,
+    borderRadius: TAB_BAR_HEIGHT / 2, // Full pill shape
     overflow: 'hidden',
+    position: 'relative',
+    // Strong shadow for floating effect
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 20,
   },
-  background: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: `${Theme.colors.background.surface.dark}F2`, // 95% opacity
-    borderRadius: 40,
-  },
-  glowBorder: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: `${Theme.palette.primary}40`,
+  indicator: {
+    position: 'absolute',
+    width: INDICATOR_SIZE,
+    height: INDICATOR_SIZE,
+    borderRadius: INDICATOR_SIZE / 2, // Circular
+    top: (TAB_BAR_HEIGHT - INDICATOR_SIZE) / 2,
+    left: 0,
+    // Add internal shadow/gradient effect if needed, but flat is cleaner often
   },
   tabBarContent: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 4,
   },
   tabItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 40,
-    paddingHorizontal: 4,
-  },
-  tabBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: Theme.palette.primary,
-    borderRadius: 40,
-  },
-  iconContainer: {
-    zIndex: 10,
-  },
-  label: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: Theme.colors.text.primary,
-    marginTop: 1,
-    zIndex: 10,
+    height: TAB_BAR_HEIGHT,
   },
 });
