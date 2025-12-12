@@ -5,7 +5,6 @@ import { Theme } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useMotionify } from 'react-native-motionify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HEADER_HEIGHT = 100;
@@ -72,8 +71,6 @@ const MOCK_DATA = generateMockData();
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  // Get onScroll from motionify - this drives FAB and tab bar animations
-  const { onScroll } = useMotionify();
 
   const handleItemPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -104,7 +101,6 @@ export default function HomeScreen() {
         data={MOCK_DATA}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
