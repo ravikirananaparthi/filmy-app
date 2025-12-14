@@ -1,4 +1,4 @@
-import { AnimatedTabBar } from '@/components/ui/animated-tab-bar';
+import { AnimatedTabBar } from '@components/ui/animated-tab-bar';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
