@@ -403,7 +403,7 @@ export type ColorPalette = typeof ColorPalettes[ColorPaletteName];
 // DEFAULT ACTIVE PALETTE (Change this to switch palettes easily)
 // =============================================================================
 
-export const ActivePalette = ColorPalettes.arcticCyan;
+export const ActivePalette = ColorPalettes.neonPurple;
 
 // =============================================================================
 // COMMON UI COLORS (Palette-agnostic, for consistency)
@@ -415,7 +415,7 @@ export const UIColors = {
   warning: '#F59E0B',
   error: '#EF4444',
   info: '#3B82F6',
-  
+
   // Text colors for dark mode
   text: {
     primary: '#FFFFFF',
@@ -424,7 +424,7 @@ export const UIColors = {
     muted: '#52525B',
     inverse: '#18181B',
   },
-  
+
   // Text colors for light mode
   textLight: {
     primary: '#18181B',
@@ -433,13 +433,13 @@ export const UIColors = {
     muted: '#A1A1AA',
     inverse: '#FFFFFF',
   },
-  
+
   // Borders & dividers
   border: {
     dark: '#27272A',
     light: '#E4E4E7',
   },
-  
+
   // Overlays
   overlay: {
     light: 'rgba(255, 255, 255, 0.1)',
@@ -447,7 +447,7 @@ export const UIColors = {
     dark: 'rgba(0, 0, 0, 0.5)',
     heavy: 'rgba(0, 0, 0, 0.8)',
   },
-  
+
   // Glass effect backgrounds
   glass: {
     dark: 'rgba(255, 255, 255, 0.05)',
