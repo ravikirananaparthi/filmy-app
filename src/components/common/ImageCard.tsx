@@ -3,14 +3,7 @@ import { Theme } from '@constants/theme';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
 import { LikeButton } from './LikeButton';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface ImageCardProps {
     image: ImageType;
@@ -35,27 +28,6 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     // Calculate height based on aspect ratio
     const imageHeight = columnWidth / (image.aspect_ratio || 0.75);
 
-    // Press animation
-    const scale = useSharedValue(1);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
-
-    const handlePressIn = useCallback(() => {
-        scale.value = withSpring(0.97, {
-            damping: 15,
-            stiffness: 300,
-        });
-    }, [scale]);
-
-    const handlePressOut = useCallback(() => {
-        scale.value = withSpring(1, {
-            damping: 12,
-            stiffness: 200,
-        });
-    }, [scale]);
-
     const handlePress = useCallback(() => {
         onPress(image.id);
     }, [image.id, onPress]);
@@ -73,11 +45,12 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
         : Theme.colors.textLight.primary;
 
     return (
-        <AnimatedPressable
-            style={[styles.container, animatedStyle]}
+        <Pressable
+            style={({ pressed }) => [
+                styles.container,
+                pressed && styles.pressed, // Minimal press effect
+            ]}
             onPress={handlePress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
         >
             <View style={[styles.card, { backgroundColor: cardBackground }]}>
                 {/* Image */}
@@ -87,18 +60,15 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                         style={styles.image}
                         placeholder={{ blurhash: image.blurhash }}
                         contentFit="cover"
-                        transition={300}
+                        transition={200}
                         cachePolicy="disk"
-                        priority="high"
+                        recyclingKey={image.id}
                     />
 
                     {/* Like Button */}
                     <View style={styles.likeButtonContainer}>
-                        <LikeButton isLiked={isLiked} onPress={handleLike} size={36} />
+                        <LikeButton isLiked={isLiked} onPress={handleLike} size={32} />
                     </View>
-
-                    {/* Gradient overlay for better text readability */}
-                    <View style={styles.gradientOverlay} />
                 </View>
 
                 {/* Actress Name */}
@@ -110,7 +80,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                     </View>
                 )}
             </View>
-        </AnimatedPressable>
+        </Pressable>
     );
 });
 
@@ -119,12 +89,15 @@ ImageCard.displayName = 'ImageCard';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 6,
+        padding: 4,
+    },
+    pressed: {
+        opacity: 0.9, // Minimal press feedback
     },
     card: {
         borderRadius: Theme.radius.lg,
         overflow: 'hidden',
-        ...Theme.shadows.md,
+        ...Theme.shadows.sm,
     },
     imageContainer: {
         width: '100%',
@@ -138,26 +111,17 @@ const styles = StyleSheet.create({
     },
     likeButtonContainer: {
         position: 'absolute',
-        top: 8,
-        right: 8,
+        top: 6,
+        right: 6,
         zIndex: 10,
     },
-    gradientOverlay: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: 40,
-        background: 'linear-gradient(transparent, rgba(0,0,0,0.3))',
-    },
     infoContainer: {
-        paddingHorizontal: 10,
-        paddingVertical: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 6,
     },
     actressName: {
-        fontSize: 13,
-        fontWeight: '600',
-        letterSpacing: 0.2,
+        fontSize: 12,
+        fontWeight: '500',
     },
 });
 
