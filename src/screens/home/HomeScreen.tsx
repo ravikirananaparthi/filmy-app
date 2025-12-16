@@ -67,11 +67,14 @@ export default function HomeScreen() {
     // Flatten feed pages
     const feedData = useMemo(() => flattenFeedPages(data), [data]);
 
-    // Extract actress names from feed (would ideally come from API)
+    // Extract actress names from feed
     const actressNames = useMemo(() => {
         const names: Record<string, string> = {};
-        // In real implementation, this would come from the API response
-        // For now, return empty - actress names would be included in image data
+        feedData.forEach((image: any) => {
+            if (image.actress && image.actress.name) {
+                names[image.actress_id] = image.actress.name;
+            }
+        });
         return names;
     }, [feedData]);
 
@@ -185,7 +188,7 @@ export default function HomeScreen() {
                 onRefresh={handleRefresh}
                 onEndReached={handleEndReached}
                 ListHeaderComponent={ListHeader}
-                contentContainerStyle={{ paddingTop: 180 }} // Space for sticky header
+                contentContainerStyle={{ paddingTop: 195 }} // Space for sticky header
             />
 
             {/* Sort Bottom Sheet */}

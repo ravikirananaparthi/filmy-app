@@ -1,6 +1,6 @@
 import type { Image } from '@/src/types/image.types';
 import { Theme } from '@constants/theme';
-import { MasonryFlashList } from '@shopify/flash-list';
+import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useMemo } from 'react';
 import { Dimensions, RefreshControl, StyleSheet, useColorScheme, View } from 'react-native';
 import { EmptyState } from './EmptyState';
@@ -9,7 +9,7 @@ import { LoadingState } from './LoadingState';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const NUM_COLUMNS = 2;
-const HORIZONTAL_PADDING = 12;
+const HORIZONTAL_PADDING = 0;
 const COLUMN_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) / NUM_COLUMNS;
 
 interface MasonryImageGridProps {
@@ -67,16 +67,6 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
 
     const keyExtractor = useCallback((item: Image) => item.id, []);
 
-    // Optimized settings for masonry
-    const overrideItemLayout = useCallback(
-        (layout: { span?: number; size?: number }, item: Image) => {
-            // Calculate height based on aspect ratio for smoother layout
-            const height = COLUMN_WIDTH / (item.aspect_ratio || 0.75) + 50; // +50 for actress name
-            layout.size = height;
-        },
-        []
-    );
-
     const refreshControl = useMemo(
         () =>
             onRefresh ? (
@@ -101,21 +91,19 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
 
     return (
         <View style={[styles.container, { backgroundColor }]}>
-            <MasonryFlashList
+            <FlashList
                 data={data}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 numColumns={NUM_COLUMNS}
-                estimatedItemSize={250}
-                overrideItemLayout={overrideItemLayout}
+                masonry
+                optimizeItemArrangement
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}
                 refreshControl={refreshControl}
                 ListHeaderComponent={ListHeaderComponent}
                 contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
                 showsVerticalScrollIndicator={false}
-                drawDistance={SCREEN_WIDTH * 2}
-                optimizeItemArrangement
             />
         </View>
     );
@@ -127,7 +115,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: HORIZONTAL_PADDING,
-        paddingBottom: 100, // Space for tab bar
+        paddingBottom: 100,
     },
 });
 

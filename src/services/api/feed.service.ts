@@ -5,11 +5,25 @@ import { API_ENDPOINTS } from './endpoints';
 
 // Get default feed
 export const getDefaultFeed = async (params: FeedParams = {}) => {
-    const response = await apiClient.get<PaginatedApiResponse<Image>>(
+    const response = await apiClient.get<any>(
         API_ENDPOINTS.FEED.DEFAULT,
         { params }
     );
-    return response.data;
+
+    // API returns { success, message, data: { images: [], pagination: {} } }
+    // Transform to match expected format
+    return {
+        success: response.data.success,
+        data: response.data.data.images || [],
+        pagination: response.data.data.pagination || {
+            page: 1,
+            limit: 20,
+            total: 0,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPrevPage: false,
+        },
+    };
 };
 
 // Get magic shuffle feed
