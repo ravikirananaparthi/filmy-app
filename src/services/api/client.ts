@@ -33,7 +33,14 @@ apiClient.interceptors.response.use(
     (error) => {
         // Log errors in development
         if (ENV.IS_DEV) {
-            console.error('API Error:', error.response?.data || error.message);
+            console.error('API Error:', {
+                message: error.message,
+                url: error.config?.url,
+                method: error.config?.method,
+                baseURL: error.config?.baseURL,
+                status: error.response?.status,
+                data: error.response?.data,
+            });
         }
 
         return Promise.reject(error);

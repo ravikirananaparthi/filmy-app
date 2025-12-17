@@ -1,15 +1,22 @@
-import type { ApiResponse, FeedParams, PaginatedApiResponse } from '@types/api.types';
+import type { ApiResponse, DefaultFeedApiResponse, FeedParams, PaginatedApiResponse } from '@types/api.types';
 import type { Image } from '@types/image.types';
 import { apiClient } from './client';
 import { API_ENDPOINTS } from './endpoints';
 
 // Get default feed
 export const getDefaultFeed = async (params: FeedParams = {}) => {
-    const response = await apiClient.get<PaginatedApiResponse<Image>>(
+    const response = await apiClient.get<DefaultFeedApiResponse>(
         API_ENDPOINTS.FEED.DEFAULT,
         { params }
     );
-    return response.data;
+
+    // Backend returns { data: { images: [], pagination: {} } }
+    // Transform to match PaginatedApiResponse structure
+    return {
+        success: response.data.success,
+        data: response.data.data.images,
+        pagination: response.data.data.pagination,
+    };
 };
 
 // Get magic shuffle feed

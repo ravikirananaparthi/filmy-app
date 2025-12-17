@@ -14,6 +14,8 @@ function TabLayoutContent() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: styles.hiddenTabBar,
+          lazy: true, // Lazy load inactive tabs
+          freezeOnBlur: true, // Freeze inactive screens to save memory
         }}
         tabBar={(props) => (
           <MotionifyView
