@@ -34,6 +34,23 @@ export interface PaginatedApiResponse<T = any> {
     pagination: PaginationMeta;
 }
 
+// Default feed response structure (images nested in data.images)
+export interface DefaultFeedApiResponse {
+    success: boolean;
+    message?: string;
+    data: {
+        images: any[]; // Will be Image[] but avoiding circular dependency
+        pagination: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+            hasNextPage: boolean;
+            hasPrevPage: boolean;
+        };
+    };
+}
+
 // Filter types
 export interface ImageFilterParams {
     tags?: string[];
