@@ -9,6 +9,7 @@ interface ImageCardProps {
     image: ImageType;
     actressName?: string;
     isLiked: boolean;
+    isLikePending?: boolean;
     onLike: (id: string) => void;
     onPress: (id: string) => void;
     columnWidth: number;
@@ -18,6 +19,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     image,
     actressName,
     isLiked,
+    isLikePending = false,
     onLike,
     onPress,
     columnWidth,
@@ -67,7 +69,12 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
 
                     {/* Like Button */}
                     <View style={styles.likeButtonContainer}>
-                        <LikeButton isLiked={isLiked} onPress={handleLike} size={32} />
+                        <LikeButton
+                            isLiked={isLiked}
+                            onPress={handleLike}
+                            disabled={isLikePending}
+                            size={32}
+                        />
                     </View>
                 </View>
 

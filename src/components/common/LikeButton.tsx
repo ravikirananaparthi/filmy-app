@@ -10,26 +10,31 @@ const BUTTON_SIZE = 32;
 interface LikeButtonProps {
     isLiked: boolean;
     onPress: () => void;
+    disabled?: boolean;
     size?: number;
 }
 
 export const LikeButton: React.FC<LikeButtonProps> = ({
     isLiked,
     onPress,
+    disabled = false,
     size = BUTTON_SIZE,
 }) => {
     const handlePress = useCallback(() => {
+        if (disabled) return;
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         onPress();
-    }, [onPress]);
+    }, [disabled, onPress]);
 
     return (
         <Pressable
             onPress={handlePress}
+            disabled={disabled}
             style={({ pressed }) => [
                 styles.button,
                 { width: size, height: size, borderRadius: size / 2 },
-                pressed && styles.pressed,
+                pressed && !disabled && styles.pressed,
+                disabled && styles.disabled,
             ]}
             hitSlop={8}
         >
@@ -52,6 +57,9 @@ const styles = StyleSheet.create({
     pressed: {
         transform: [{ scale: 0.92 }],
         opacity: 0.8,
+    },
+    disabled: {
+        opacity: 0.5,
     },
 });
 

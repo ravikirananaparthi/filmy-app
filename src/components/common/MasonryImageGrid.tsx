@@ -20,6 +20,7 @@ interface MasonryImageGridProps {
     onImagePress: (imageId: string) => void;
     isLoading?: boolean;
     isRefreshing?: boolean;
+    isLikePending?: boolean;
     onRefresh?: () => void;
     onEndReached?: () => void;
     ListHeaderComponent?: React.ReactElement;
@@ -34,6 +35,7 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
     onImagePress,
     isLoading = false,
     isRefreshing = false,
+    isLikePending = false,
     onRefresh,
     onEndReached,
     ListHeaderComponent,
@@ -56,13 +58,14 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                     image={item}
                     actressName={actressName}
                     isLiked={isLiked}
+                    isLikePending={isLikePending}
                     onLike={onLike}
                     onPress={onImagePress}
                     columnWidth={COLUMN_WIDTH}
                 />
             );
         },
-        [likedImageIds, actressNames, onLike, onImagePress]
+        [likedImageIds, actressNames, isLikePending, onLike, onImagePress]
     );
 
     const keyExtractor = useCallback((item: Image) => item.id, []);
