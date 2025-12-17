@@ -6,6 +6,11 @@ import { StatusBar } from 'expo-status-bar';
 import { View, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableScreens } from 'react-native-screens';
+
+// Enable native screens for better performance
+// This uses native Fragment on Android instead of View components
+enableScreens();
 
 // If you're loading custom fonts later, keep this ready
 // import { useFonts } from 'expo-font';
