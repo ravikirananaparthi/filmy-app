@@ -32,13 +32,18 @@ export const useLike = () => {
     });
 
     const toggleLike = (imageId: string) => {
+        // Prevent concurrent mutations - early return if already pending
+        if (likeMutation.isPending) {
+            return;
+        }
+
         const isLiked = isImageFavorited(imageId);
         likeMutation.mutate({ imageId, isLiked });
     };
 
     return {
         toggleLike,
-        isLoading: likeMutation.isPending,
+        isPending: likeMutation.isPending,
         isImageFavorited,
     };
 };
