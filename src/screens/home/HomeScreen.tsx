@@ -61,7 +61,7 @@ export default function HomeScreen() {
     });
 
     const { data: popularTags = [] } = usePopularTags(15);
-    const { toggleLike, isImageFavorited } = useLike();
+    const { toggleLike, isPending: isLikePending, isImageFavorited } = useLike();
     const favoriteImageIds = useFavoritesStore((s) => s.favoriteImageIds);
 
     // Flatten feed pages
@@ -185,10 +185,11 @@ export default function HomeScreen() {
                 onImagePress={handleImagePress}
                 isLoading={isLoading}
                 isRefreshing={isRefetching}
+                isLikePending={isLikePending}
                 onRefresh={handleRefresh}
                 onEndReached={handleEndReached}
                 ListHeaderComponent={ListHeader}
-                contentContainerStyle={{ paddingTop: 195 }} // Space for sticky header
+                contentContainerStyle={{ paddingTop: 180 }} // Space for sticky header
             />
 
             {/* Sort Bottom Sheet */}

@@ -38,19 +38,8 @@ export const useFeed = (options: UseFeedOptions = {}) => {
                 return await getDefaultFeed(params);
             } catch (error: any) {
                 console.error('Feed fetch error:', error.message);
-                // Return empty data instead of crashing
-                return {
-                    success: false,
-                    data: [],
-                    pagination: {
-                        page: pageParam,
-                        limit,
-                        total: 0,
-                        totalPages: 0,
-                        hasNextPage: false,
-                        hasPrevPage: false,
-                    },
-                };
+                // Re-throw to let TanStack Query handle retries and error state
+                throw error;
             }
         },
         getNextPageParam: (lastPage) => {
