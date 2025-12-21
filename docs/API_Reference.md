@@ -2,7 +2,7 @@
 
 **Base URL:** `http://localhost:3000/api/v1`
 
-**Last Updated:** 2025-12-14
+**Last Updated:** 2025-12-19
 
 ---
 
@@ -245,11 +245,15 @@ Authorization: Bearer <token>
 
 ## Feed
 
-> **⚡ Performance Note:** All feed endpoints use UUID-based tag filtering for 2-3x better performance on large datasets. Frontend sends tag names (strings) - backend automatically converts to UUIDs.
+> **⚡ Performance v3:** All feed endpoints now use **Node.js-based scoring** with fast PostgreSQL candidate queries. Expected latency: **<200ms** (previously ~18s for personalized feeds).
+
+> **🔑 Important:** All feed endpoints require authentication. Tags are sent as **UUIDs** (not names).
+
+---
 
 ### Get Default Feed
 
-Get personalized feed based on user preferences and favorite actresses.
+Main feed sorted by popularity score with filters.
 
 **HTTP Method:** `GET`  
 **Path:** `/feed/default`  
@@ -259,16 +263,17 @@ Get personalized feed based on user preferences and favorite actresses.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `page` | integer | No | 1 | Page number for pagination |
 | `limit` | integer | No | 20 | Images per page (max: 50) |
-| `tags` | string | No | - | Comma-separated tag names (e.g., "cute,beach,summer") |
-| `minHotness` | integer | No | - | Minimum hotness rating (1-10) |
-| `maxHotness` | integer | No | - | Maximum hotness rating (1-10) |
+| `cursor` | string | No | - | JSON cursor: `{"score":85,"id":"uuid"}` |
+| `tags` | string | No | - | Comma-separated **tag UUIDs** |
+| `minHotness` | integer | No | - | Minimum hotness (1-10) |
+| `maxHotness` | integer | No | - | Maximum hotness (1-10) |
+| `excludeViewed` | boolean | No | false | Hide viewed images |
 
 #### Request Example
 
 ```
-GET /api/v1/feed/default?page=1&limit=20&tags=cute,beautiful&minHotness=7
+GET /api/v1/feed/default?limit=20&excludeViewed=true&minHotness=7
 Authorization: Bearer <token>
 ```
 
@@ -282,24 +287,27 @@ Authorization: Bearer <token>
     "images": [
       {
         "id": "uuid",
-        "thumbnail_url": "https://...",
         "image_url": "https://...",
-        "blurhash": "LGF5]+Yk^6#M@-5c,1J5@[or[Q6.",
-        "aspect_ratio": 1.7778,
+        "thumbnail_url": "https://...",
+        "blurhash": "LKO2?U%2Tw=w]~RBVZRi}",
+        "aspect_ratio": 0.75,
         "hotness_rating": 8,
-        "actress_id": "uuid",
+        "likes_count": 150,
+        "downloads_count": 45,
+        "popularity_score": 87.5,
+        "created_at": "2024-12-18T10:00:00Z",
+        "isUserLiked": true,
         "actress": {
           "id": "uuid",
-          "name": "Emma Watson",
-          "cover_image_url": "https://...",
-          "popularity_rating": 95
+          "name": "Kajal Aggarwal",
+          "cover_image_url": "https://..."
         }
       }
     ],
     "pagination": {
-      "page": 1,
       "limit": 20,
-      "total": 150
+      "hasNextPage": true,
+      "nextCursor": { "score": 85.2, "id": "uuid-123" }
     }
   }
 }
@@ -307,9 +315,115 @@ Authorization: Bearer <token>
 
 ---
 
-### Get Magic Shuffle
+### Get For You Feed (Personalized)
 
-Get randomized feed with weighted preferences.
+Personalized feed using actress + tag preferences. Automatically excludes viewed images.
+
+**HTTP Method:** `GET`  
+**Path:** `/feed/for-you`  
+**Auth Required:** Yes 🔒
+
+#### Personalization Formula
+
+```
+personalizedScore = baseScore + actressBoost + tagBoost + recencyBoost
+
+Where:
+- actressBoost = +50 if actress in user's favorite_actress_ids
+- tagBoost = +10 × (matching tags with user's preferred_tag_ids)
+- recencyBoost = +20 if image < 7 days old
+```
+
+#### Query Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `limit` | integer | No | 20 | Images per page |
+| `cursor` | string | No | - | JSON cursor for pagination |
+
+#### Request Example
+
+```
+GET /api/v1/feed/for-you?limit=20
+Authorization: Bearer <token>
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Personalized feed fetched successfully",
+  "data": {
+    "images": [
+      {
+        "id": "uuid",
+        "image_url": "https://...",
+        "popularity_score": 87.5,
+        "personalized_score": 157.5,
+        "isUserLiked": false,
+        "actress": { "id": "uuid", "name": "Kajal Aggarwal", "cover_image_url": "..." }
+      }
+    ],
+    "pagination": {
+      "limit": 20,
+      "hasNextPage": true,
+      "nextCursor": { "score": 85.2, "id": "uuid-123" }
+    }
+  }
+}
+```
+
+---
+
+### Get Fresh Feed (Latest)
+
+Latest images sorted by creation date.
+
+**HTTP Method:** `GET`  
+**Path:** `/feed/fresh`  
+**Auth Required:** Yes 🔒
+
+#### Query Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `limit` | integer | No | 20 | Images per page |
+| `cursor` | string | No | - | JSON cursor (timestamp-based) |
+| `tags` | string | No | - | Comma-separated **tag UUIDs** |
+| `minHotness` | integer | No | - | Minimum hotness (1-10) |
+| `maxHotness` | integer | No | - | Maximum hotness (1-10) |
+| `excludeViewed` | boolean | No | false | Hide viewed images |
+
+#### Request Example
+
+```
+GET /api/v1/feed/fresh?limit=20&tags=uuid1,uuid2
+Authorization: Bearer <token>
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "Fresh feed fetched successfully",
+  "data": {
+    "images": [ /* images sorted by created_at DESC */ ],
+    "pagination": {
+      "limit": 20,
+      "hasNextPage": true,
+      "nextCursor": { "score": 1702900000000, "id": "uuid-123" }
+    }
+  }
+}
+```
+
+---
+
+### Get Magic Shuffle (Seeded Random)
+
+Randomized feed with **seeded pagination** for consistent infinite scroll.
 
 **HTTP Method:** `GET`  
 **Path:** `/feed/magic-shuffle`  
@@ -319,16 +433,26 @@ Get randomized feed with weighted preferences.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `limit` | integer | No | 20 | Number of images to return |
-| `tags` | string | No | - | Comma-separated tag names |
-| `minHotness` | integer | No | - | Minimum hotness rating (1-10) |
-| `maxHotness` | integer | No | - | Maximum hotness rating (1-10) |
+| `limit` | integer | No | 20 | Number of images |
+| `seed` | string | No | auto | Session seed for consistent order |
+| `cursorHash` | string | No | - | Hash cursor from `nextCursorHash` |
+| `tags` | string | No | - | Comma-separated **tag UUIDs** |
+| `minHotness` | integer | No | - | Minimum hotness (1-10) |
+| `maxHotness` | integer | No | - | Maximum hotness (1-10) |
 
-#### Request Example
+#### Pagination Flow
+
+1. **First request:** Omit `seed` and `cursorHash`
+2. **Next pages:** Pass `seed` and `cursorHash` from previous response
+
+#### Request Examples
 
 ```
-GET /api/v1/feed/magic-shuffle?limit=20&tags=cute&minHotness=7
-Authorization: Bearer <token>
+# First page
+GET /api/v1/feed/magic-shuffle?limit=20
+
+# Second page (with seed from response)
+GET /api/v1/feed/magic-shuffle?limit=20&seed=abc123&cursorHash=d41d8cd98f...
 ```
 
 #### Response (200 OK)
@@ -338,17 +462,22 @@ Authorization: Bearer <token>
   "success": true,
   "message": "Magic shuffle fetched successfully",
   "data": {
-    "images": [ /* array of image objects */ ],
-    "total": 20
+    "images": [ /* seeded random images */ ],
+    "pagination": {
+      "limit": 20,
+      "hasNextPage": true,
+      "seed": "abc123",
+      "nextCursorHash": "d41d8cd98f00b204..."
+    }
   }
 }
 ```
 
 ---
 
-### Get Blend Feed
+### Get Blend Feed (Favorites)
 
-Get blended feed from multiple favorite actresses.
+Images from user's favorite actresses (uses `favorite_actress_ids`).
 
 **HTTP Method:** `GET`  
 **Path:** `/feed/blend`  
@@ -358,16 +487,16 @@ Get blended feed from multiple favorite actresses.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `page` | integer | No | 1 | Page number |
-| `limit` | integer | No | 20 | Images per page (max: 50) |
-| `tags` | string | No | - | Comma-separated tag names |
-| `minHotness` | integer | No | - | Minimum hotness rating (1-10) |
-| `maxHotness` | integer | No | - | Maximum hotness rating (1-10) |
+| `limit` | integer | No | 20 | Images per page |
+| `cursor` | string | No | - | JSON cursor for pagination |
+| `tags` | string | No | - | Comma-separated **tag UUIDs** |
+| `minHotness` | integer | No | - | Minimum hotness (1-10) |
+| `maxHotness` | integer | No | - | Maximum hotness (1-10) |
 
 #### Request Example
 
 ```
-GET /api/v1/feed/blend?page=1&limit=20
+GET /api/v1/feed/blend?limit=20
 Authorization: Bearer <token>
 ```
 
@@ -378,11 +507,11 @@ Authorization: Bearer <token>
   "success": true,
   "message": "Blend feed fetched successfully",
   "data": {
-    "images": [ /* array of image objects */ ],
+    "images": [ /* images from favorite actresses */ ],
     "pagination": {
-      "page": 1,
       "limit": 20,
-      "total": 60
+      "hasNextPage": true,
+      "nextCursor": { "score": 85.2, "id": "uuid-123" }
     }
   }
 }
@@ -390,9 +519,9 @@ Authorization: Bearer <token>
 
 ---
 
-### Create Custom Blend
+### Create Custom Blend (Seeded Random)
 
-Get custom blended feed from specific selected actresses.
+Custom blend from specific actresses with **seeded pagination**.
 
 **HTTP Method:** `POST`  
 **Path:** `/feed/custom-blend`  
@@ -402,23 +531,32 @@ Get custom blended feed from specific selected actresses.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `actressIds` | string[] | Yes | Array of actress UUIDs to blend |
-| `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Images per page (default: 20, max: 50) |
-| `tags` | string[] | No | Array of tag names to filter |
-| `minHotness` | integer | No | Minimum hotness rating (1-10) |
-| `maxHotness` | integer | No | Maximum hotness rating (1-10) |
+| `actressIds` | string[] | Yes | Array of actress UUIDs (2-10) |
+| `limit` | integer | No | Images to return (default: 20) |
+| `seed` | string | No | Session seed for consistent order |
+| `cursorHash` | string | No | Hash cursor from `nextCursorHash` |
+| `tags` | string[] | No | Array of **tag UUIDs** |
+| `minHotness` | integer | No | Minimum hotness (1-10) |
+| `maxHotness` | integer | No | Maximum hotness (1-10) |
 
-#### Request Example
+#### Request Example (First page)
 
 ```json
 {
   "actressIds": ["uuid-1", "uuid-2"],
-  "page": 1,
   "limit": 20,
-  "tags": ["cute"],
-  "minHotness": 7,
-  "maxHotness": 10
+  "minHotness": 7
+}
+```
+
+#### Pagination Request (page 2+)
+
+```json
+{
+  "actressIds": ["uuid-1", "uuid-2"],
+  "limit": 20,
+  "seed": "abc123",
+  "cursorHash": "d41d8cd98f00b204..."
 }
 ```
 
@@ -427,17 +565,18 @@ Get custom blended feed from specific selected actresses.
 ```json
 {
   "success": true,
-  "message": "Custom blend feed fetched successfully",
+  "message": "Custom blend fetched successfully",
   "data": {
-    "images": [ /* array of image objects */ ],
+    "images": [ /* seeded random images */ ],
     "actresses": [
-      { "id": "uuid-1", "name": "Emma Watson" },
-      { "id": "uuid-2", "name": "Scarlett Johansson" }
+      { "id": "uuid-1", "name": "Kajal Aggarwal" },
+      { "id": "uuid-2", "name": "Bhagyashri Borse" }
     ],
     "pagination": {
-      "page": 1,
       "limit": 20,
-      "total": 40
+      "hasNextPage": true,
+      "seed": "abc123",
+      "nextCursorHash": "f47ac10b58cc4372..."
     }
   }
 }
@@ -541,9 +680,43 @@ GET /api/v1/images/uuid-123
 
 ---
 
+### Track View 🆕
+
+Track when user opens image detail view (for excludeViewed feature).
+
+**HTTP Method:** `POST`  
+**Path:** `/images/:id/view`  
+**Auth Required:** Yes 🔒
+
+#### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | Yes | Image UUID |
+
+#### Request Example
+
+```
+POST /api/v1/images/uuid-123/view
+Authorization: Bearer <token>
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "message": "View tracked successfully"
+}
+```
+
+> **Note:** Call this when user opens image detail/fullscreen view. Used for `excludeViewed` feed filtering.
+
+---
+
 ### Like Image
 
-Add image to user's liked images.
+Add image to user's liked images. Automatically updates `likes_count` on the image.
 
 **HTTP Method:** `POST`  
 **Path:** `/images/:id/like`  
