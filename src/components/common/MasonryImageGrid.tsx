@@ -107,7 +107,9 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                 ListHeaderComponent={ListHeaderComponent}
                 contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
                 showsVerticalScrollIndicator={false}
+
             />
+
         </View>
     );
 };
