@@ -19,6 +19,13 @@ import SearchBarSkeleton from './components/SearchBarSkeleton';
 // Hooks
 import { flattenForYouPages, useForYouFeed } from './hooks/useForYouFeed';
 
+/**
+ * Renders the app's Home screen with a sticky header (logo and search bar) and a paginated masonry image feed.
+ *
+ * The screen displays a flattened "For You" feed, supports pull-to-refresh and infinite scroll, navigates to image and search screens, and delegates like toggles to the like handler.
+ *
+ * @returns The React element for the Home screen containing the sticky header and MasonryImageGrid.
+ */
 export default function HomeScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
