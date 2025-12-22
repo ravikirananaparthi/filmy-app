@@ -1,7 +1,7 @@
 // Environment configuration
-// Note: Android emulators use 10.0.2.2 to access host machine's localhost
+// Note: Using hosted backend on Render
 export const ENV = {
-    API_BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
+    API_BASE_URL: process.env.EXPO_PUBLIC_API_URL || 'https://filmy-backend.onrender.com/api/v1',
     DEV_AUTH_TOKEN: process.env.EXPO_PUBLIC_DEV_TOKEN || "eyJhbGciOiJIUzI1NiIsImtpZCI6IldadEJnODcycFR6dElDcXAiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2lkYnh0aHluaXNnd2dua2Rza2dhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI0NTJjMmI0Yy00OTNkLTRmYzItODgxMy0yNWEwMjZjODk3NDciLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzY2NTExMjY3LCJpYXQiOjE3NjU5MDY0NjcsImVtYWlsIjoiIiwicGhvbmUiOiI5MTkxODI3MjA1OTMiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJwaG9uZSIsInByb3ZpZGVycyI6WyJwaG9uZSJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiNDUyYzJiNGMtNDkzZC00ZmMyLTg4MTMtMjVhMDI2Yzg5NzQ3In0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoib3RwIiwidGltZXN0YW1wIjoxNzY1OTA2NDY3fV0sInNlc3Npb25faWQiOiJhMzZmZWVhMi1hYjBmLTRhZmEtYjcyYS05MmY0MmJhOGJlYzMiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.oN_Qw1P18djALKNomHthRtoLOVoPaTG6IDGYjOk9O-Q",
     IS_DEV: __DEV__,
 } as const;
