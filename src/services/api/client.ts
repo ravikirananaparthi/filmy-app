@@ -11,13 +11,10 @@ const apiClient: AxiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        // Explicitly handle encoding - axios will decompress automatically
-        'Accept-Encoding': 'gzip, deflate, br',
+        // DO NOT include Accept-Encoding - React Native can't decompress br/gzip
     },
     // Ensure automatic JSON parsing
     responseType: 'json',
-    // Enable automatic decompression (default: true, but explicit for clarity)
-    decompress: true,
 });
 
 // Request interceptor - add auth token
