@@ -16,6 +16,8 @@ export const API_ENDPOINTS = {
     // Feed
     FEED: {
         DEFAULT: '/feed/default',
+        FOR_YOU: '/feed/for-you',
+        FRESH: '/feed/fresh',
         MAGIC_SHUFFLE: '/feed/magic-shuffle',
         BLEND: '/feed/blend',
         CUSTOM_BLEND: '/feed/custom-blend',
@@ -26,7 +28,7 @@ export const API_ENDPOINTS = {
         LIST: '/images',
         DETAIL: (id: string) => `/images/${id}`,
         LIKE: (id: string) => `/images/${id}/like`,
-        UNLIKE: (id: string) => `/images/${id}/like`,
+        UNLIKE: (id: string) => `/images/${id}/like`, // DELETE same endpoint as LIKE
         DOWNLOAD: (id: string) => `/images/${id}/download`,
         WALLPAPER: (id: string) => `/images/${id}/wallpaper`,
     },
