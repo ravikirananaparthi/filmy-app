@@ -5,6 +5,8 @@ interface LikesState {
     likedImages: Map<string, boolean>;
     // Map of imageId -> server's known state (last synced)
     serverLikedImages: Map<string, boolean>;
+    // Set of imageIds with pending sync operations
+    pendingSyncs: Set<string>;
 
     // Actions
     setLiked: (imageId: string, isLiked: boolean) => void;
@@ -14,6 +16,11 @@ interface LikesState {
     // Server state management
     getServerState: (imageId: string) => boolean;
     setServerState: (imageId: string, isLiked: boolean) => void;
+
+    // Pending sync management
+    addPendingSync: (imageId: string) => void;
+    removePendingSync: (imageId: string) => void;
+    hasPendingSync: (imageId: string) => boolean;
 
     // Initialize from API data
     initFromApiData: (images: Array<{ id: string; isUserLiked?: boolean }>) => void;
@@ -25,11 +32,13 @@ interface LikesState {
  * Instagram/Pinterest-style optimistic updates:
  * 1. likedImages tracks what the UI shows (instant updates)
  * 2. serverLikedImages tracks what the server knows (for sync comparison)
- * 3. No pending states - UI never shows loading
+ * 3. pendingSyncs tracks which images have pending sync operations
+ * 4. No pending states in UI - button is always interactive
  */
 export const useLikesStore = create<LikesState>((set, get) => ({
     likedImages: new Map<string, boolean>(),
     serverLikedImages: new Map<string, boolean>(),
+    pendingSyncs: new Set<string>(),
 
     setLiked: (imageId, isLiked) => set((state) => {
         const newMap = new Map(state.likedImages);
@@ -54,16 +63,34 @@ export const useLikesStore = create<LikesState>((set, get) => ({
         return { serverLikedImages: newMap };
     }),
 
+    addPendingSync: (imageId) => set((state) => {
+        const newSet = new Set(state.pendingSyncs);
+        newSet.add(imageId);
+        return { pendingSyncs: newSet };
+    }),
+
+    removePendingSync: (imageId) => set((state) => {
+        const newSet = new Set(state.pendingSyncs);
+        newSet.delete(imageId);
+        return { pendingSyncs: newSet };
+    }),
+
+    hasPendingSync: (imageId) => get().pendingSyncs.has(imageId),
+
     initFromApiData: (images) => set((state) => {
         const newLikedMap = new Map(state.likedImages);
         const newServerMap = new Map(state.serverLikedImages);
 
         for (const image of images) {
             const isLiked = image.isUserLiked || false;
-            // Only set if not already in store (preserve local optimistic state)
-            if (!newLikedMap.has(image.id)) {
+
+            // Only preserve local optimistic state if a sync is pending
+            // Otherwise, reconcile with server state (source of truth)
+            const hasPending = state.pendingSyncs.has(image.id);
+            if (!hasPending) {
                 newLikedMap.set(image.id, isLiked);
             }
+
             // Always update server state from API
             newServerMap.set(image.id, isLiked);
         }
@@ -76,3 +103,4 @@ export const useLikesStore = create<LikesState>((set, get) => ({
 }));
 
 export default useLikesStore;
+

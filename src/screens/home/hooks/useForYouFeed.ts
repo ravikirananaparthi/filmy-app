@@ -11,6 +11,7 @@ export const useForYouFeed = (options: UseForYouFeedOptions = {}) => {
     return useInfiniteQuery({
         queryKey: ['feed', 'for-you', { limit }],
         queryFn: async ({ pageParam }) => {
+            // Stringify the cursor object for the API
             const cursor = pageParam ? JSON.stringify(pageParam) : undefined;
             return await getForYouFeed({ limit, cursor });
         },

@@ -58,6 +58,11 @@ export const SearchBarSkeleton: React.FC<SearchBarSkeletonProps> = ({
             onPress={handlePress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Search"
+            accessibilityHint="Open search to find actresses or tags"
+            accessibilityState={{ disabled: false }}
         >
             <Search size={18} color={iconColor} strokeWidth={2.5} />
             <Text style={[styles.placeholder, { color: textColor }]}>
