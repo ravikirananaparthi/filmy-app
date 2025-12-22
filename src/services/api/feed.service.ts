@@ -1,4 +1,4 @@
-import type { ApiResponse, DefaultFeedApiResponse, FeedParams, PaginatedApiResponse } from '@types/api.types';
+import type { ApiResponse, DefaultFeedApiResponse, FeedParams, ForYouFeedApiResponse, PaginatedApiResponse } from '@types/api.types';
 import type { Image } from '@types/image.types';
 import { apiClient } from './client';
 import { API_ENDPOINTS } from './endpoints';
@@ -16,6 +16,33 @@ export const getDefaultFeed = async (params: FeedParams = {}) => {
         success: response.data.success,
         data: response.data.data.images,
         pagination: response.data.data.pagination,
+    };
+};
+
+// Get For You Feed (personalized with cursor pagination)
+export const getForYouFeed = async (params: { limit?: number; cursor?: string } = {}) => {
+    const response = await apiClient.get<ForYouFeedApiResponse>(
+        API_ENDPOINTS.FEED.FOR_YOU,
+        {
+            params,
+            headers: {
+                // Force fresh response, no cache
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        }
+    );
+
+    // Safely access nested data with fallbacks
+    const responseData = response.data;
+    const images = responseData.data?.images || [];
+    const pagination = responseData.data?.pagination || { limit: 20, hasNextPage: false };
+
+    return {
+        success: responseData.success,
+        data: images,
+        pagination: pagination,
     };
 };
 

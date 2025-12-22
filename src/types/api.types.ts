@@ -51,6 +51,20 @@ export interface DefaultFeedApiResponse {
     };
 }
 
+// For You Feed response structure with cursor pagination
+export interface ForYouFeedApiResponse {
+    success: boolean;
+    message?: string;
+    data: {
+        images: any[]; // Will be Image[] but avoiding circular dependency
+        pagination: {
+            limit: number;
+            hasNextPage: boolean;
+            nextCursor?: { score: number; id: string };
+        };
+    };
+}
+
 // Filter types
 export interface ImageFilterParams {
     tags?: string[];

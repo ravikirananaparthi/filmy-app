@@ -3,7 +3,7 @@
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
-
+adb reverse tcp:3000 tcp:3000
 1. Install dependencies
 
    ```bash

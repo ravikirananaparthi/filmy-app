@@ -8,18 +8,19 @@ import { LikeButton } from './LikeButton';
 interface ImageCardProps {
     image: ImageType;
     actressName?: string;
-    isLiked: boolean;
-    isLikePending?: boolean;
-    onLike: (id: string) => void;
-    onPress: (id: string) => void;
+    onLike: (imageId: string) => void;
+    onPress: (imageId: string) => void;
     columnWidth: number;
 }
 
+/**
+ * Image card component for the feed
+ * 
+ * Note: isLiked is no longer a prop - LikeButton reads directly from Zustand store
+ */
 export const ImageCard: React.FC<ImageCardProps> = memo(({
     image,
     actressName,
-    isLiked,
-    isLikePending = false,
     onLike,
     onPress,
     columnWidth,
@@ -34,10 +35,6 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
         onPress(image.id);
     }, [image.id, onPress]);
 
-    const handleLike = useCallback(() => {
-        onLike(image.id);
-    }, [image.id, onLike]);
-
     const cardBackground = isDark
         ? Theme.colors.background.surface.dark
         : Theme.colors.background.surface.light;
@@ -50,7 +47,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
         <Pressable
             style={({ pressed }) => [
                 styles.container,
-                pressed && styles.pressed, // Minimal press effect
+                pressed && styles.pressed,
             ]}
             onPress={handlePress}
         >
@@ -67,12 +64,11 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                         recyclingKey={image.id}
                     />
 
-                    {/* Like Button */}
+                    {/* Like Button - reads isLiked from Zustand store */}
                     <View style={styles.likeButtonContainer}>
                         <LikeButton
-                            isLiked={isLiked}
-                            onPress={handleLike}
-                            disabled={isLikePending}
+                            imageId={image.id}
+                            onLikePress={onLike}
                             size={32}
                         />
                     </View>
@@ -99,7 +95,7 @@ const styles = StyleSheet.create({
         padding: 4,
     },
     pressed: {
-        opacity: 0.9, // Minimal press feedback
+        opacity: 0.9,
     },
     card: {
         borderRadius: Theme.radius.lg,

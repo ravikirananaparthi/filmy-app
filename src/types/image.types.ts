@@ -17,6 +17,18 @@ export interface Image {
     hotness_rating: number; // 1-10
     created_at: string;
     updated_at?: string;
+
+    // For You Feed specific fields
+    isUserLiked?: boolean;
+    actress?: {
+        id: string;
+        name: string;
+        cover_image_url: string;
+    };
+    popularity_score?: number;
+    personalized_score?: number;
+    likes_count?: number;
+    downloads_count?: number;
 }
 
 export interface ImageDetail extends Image {

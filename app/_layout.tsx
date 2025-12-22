@@ -1,3 +1,8 @@
+// MUST BE FIRST - Initialize Reactotron in development
+if (__DEV__) {
+  require('../src/config/reactotron');
+}
+
 import { Theme } from '@/constants/theme';
 import { ApiProvider } from '@/src/providers/ApiProvider';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';

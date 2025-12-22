@@ -12,7 +12,7 @@ export const getImageDetail = async (id: string) => {
 };
 
 // Like image
-export const likeImage = async (id: string) => {
+export const likeImage = async (id: string) => {       
     const response = await apiClient.post<ApiResponse>(
         API_ENDPOINTS.IMAGES.LIKE(id)
     );

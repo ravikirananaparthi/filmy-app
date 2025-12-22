@@ -1,7 +1,8 @@
 import type { Image } from '@/src/types/image.types';
 import { Theme } from '@constants/theme';
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useMemo } from 'react';
+import { useLikesStore } from '@store/slices/likesSlice';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Dimensions, RefreshControl, StyleSheet, useColorScheme, View } from 'react-native';
 import { EmptyState } from './EmptyState';
 import { ImageCard } from './ImageCard';
@@ -14,28 +15,28 @@ const COLUMN_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) / NUM_COLUMNS;
 
 interface MasonryImageGridProps {
     data: Image[];
-    actressNames?: Record<string, string>;
-    likedImageIds: Set<string>;
     onLike: (imageId: string) => void;
     onImagePress: (imageId: string) => void;
     isLoading?: boolean;
     isRefreshing?: boolean;
-    isLikePending?: boolean;
     onRefresh?: () => void;
     onEndReached?: () => void;
-    ListHeaderComponent?: React.ReactElement;
-    contentContainerStyle?: object;
+    ListHeaderComponent?: React.ReactElement | null;
+    contentContainerStyle?: any;
 }
 
+/**
+ * Masonry grid for displaying images
+ * 
+ * Note: Like state is managed by Zustand store (likesSlice)
+ * This component initializes the store with API data
+ */
 export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
     data,
-    actressNames = {},
-    likedImageIds,
     onLike,
     onImagePress,
     isLoading = false,
     isRefreshing = false,
-    isLikePending = false,
     onRefresh,
     onEndReached,
     ListHeaderComponent,
@@ -43,29 +44,34 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
 }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const initFromApiData = useLikesStore((state) => state.initFromApiData);
 
     const backgroundColor = isDark
         ? Theme.colors.background.dark
         : Theme.colors.background.light;
 
+    // Initialize Zustand store with like states from API data
+    useEffect(() => {
+        if (data.length > 0) {
+            initFromApiData(data);
+        }
+    }, [data, initFromApiData]);
+
     const renderItem = useCallback(
         ({ item }: { item: Image }) => {
-            const isLiked = likedImageIds.has(item.id);
-            const actressName = actressNames[item.actress_id];
+            const actressName = item.actress?.name;
 
             return (
                 <ImageCard
                     image={item}
                     actressName={actressName}
-                    isLiked={isLiked}
-                    isLikePending={isLikePending}
                     onLike={onLike}
                     onPress={onImagePress}
                     columnWidth={COLUMN_WIDTH}
                 />
             );
         },
-        [likedImageIds, actressNames, isLikePending, onLike, onImagePress]
+        [onLike, onImagePress]
     );
 
     const keyExtractor = useCallback((item: Image) => item.id, []);
