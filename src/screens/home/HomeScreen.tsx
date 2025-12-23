@@ -9,12 +9,10 @@ import {
     View,
     useColorScheme,
 } from 'react-native';
-import { MotionifyView } from 'react-native-motionify';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useMotionify } from 'react-native-motionify';
 
 // Local components
-import AppLogo from './components/AppLogo';
-import SearchBarSkeleton from './components/SearchBarSkeleton';
+import AnimatedHeader from './components/AnimatedHeader';
 
 // Hooks
 import { flattenForYouPages, useForYouFeed } from './hooks/useForYouFeed';
@@ -22,7 +20,9 @@ import { flattenForYouPages, useForYouFeed } from './hooks/useForYouFeed';
 export default function HomeScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
-    const insets = useSafeAreaInsets();
+
+    // Scroll-driven animations hook
+    const { onScroll } = useMotionify();
 
     // Data hooks
     const {
@@ -84,39 +84,8 @@ export default function HomeScreen() {
                 backgroundColor={backgroundColor}
             />
 
-            {/* Sticky Header */}
-            <View
-                style={[
-                    styles.stickyHeader,
-                    {
-                        backgroundColor,
-                        paddingTop: insets.top,
-                    },
-                ]}
-            >
-                {/* Logo Row - Animates on scroll */}
-                <MotionifyView
-                    animatedY
-                    hideOn="down"
-                    translateRange={{ from: 0, to: -60 }}
-                    animationDuration={200}
-                    style={styles.logoRow}
-                >
-                    <AppLogo size="medium" />
-                </MotionifyView>
-
-                {/* Search Bar - Always Sticky */}
-                <View style={styles.searchBarContainer}>
-                    <SearchBarSkeleton onPress={handleSearchPress} />
-                </View>
-
-                {/* Bottom border for sticky effect */}
-                <View style={[styles.headerBorder, {
-                    backgroundColor: isDark
-                        ? 'rgba(255,255,255,0.05)'
-                        : 'rgba(0,0,0,0.03)'
-                }]} />
-            </View>
+            {/* Gmail-style Animated Header */}
+            <AnimatedHeader onSearchPress={handleSearchPress} />
 
             {/* Optimized FlashList Masonry Grid */}
             <MasonryImageGrid
@@ -127,6 +96,7 @@ export default function HomeScreen() {
                 isRefreshing={isRefetching}
                 onRefresh={handleRefresh}
                 onEndReached={handleEndReached}
+                onScroll={onScroll}
                 ListHeaderComponent={ListHeader}
                 contentContainerStyle={{ paddingTop: 140 }}
             />
@@ -137,25 +107,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    stickyHeader: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-    },
-    logoRow: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 8,
-    },
-    searchBarContainer: {
-        paddingHorizontal: 16,
-        paddingBottom: 12,
-    },
-    headerBorder: {
-        height: 1,
     },
     headerSpacer: {
         height: 10,
