@@ -126,7 +126,7 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
   const indicatorColor = Theme.palette.primary; // User requested primary color
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
       <View style={[styles.tabBarWrapper, { backgroundColor: tabBarBackground }]}>
         {/* Sliding Indicator */}
         <Animated.View

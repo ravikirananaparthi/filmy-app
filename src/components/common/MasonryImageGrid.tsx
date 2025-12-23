@@ -23,6 +23,7 @@ interface MasonryImageGridProps {
     onEndReached?: () => void;
     ListHeaderComponent?: React.ReactElement | null;
     contentContainerStyle?: any;
+    onScroll?: any; // Scroll handler from useMotionify for scroll-driven animations
 }
 
 /**
@@ -41,6 +42,7 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
     onEndReached,
     ListHeaderComponent,
     contentContainerStyle,
+    onScroll,
 }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -113,6 +115,8 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                 ListHeaderComponent={ListHeaderComponent}
                 contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
                 showsVerticalScrollIndicator={false}
+                onScroll={onScroll}
+                scrollEventThrottle={16}
             />
         </View>
     );
