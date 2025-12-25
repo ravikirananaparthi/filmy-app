@@ -99,7 +99,7 @@ const TabItem = memo(function TabItem({
   );
 });
 
-export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap }: BottomTabBarProps & { onHomeDoubleTap?: () => void }) {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   // Reference implies dark bar in BOTH modes
@@ -159,6 +159,9 @@ export function AnimatedTabBar({ state, descriptors, navigation }: BottomTabBarP
 
               if (!isFocused && !event.defaultPrevented) {
                 navigation.navigate(route.name);
+              } else if (isFocused && route.name === 'index' && onHomeDoubleTap) {
+                // Trigger refresh when tapping home tab while already on home
+                onHomeDoubleTap();
               }
             };
 
