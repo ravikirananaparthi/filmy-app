@@ -33,16 +33,27 @@ export function RefreshProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const triggerRefresh = useCallback(() => {
-        if (refreshHandlerRef.current && !isRefreshing) {
-            setIsRefreshing(true);
-            const result = refreshHandlerRef.current();
+        if (refreshHandlerRef.current) {
+            setIsRefreshing(prev => {
+                if (prev) return prev; // already refreshing
 
-            // If the handler returns a promise, wait for it
-            if (result instanceof Promise) {
-                result.finally(() => setIsRefreshing(false));
-            }
+                const result = refreshHandlerRef.current!();
+
+                // If the handler returns a promise, wait for it
+                if (result instanceof Promise) {
+                    result
+                        .catch(err => console.error('Refresh failed:', err))
+                        .finally(() => setIsRefreshing(false));
+                } else {
+                    // Synchronous handler - clear immediately
+                    // Using setTimeout to avoid state update during render
+                    setTimeout(() => setIsRefreshing(false), 0);
+                }
+
+                return true;
+            });
         }
-    }, [isRefreshing]);
+    }, []);
 
     const completeRefresh = useCallback(() => {
         setIsRefreshing(false);
