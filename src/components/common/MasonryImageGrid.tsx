@@ -87,6 +87,7 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                     tintColor={Theme.colors.primary.main}
                     colors={[Theme.colors.primary.main]}
                     progressBackgroundColor={backgroundColor}
+                    progressViewOffset={140} // Push indicator below header
                 />
             ) : undefined,
         [onRefresh, isRefreshing, backgroundColor]
