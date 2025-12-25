@@ -1,8 +1,9 @@
+import { useRefreshContext } from '@/src/contexts/RefreshContext';
 import { MasonryImageGrid } from '@components/common/MasonryImageGrid';
 import { Theme } from '@constants/theme';
 import useLike from '@hooks/useLike';
 import { router } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
     StatusBar,
     StyleSheet,
@@ -24,6 +25,9 @@ export default function HomeScreen() {
     // Scroll-driven animations hook
     const { onScroll } = useMotionify();
 
+    // Refresh context for tab-triggered refresh
+    const { isRefreshing, registerRefreshHandler } = useRefreshContext();
+
     // Data hooks
     const {
         data,
@@ -35,6 +39,11 @@ export default function HomeScreen() {
     } = useForYouFeed({ limit: 20 });
 
     const { toggleLike } = useLike();
+
+    // Register refresh handler for tab-triggered refresh
+    useEffect(() => {
+        registerRefreshHandler(refetch);
+    }, [refetch, registerRefreshHandler]);
 
     // Flatten feed pages
     const feedData = useMemo(() => flattenForYouPages(data), [data]);
@@ -67,6 +76,9 @@ export default function HomeScreen() {
         ? Theme.colors.background.dark
         : Theme.colors.background.light;
 
+    // Combine refreshing states (pull-to-refresh OR tab-triggered)
+    const isAnyRefreshing = isRefetching || isRefreshing;
+
     // Header component for FlashList padding
     const ListHeader = useMemo(
         () => (
@@ -87,13 +99,13 @@ export default function HomeScreen() {
             {/* Gmail-style Animated Header */}
             <AnimatedHeader onSearchPress={handleSearchPress} />
 
-            {/* Optimized FlashList Masonry Grid */}
+            {/* Optimized FlashList Masonry Grid with standard RefreshControl */}
             <MasonryImageGrid
                 data={feedData}
                 onLike={handleLike}
                 onImagePress={handleImagePress}
                 isLoading={isLoading}
-                isRefreshing={isRefetching}
+                isRefreshing={isAnyRefreshing}
                 onRefresh={handleRefresh}
                 onEndReached={handleEndReached}
                 onScroll={onScroll}

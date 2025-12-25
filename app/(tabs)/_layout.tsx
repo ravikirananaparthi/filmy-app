@@ -1,3 +1,4 @@
+import { RefreshProvider, useRefreshContext } from '@/src/contexts/RefreshContext';
 import { AnimatedTabBar } from '@components/ui/animated-tab-bar';
 import { Tabs } from 'expo-router';
 import React from 'react';
@@ -7,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function TabLayoutContent() {
   const insets = useSafeAreaInsets();
+  const { triggerRefresh } = useRefreshContext();
 
   return (
     <View style={styles.container}>
@@ -25,7 +27,7 @@ function TabLayoutContent() {
             animationDuration={150}
             style={styles.tabBarMotionify}
           >
-            <AnimatedTabBar {...props} />
+            <AnimatedTabBar {...props} onHomeDoubleTap={triggerRefresh} />
           </MotionifyView>
         )}
       >
@@ -66,9 +68,11 @@ function TabLayoutContent() {
 
 export default function TabLayout() {
   return (
-    <MotionifyProvider threshold={10} supportIdle={false}>
-      <TabLayoutContent />
-    </MotionifyProvider>
+    <RefreshProvider>
+      <MotionifyProvider threshold={10} supportIdle={false}>
+        <TabLayoutContent />
+      </MotionifyProvider>
+    </RefreshProvider>
   );
 }
 
