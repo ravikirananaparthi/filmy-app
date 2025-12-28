@@ -1,6 +1,6 @@
 // MUST BE FIRST - Initialize Reactotron in development
 if (__DEV__) {
-  require('../src/config/reactotron');
+    require('../src/config/reactotron');
 }
 
 import { Theme } from '@/constants/theme';
@@ -14,58 +14,39 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
 
 // Enable native screens for better performance
-// This uses native Fragment on Android instead of View components
 enableScreens();
 
-// If you're loading custom fonts later, keep this ready
-// import { useFonts } from 'expo-font';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+    const colorScheme = useColorScheme();
 
-  // Example if you add fonts later
-  // const [fontsLoaded] = useFonts({
-  //   Inter_400: require('../assets/fonts/Inter-Regular.ttf'),
-  // });
-  // if (!fontsLoaded) return null;
+    const backgroundColor = colorScheme === 'dark'
+        ? Theme.colors.background.dark
+        : Theme.colors.background.light;
 
-  const backgroundColor = colorScheme === 'dark'
-    ? Theme.colors.background.dark
-    : Theme.colors.background.light;
-
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <ApiProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : undefined}>
-            <View style={{ flex: 1, backgroundColor }}>
-              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'fade',
-                  contentStyle: {
-                    backgroundColor,
-                  },
-                }}
-              >
-                {/* Tabs */}
-                <Stack.Screen name="(tabs)" />
-
-                {/* Auth flow */}
-                <Stack.Screen name="(auth)" />
-
-                {/* Modals */}
-                <Stack.Screen
-                  name="modal"
-                  options={{ presentation: 'transparentModal' }}
-                />
-              </Stack>
-            </View>
-          </ThemeProvider>
-        </ApiProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
-  );
+    return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <SafeAreaProvider>
+                <ApiProvider>
+                    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : undefined}>
+                        <View style={{ flex: 1, backgroundColor }}>
+                            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+                            <Stack
+                                screenOptions={{
+                                    headerShown: false,
+                                    contentStyle: { backgroundColor },
+                                    presentation: 'transparentModal',
+                                }}
+                            >
+                                <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+                                <Stack.Screen name="(auth)" options={{ animation: 'slide_from_bottom' }} />
+                                <Stack.Screen name="image/[id]" options={{ presentation: 'card' }} />
+                                <Stack.Screen name="modal" options={{ presentation: 'transparentModal' }} />
+                            </Stack>
+                        </View>
+                    </ThemeProvider>
+                </ApiProvider>
+            </SafeAreaProvider>
+        </GestureHandlerRootView>
+    );
 }
-

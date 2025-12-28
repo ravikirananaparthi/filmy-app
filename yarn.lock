@@ -5943,6 +5943,11 @@ prelude-ls@^1.2.1:
   resolved "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
+pressto@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/pressto/-/pressto-0.6.0.tgz#c2181ecb5076ad1dadc61b3b00cf8a416cb338dc"
+  integrity sha512-Piu6130gaPaGMv/q7lKWvlhr64FszfZMIlHRuocFn7b5/OUkNS5kW0dG9+juKBiME+sKghSHz3Buz9QSDVgqxg==
+
 pretty-bytes@^5.6.0:
   version "5.6.0"
   resolved "https://registry.npmjs.org/pretty-bytes/-/pretty-bytes-5.6.0.tgz"
@@ -6131,6 +6136,11 @@ react-native-safe-area-context@~5.6.0:
   version "5.6.2"
   resolved "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-5.6.2.tgz"
   integrity sha512-4XGqMNj5qjUTYywJqpdWZ9IG8jgkS3h06sfVjfw5yZQZfWnRFXczi0GnYyFyCc2EBps/qFmoCH8fez//WumdVg==
+
+react-native-screen-transitions@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-screen-transitions/-/react-native-screen-transitions-3.1.0.tgz#83994cdcd7413aa139c090771f38682e0e934065"
+  integrity sha512-C/LQE8fksIGQGzojum3fZjrxRlDqXVzgtgpxKDiGWxCNiAbPoOM1YFpq0zFKIAdMZAR+5rm7YwbUBe1kvmVj2Q==
 
 react-native-screens@~4.16.0:
   version "4.16.0"
