@@ -1,91 +1,38 @@
-import { Theme } from '@constants/theme';
-import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft } from 'lucide-react-native';
-import React from 'react';
-import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CarouselScreen } from '@/src/components/carousel';
+import type { Image } from '@/src/types/image.types';
+import { useQueryClient } from '@tanstack/react-query';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function ImageDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === 'dark';
-    const insets = useSafeAreaInsets();
+    const queryClient = useQueryClient();
 
-    const backgroundColor = isDark
-        ? Theme.colors.background.dark
-        : Theme.colors.background.light;
+    const cachedData = queryClient.getQueryData(['feed', 'for-you', { limit: 20 }]) as any;
 
-    const textColor = isDark
-        ? Theme.colors.text.primary
-        : Theme.colors.textLight.primary;
+    const allImages: Image[] = useMemo(() => {
+        if (!cachedData?.pages) return [];
+        return cachedData.pages.flatMap((page: any) => page.data || []);
+    }, [cachedData]);
 
-    return (
-        <View style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Pressable onPress={() => router.back()} style={styles.backButton}>
-                    <ArrowLeft size={24} color={textColor} />
-                </Pressable>
-                <Text style={[styles.title, { color: textColor }]}>Image Detail</Text>
-                <View style={styles.placeholder} />
+    const initialIndex = useMemo(() => {
+        const index = allImages.findIndex((img) => img.id === id);
+        return index >= 0 ? index : 0;
+    }, [allImages, id]);
+
+    if (allImages.length === 0) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.text}>Loading...</Text>
             </View>
+        );
+    }
 
-            {/* Content Placeholder */}
-            <View style={styles.content}>
-                <Text style={[styles.placeholderText, { color: textColor }]}>
-                    Image ID: {id}
-                </Text>
-                <Text style={[styles.subtitle, { color: textColor }]}>
-                    Carousel viewer will be implemented here
-                </Text>
-                <Text style={[styles.hint, { color: isDark ? Theme.colors.text.tertiary : Theme.colors.textLight.tertiary }]}>
-                    Using react-native-reanimated-carousel for swipeable gallery
-                </Text>
-            </View>
-        </View>
-    );
+    return <CarouselScreen images={allImages} initialIndex={initialIndex} />;
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-    },
-    backButton: {
-        padding: 8,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '600',
-    },
-    placeholder: {
-        width: 40,
-    },
-    content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 24,
-    },
-    placeholderText: {
-        fontSize: 16,
-        fontWeight: '500',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        textAlign: 'center',
-        marginBottom: 8,
-    },
-    hint: {
-        fontSize: 14,
-        textAlign: 'center',
-    },
+    container: { flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' },
+    text: { color: '#fff', fontSize: 16 },
 });

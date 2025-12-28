@@ -1,6 +1,7 @@
 import type { Image as ImageType } from '@/src/types/image.types';
 import { Theme } from '@constants/theme';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { LikeButton } from './LikeButton';
@@ -15,8 +16,7 @@ interface ImageCardProps {
 
 /**
  * Image card component for the feed
- * 
- * Note: isLiked is no longer a prop - LikeButton reads directly from Zustand store
+ * Simple navigation - just pushes to image detail screen
  */
 export const ImageCard: React.FC<ImageCardProps> = memo(({
     image,
@@ -32,8 +32,8 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     const imageHeight = columnWidth / (image.aspect_ratio || 0.75);
 
     const handlePress = useCallback(() => {
-        onPress(image.id);
-    }, [image.id, onPress]);
+        router.push(`/image/${image.id}`);
+    }, [image.id]);
 
     const cardBackground = isDark
         ? Theme.colors.background.surface.dark
@@ -44,34 +44,29 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
         : Theme.colors.textLight.primary;
 
     return (
-        <Pressable
-            style={({ pressed }) => [
-                styles.container,
-                pressed && styles.pressed,
-            ]}
-            onPress={handlePress}
-        >
+        <View style={styles.container}>
             <View style={[styles.card, { backgroundColor: cardBackground }]}>
-                {/* Image */}
-                <View style={[styles.imageContainer, { height: imageHeight }]}>
-                    <Image
-                        source={{ uri: image.thumbnail_url }}
-                        style={styles.image}
-                        placeholder={{ blurhash: image.blurhash }}
-                        contentFit="cover"
-                        transition={200}
-                        cachePolicy="disk"
-                        recyclingKey={image.id}
-                    />
-
-                    {/* Like Button - reads isLiked from Zustand store */}
-                    <View style={styles.likeButtonContainer}>
-                        <LikeButton
-                            imageId={image.id}
-                            onLikePress={onLike}
-                            size={32}
+                <Pressable onPress={handlePress}>
+                    <View style={[styles.imageContainer, { height: imageHeight }]}>
+                        <Image
+                            source={{ uri: image.thumbnail_url }}
+                            style={styles.image}
+                            placeholder={{ blurhash: image.blurhash }}
+                            contentFit="cover"
+                            transition={200}
+                            cachePolicy="disk"
+                            recyclingKey={image.id}
                         />
                     </View>
+                </Pressable>
+
+                {/* Like Button */}
+                <View style={styles.likeButtonContainer}>
+                    <LikeButton
+                        imageId={image.id}
+                        onLikePress={onLike}
+                        size={32}
+                    />
                 </View>
 
                 {/* Actress Name */}
@@ -83,7 +78,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                     </View>
                 )}
             </View>
-        </Pressable>
+        </View>
     );
 });
 
@@ -93,9 +88,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 4,
-    },
-    pressed: {
-        opacity: 0.9,
     },
     card: {
         borderRadius: Theme.radius.lg,
@@ -114,8 +106,8 @@ const styles = StyleSheet.create({
     },
     likeButtonContainer: {
         position: 'absolute',
-        top: 6,
-        right: 6,
+        top: 10,
+        right: 10,
         zIndex: 10,
     },
     infoContainer: {

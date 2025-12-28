@@ -11,6 +11,8 @@ interface LikeButtonProps {
     imageId: string;
     onLikePress: (imageId: string) => void;
     size?: number;
+    activeColor?: string;
+    inactiveColor?: string;
 }
 
 /**
@@ -25,6 +27,8 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
     imageId,
     onLikePress,
     size = BUTTON_SIZE,
+    activeColor = LIKE_COLOR,
+    inactiveColor = LIKE_COLOR_INACTIVE,
 }) => {
     // Read directly from Zustand store - auto-updates when store changes
     const isLiked = useLikesStore((state) => state.likedImages.get(imageId) || false);
@@ -47,8 +51,8 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
         >
             <Heart
                 size={size * 0.55}
-                color={isLiked ? LIKE_COLOR : LIKE_COLOR_INACTIVE}
-                fill={isLiked ? LIKE_COLOR : 'transparent'}
+                color={isLiked ? activeColor : inactiveColor}
+                fill={isLiked ? activeColor : 'transparent'}
                 strokeWidth={2.5}
             />
         </Pressable>
