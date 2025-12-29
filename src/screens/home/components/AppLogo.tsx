@@ -1,6 +1,7 @@
+import { Text } from '@/src/components/ui';
 import { Theme } from '@constants/theme';
 import React from 'react';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 
 interface AppLogoProps {
     size?: 'small' | 'medium' | 'large';
@@ -14,8 +15,8 @@ export const AppLogo: React.FC<AppLogoProps> = ({ size = 'medium' }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.logo, { fontSize }]}>
-                <Text style={styles.logoFilmy}>Filmy</Text>
+            <Text weight="bold" style={[styles.logo, { fontSize }]}>
+                <Text weight="bold" style={styles.logoFilmy}>Filmy</Text>
             </Text>
         </View>
     );
@@ -27,7 +28,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        fontWeight: '800',
         letterSpacing: -0.5,
     },
     logoFilmy: {

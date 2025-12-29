@@ -1,3 +1,4 @@
+import { Text } from '@/src/components/ui';
 import { Theme } from '@constants/theme';
 import * as Haptics from 'expo-haptics';
 import { X } from 'lucide-react-native';
@@ -7,7 +8,6 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    Text,
     View,
     useColorScheme,
 } from 'react-native';
