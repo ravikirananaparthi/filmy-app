@@ -1,12 +1,13 @@
+import { Text } from '@/src/components/ui';
 import { Screen } from '@components/layout/Screen';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function TrendingScreen() {
     return (
         <Screen>
             <View style={styles.container}>
-                <Text style={styles.title}>Trending Screen</Text>
+                <Text weight="bold" style={styles.title}>Trending Screen</Text>
                 <Text style={styles.subtitle}>Trending images will be displayed here</Text>
             </View>
         </Screen>
@@ -22,7 +23,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
-        fontWeight: 'bold',
         marginBottom: 8,
     },
     subtitle: {
