@@ -1,8 +1,9 @@
+import { Text } from '@/src/components/ui';
 import { Theme } from '@constants/theme';
 import { BlurView } from 'expo-blur';
 import { Download } from 'lucide-react-native';
 import React, { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LikeButton } from '../common/LikeButton';
 
@@ -39,11 +40,11 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
 
                 {/* Actress Name - Centered */}
                 <View style={styles.nameContainer}>
-                    <Text style={styles.hashtag}>#</Text>
-                    <Text style={styles.actressName} numberOfLines={1}>
+                    <Text weight="semibold" style={styles.hashtag}>#</Text>
+                    <Text weight="semibold" style={styles.actressName} numberOfLines={1}>
                         {actressName}
                     </Text>
-                    <Text style={styles.verifiedBadge}>✓</Text>
+                    <Text weight="bold" style={styles.verifiedBadge}>✓</Text>
                 </View>
 
                 {/* Like Button */}
@@ -98,12 +99,10 @@ const styles = StyleSheet.create({
     },
     hashtag: {
         fontSize: 18,
-        fontWeight: '600',
         color: '#fff',
     },
     actressName: {
         fontSize: 18,
-        fontWeight: '600',
         color: '#fff',
         marginLeft: 2,
         maxWidth: 150,
@@ -112,7 +111,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: Theme.colors.primary.main,
         marginLeft: 6,
-        fontWeight: 'bold',
     },
     likeContainer: {
         width: 44,
