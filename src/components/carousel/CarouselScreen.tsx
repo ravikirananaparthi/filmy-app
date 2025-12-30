@@ -125,7 +125,6 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
                     <BottomBar
                         actressName={actressName}
                         imageId={currentImage.id}
-                        onDownloadPress={handleDownloadPress}
                         onLikePress={handleLikePress}
                     />
                 )}
