@@ -7,6 +7,7 @@ import { Dimensions, FlatList, StyleSheet, View, ViewToken } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomBar } from './BottomBar';
 import { CarouselItem } from './CarouselItem';
+import { MenuDropdown } from './MenuDropdown';
 import { TopBar } from './TopBar';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -22,6 +23,7 @@ interface CarouselScreenProps {
 export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
     const flatListRef = useRef<FlatList<ImageType>>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
+    const [menuVisible, setMenuVisible] = useState(false);
     const { toggleLike } = useLike();
     const initFromApiData = useLikesStore((state) => state.initFromApiData);
 
@@ -55,12 +57,21 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
         router.back();
     }, []);
 
+    // Open menu dropdown
     const handleMenuPress = useCallback(() => {
-        console.log('Menu pressed');
+        setMenuVisible(true);
     }, []);
 
-    const handleDownloadPress = useCallback(() => {
-        console.log('Download:', currentImage?.id);
+    // Close menu dropdown
+    const handleCloseMenu = useCallback(() => {
+        setMenuVisible(false);
+    }, []);
+
+    // Set as wallpaper handler - navigate to wallpaper screen
+    const handleSetWallpaper = useCallback(() => {
+        if (currentImage?.id) {
+            router.navigate(`/wallpaper/${currentImage.id}` as any);
+        }
     }, [currentImage?.id]);
 
     const handleLikePress = useCallback(
@@ -128,6 +139,13 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
                         onLikePress={handleLikePress}
                     />
                 )}
+
+                {/* Menu Dropdown */}
+                <MenuDropdown
+                    visible={menuVisible}
+                    onClose={handleCloseMenu}
+                    onSetWallpaper={handleSetWallpaper}
+                />
             </View>
         </GestureHandlerRootView>
     );
