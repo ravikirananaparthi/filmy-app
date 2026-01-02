@@ -1,62 +1,112 @@
-import { Theme } from '@constants/theme';
-import { BlurView } from 'expo-blur';
-import { Download } from 'lucide-react-native';
-import React, { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { FavoritesIcon } from '@/components/icons/tab-bar/favorites-icon';
+import { FavoritesIconUF } from '@/components/icons/tab-bar/favorites-icon-uf';
+import { BookmarkFilledIcon } from '@/components/icons/ui-icons/bookmark-filled';
+import { BookmarkIcon } from '@/components/icons/ui-icons/bookmark-icon';
+import { DownloadIcon } from '@/components/icons/ui-icons/download';
+import { DownloadFilledIcon } from '@/components/icons/ui-icons/download-filled';
+import { Text } from '@/src/components/ui';
+import { useLikesStore } from '@store/slices/likesSlice';
+import React, { memo, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LikeButton } from '../common/LikeButton';
 
 interface BottomBarProps {
     actressName: string;
     imageId: string;
-    onDownloadPress: () => void;
+    onDownloadPress?: () => void;
+    onBookmarkPress?: () => void;
     onLikePress: (imageId: string) => void;
 }
 
+// Icon button size
+const BUTTON_SIZE = 48;
+const BUTTON_RADIUS = 24;
+
 /**
- * BottomBar - Download (left), actress name (center), like (right)
- * Based on reference UI design
+ * BottomBar - Floating elements layout:
+ *                    [Like Button] (floating above)
+ * [Download] [Actress Name Pill] [Bookmark]
  */
 export const BottomBar: React.FC<BottomBarProps> = memo(({
     actressName,
     imageId,
     onDownloadPress,
+    onBookmarkPress,
     onLikePress,
 }) => {
     const insets = useSafeAreaInsets();
+    const [isDownloaded, setIsDownloaded] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
+
+    // Get like state from store
+    const isLiked = useLikesStore((state) => state.likedImages.get(imageId) ?? false);
+
+    const handleDownload = () => {
+        setIsDownloaded(true);
+        onDownloadPress?.();
+    };
+
+    const handleBookmark = () => {
+        setIsBookmarked(!isBookmarked);
+        onBookmarkPress?.();
+    };
+
+    const handleLike = () => {
+        onLikePress(imageId);
+    };
 
     return (
-        <View style={[styles.container, { paddingBottom: insets.bottom + 8 }]}>
-            <BlurView intensity={40} tint="dark" style={styles.blurContainer}>
-                {/* Download Button */}
+        <View style={[styles.container, { paddingBottom: insets.bottom + 12 }]}>
+            {/* Like Button - Floating above, right side */}
+            <View style={styles.likeButtonWrapper}>
                 <Pressable
-                    style={styles.actionButton}
-                    onPress={onDownloadPress}
+                    style={[styles.iconButton, isLiked && styles.iconButtonActive]}
+                    onPress={handleLike}
                     hitSlop={12}
                 >
-                    <Download size={22} color="#fff" />
+                    {isLiked ? (
+                        <FavoritesIcon size={24} color="#ff4757" />
+                    ) : (
+                        <FavoritesIconUF size={24} color="rgba(255, 255, 255, 0.9)" />
+                    )}
+                </Pressable>
+            </View>
+
+            {/* Bottom Row: Download | Name Pill | Bookmark */}
+            <View style={styles.bottomRow}>
+                {/* Download Button */}
+                <Pressable
+                    style={styles.iconButton}
+                    onPress={handleDownload}
+                    hitSlop={12}
+                >
+                    {isDownloaded ? (
+                        <DownloadFilledIcon size={24} color="#fff" />
+                    ) : (
+                        <DownloadIcon size={24} color="rgba(255, 255, 255, 0.9)" />
+                    )}
                 </Pressable>
 
-                {/* Actress Name - Centered */}
-                <View style={styles.nameContainer}>
-                    <Text style={styles.hashtag}>#</Text>
-                    <Text style={styles.actressName} numberOfLines={1}>
+                {/* Actress Name Pill */}
+                <View style={styles.namePill}>
+                    <Text weight="semibold" style={styles.actressName} numberOfLines={1}>
                         {actressName}
                     </Text>
-                    <Text style={styles.verifiedBadge}>✓</Text>
                 </View>
 
-                {/* Like Button */}
-                <View style={styles.likeContainer}>
-                    <LikeButton
-                        imageId={imageId}
-                        onLikePress={onLikePress}
-                        size={28}
-                        activeColor="#fff"
-                        inactiveColor="rgba(255, 255, 255, 0.7)"
-                    />
-                </View>
-            </BlurView>
+                {/* Bookmark Button */}
+                <Pressable
+                    style={styles.iconButton}
+                    onPress={handleBookmark}
+                    hitSlop={12}
+                >
+                    {isBookmarked ? (
+                        <BookmarkFilledIcon size={24} color="#ffc107" />
+                    ) : (
+                        <BookmarkIcon size={24} color="#ffc107" />
+                    )}
+                </Pressable>
+            </View>
         </View>
     );
 });
@@ -70,57 +120,45 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         zIndex: 100,
+        paddingHorizontal: 16,
     },
-    blurContainer: {
+    likeButtonWrapper: {
+        alignItems: 'flex-end',
+        marginBottom: 12,
+    },
+    bottomRow: {
         flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    iconButton: {
+        width: BUTTON_SIZE,
+        height: BUTTON_SIZE,
+        borderRadius: BUTTON_RADIUS,
+        backgroundColor: '#1e1e1e',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    iconButtonActive: {
+        backgroundColor: '#2a2a2a',
+    },
+    namePill: {
+        flex: 1,
+        height: BUTTON_SIZE,
+        borderRadius: BUTTON_RADIUS,
+        backgroundColor: '#1e1e1e',
+        justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 12,
-        marginHorizontal: 16,
-        marginBottom: 8,
-        borderRadius: 32,
-        overflow: 'hidden',
-    },
-    actionButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    nameContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 12,
-    },
-    hashtag: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#fff',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
     },
     actressName: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 15,
         color: '#fff',
-        marginLeft: 2,
-        maxWidth: 150,
-    },
-    verifiedBadge: {
-        fontSize: 14,
-        color: Theme.colors.primary.main,
-        marginLeft: 6,
-        fontWeight: 'bold',
-    },
-    likeContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
+        textAlign: 'center',
     },
 });
 

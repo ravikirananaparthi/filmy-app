@@ -1,8 +1,9 @@
+import { Text } from '@/src/components/ui';
 import { Theme } from '@constants/theme';
 import * as Haptics from 'expo-haptics';
 import { Search } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
+import { Pressable, StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -84,7 +85,6 @@ const styles = StyleSheet.create({
     },
     placeholder: {
         fontSize: 15,
-        fontWeight: '400',
     },
 });
 

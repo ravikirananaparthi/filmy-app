@@ -1,6 +1,7 @@
+import { Text } from '@/src/components/ui';
 import { Theme } from '@constants/theme';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 interface EmptyStateProps {
     message?: string;

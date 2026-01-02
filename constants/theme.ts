@@ -76,7 +76,7 @@ export const Colors = {
 export const Theme = {
   // Active color palette
   palette: ActivePalette,
-  
+
   // Colors organized by purpose
   colors: {
     // Backgrounds
@@ -88,25 +88,25 @@ export const Theme = {
         light: ActivePalette.surface.light,
       },
     },
-    
+
     // Primary brand colors
     primary: {
       main: ActivePalette.primary,
       light: ActivePalette.primaryLight,
       dark: ActivePalette.primaryDark,
     },
-    
+
     // Accent colors
     accent: ActivePalette.accent,
     muted: ActivePalette.muted,
-    
+
     // Gradients
     gradient: ActivePalette.gradient,
-    
+
     // Text colors
     text: UIColors.text,
     textLight: UIColors.textLight,
-    
+
     // Status colors
     status: {
       success: UIColors.success,
@@ -114,13 +114,13 @@ export const Theme = {
       error: UIColors.error,
       info: UIColors.info,
     },
-    
+
     // Borders & overlays
     border: UIColors.border,
     overlay: UIColors.overlay,
     glass: UIColors.glass,
   },
-  
+
   // Spacing scale
   spacing: {
     xs: 4,
@@ -130,7 +130,7 @@ export const Theme = {
     xl: 32,
     xxl: 48,
   },
-  
+
   // Border radius scale
   radius: {
     sm: 4,
@@ -140,7 +140,7 @@ export const Theme = {
     xxl: 24,
     full: 9999,
   },
-  
+
   // Shadow configurations
   shadows: {
     sm: {
@@ -175,13 +175,20 @@ export const Theme = {
 } as const;
 
 // =============================================================================
-// FONTS
+// FONTS - Google Sans Flex
 // =============================================================================
+
+export const FontFamily = {
+  regular: 'GoogleSansFlex_400Regular',
+  medium: 'GoogleSansFlex_500Medium',
+  semibold: 'GoogleSansFlex_600SemiBold',
+  bold: 'GoogleSansFlex_700Bold',
+} as const;
 
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
+    sans: FontFamily.regular,
     /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
     /** iOS `UIFontDescriptorSystemDesignRounded` */
@@ -190,15 +197,15 @@ export const Fonts = Platform.select({
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'normal',
+    sans: FontFamily.regular,
     serif: 'serif',
-    rounded: 'normal',
+    rounded: FontFamily.regular,
     mono: 'monospace',
   },
   web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    sans: "'Google Sans Flex', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
+    rounded: "'Google Sans Flex', 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
@@ -210,54 +217,63 @@ export const Fonts = Platform.select({
 export const Typography = {
   // Display text (Hero sections)
   display: {
+    fontFamily: FontFamily.bold,
     fontSize: 48,
     lineHeight: 56,
     fontWeight: '700' as const,
   },
   // Page titles
   h1: {
+    fontFamily: FontFamily.bold,
     fontSize: 32,
     lineHeight: 40,
     fontWeight: '700' as const,
   },
   // Section titles
   h2: {
+    fontFamily: FontFamily.semibold,
     fontSize: 24,
     lineHeight: 32,
     fontWeight: '600' as const,
   },
   // Subsection titles
   h3: {
+    fontFamily: FontFamily.semibold,
     fontSize: 20,
     lineHeight: 28,
     fontWeight: '600' as const,
   },
   // Card titles
   h4: {
+    fontFamily: FontFamily.semibold,
     fontSize: 18,
     lineHeight: 24,
     fontWeight: '600' as const,
   },
   // Body text
   body: {
+    fontFamily: FontFamily.regular,
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '400' as const,
   },
   // Secondary body
   bodySmall: {
+    fontFamily: FontFamily.regular,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '400' as const,
   },
   // Captions & labels
   caption: {
+    fontFamily: FontFamily.regular,
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '400' as const,
   },
   // Small labels
   tiny: {
+    fontFamily: FontFamily.medium,
     fontSize: 10,
     lineHeight: 14,
     fontWeight: '500' as const,

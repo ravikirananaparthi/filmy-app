@@ -1,9 +1,10 @@
+import { Text } from '@/src/components/ui';
 import type { Image as ImageType } from '@/src/types/image.types';
 import { Theme } from '@constants/theme';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
-import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { Pressable, StyleSheet, View, useColorScheme } from 'react-native';
 import { LikeButton } from './LikeButton';
 
 interface ImageCardProps {
@@ -116,7 +117,6 @@ const styles = StyleSheet.create({
     },
     actressName: {
         fontSize: 12,
-        fontWeight: '500',
     },
 });
 

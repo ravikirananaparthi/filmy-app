@@ -1,9 +1,10 @@
 import { CarouselScreen } from '@/src/components/carousel';
+import { Text } from '@/src/components/ui';
 import type { Image } from '@/src/types/image.types';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function ImageDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();

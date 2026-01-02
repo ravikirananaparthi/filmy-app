@@ -1,3 +1,4 @@
+import { Text } from '@/src/components/ui';
 import { Theme } from '@constants/theme';
 import * as Haptics from 'expo-haptics';
 import { ChevronDown } from 'lucide-react-native';
@@ -6,7 +7,6 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    Text,
     View,
     useColorScheme,
 } from 'react-native';
@@ -152,7 +152,7 @@ const FilterChip: React.FC<FilterChipProps> = ({
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
         >
-            <Text style={[styles.chipText, { color: chipText }]}>{label}</Text>
+            <Text weight="semibold" style={[styles.chipText, { color: chipText }]}>{label}</Text>
             {hasDropdown && (
                 <ChevronDown size={14} color={chipText} strokeWidth={2.5} />
             )}
@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
     },
     chipText: {
         fontSize: 13,
-        fontWeight: '600',
     },
     divider: {
         width: 1,
