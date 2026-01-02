@@ -1,0 +1,34 @@
+name: Daily Contribution
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every day (adjust for your timezone)
+    - cron: '30 18 * * *'  # 18:30 UTC = 00:00 IST
+  workflow_dispatch:  # Manual trigger option
+
+jobs:
+  contribute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: carousel
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create empty commits
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          COUNT=$((RANDOM % 5 + 6))  # Random number between 6-10
+          echo "Creating $COUNT commits for $TODAY"
+          for i in $(seq 1 $COUNT); do
+            git commit --allow-empty -m "chore: daily contribution $i - $TODAY"
+          done
+
+      - name: Push commits
+        run: git push origin carousel
