@@ -1,9 +1,10 @@
+import { FavoritesIcon } from '@/components/icons/tab-bar/favorites-icon';
+import { FavoritesIconUF } from '@/components/icons/tab-bar/favorites-icon-uf';
 import { useLikesStore } from '@store/slices/likesSlice';
-import { Heart } from 'lucide-react-native';
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
-const LIKE_COLOR = '#FF006E';
+const LIKE_COLOR = '#ff4757';
 const LIKE_COLOR_INACTIVE = 'rgba(255, 255, 255, 0.9)';
 const BUTTON_SIZE = 40;
 
@@ -41,20 +42,20 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
 
     return (
         <Pressable
-            onPress={handlePress}
+            onPressIn={handlePress}
             style={({ pressed }) => [
                 styles.button,
                 { width: size, height: size },
                 pressed && styles.pressed,
             ]}
-            hitSlop={8}
+            hitSlop={12}
+            unstable_pressDelay={0}
         >
-            <Heart
-                size={size * 0.55}
-                color={isLiked ? activeColor : inactiveColor}
-                fill={isLiked ? activeColor : 'transparent'}
-                strokeWidth={2.5}
-            />
+            {isLiked ? (
+                <FavoritesIcon size={size * 0.6} color={activeColor} />
+            ) : (
+                <FavoritesIconUF size={size * 0.6} color={inactiveColor} />
+            )}
         </Pressable>
     );
 };

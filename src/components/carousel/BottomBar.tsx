@@ -5,8 +5,8 @@ import { BookmarkIcon } from '@/components/icons/ui-icons/bookmark-icon';
 import { DownloadIcon } from '@/components/icons/ui-icons/download';
 import { DownloadFilledIcon } from '@/components/icons/ui-icons/download-filled';
 import { Text } from '@/src/components/ui';
-import { useLikesStore } from '@store/slices/likesSlice';
-import React, { memo, useState } from 'react';
+import useLikesStore from '@/src/store/slices/likesSlice';
+import React, { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,7 +27,7 @@ const BUTTON_RADIUS = 24;
  *                    [Like Button] (floating above)
  * [Download] [Actress Name Pill] [Bookmark]
  */
-export const BottomBar: React.FC<BottomBarProps> = memo(({
+export const BottomBar: React.FC<BottomBarProps> = ({
     actressName,
     imageId,
     onDownloadPress,
@@ -59,9 +59,10 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
         onBookmarkPress?.();
     };
 
-    const handleLike = () => {
+    const handleLike = useCallback(() => {
+        // The store will be updated by onLikePress
         onLikePress(imageId);
-    };
+    }, [imageId, onLikePress]);
 
     return (
         <View style={[styles.container, { paddingBottom: insets.bottom + 12 }]}>
@@ -69,8 +70,9 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
             <View style={styles.likeButtonWrapper}>
                 <Pressable
                     style={[styles.iconButton, isLiked && styles.iconButtonActive]}
-                    onPress={handleLike}
+                    onPressIn={handleLike}
                     hitSlop={12}
+                    unstable_pressDelay={0}
                 >
                     {isLiked ? (
                         <FavoritesIcon size={24} color="#ff4757" />
@@ -85,8 +87,9 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
                 {/* Download Button */}
                 <Pressable
                     style={styles.iconButton}
-                    onPress={handleDownload}
+                    onPressIn={handleDownload}
                     hitSlop={12}
+                    unstable_pressDelay={0}
                 >
                     {isDownloaded ? (
                         <DownloadFilledIcon size={24} color="#fff" />
@@ -105,8 +108,9 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
                 {/* Bookmark Button */}
                 <Pressable
                     style={styles.iconButton}
-                    onPress={handleBookmark}
+                    onPressIn={handleBookmark}
                     hitSlop={12}
+                    unstable_pressDelay={0}
                 >
                     {isBookmarked ? (
                         <BookmarkFilledIcon size={24} color="#ffc107" />
@@ -117,7 +121,7 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
             </View>
         </View>
     );
-});
+};
 
 BottomBar.displayName = 'BottomBar';
 
