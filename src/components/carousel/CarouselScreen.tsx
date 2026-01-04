@@ -17,12 +17,22 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 interface CarouselScreenProps {
     images: ImageType[];
     initialIndex: number;
+    // Pagination props
+    onFetchMore?: () => void;
+    hasMore?: boolean;
+    isFetchingMore?: boolean;
 }
 
 /**
  * CarouselScreen - Fullscreen image carousel with Pinterest-style swiping
  */
-export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
+export function CarouselScreen({
+    images,
+    initialIndex,
+    onFetchMore,
+    hasMore,
+    isFetchingMore,
+}: CarouselScreenProps) {
     const flatListRef = useRef<FlatList<ImageType>>(null);
     const sheetRef = useRef<SaveToFavoritesSheetRef>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
@@ -41,14 +51,21 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
     // Current image
     const currentImage = useMemo(() => images[activeIndex], [images, activeIndex]);
 
-    // Handle viewable items change
+    // Handle viewable items change + pagination trigger
     const onViewableItemsChanged = useCallback(
         ({ viewableItems }: { viewableItems: ViewToken[] }) => {
             if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-                setActiveIndex(viewableItems[0].index);
+                const newIndex = viewableItems[0].index;
+                setActiveIndex(newIndex);
+
+                // Fetch more when 3 images from end
+                const threshold = images.length - 3;
+                if (newIndex >= threshold && hasMore && !isFetchingMore && onFetchMore) {
+                    onFetchMore();
+                }
             }
         },
-        []
+        [images.length, hasMore, isFetchingMore, onFetchMore]
     );
 
     const viewabilityConfig = useRef({

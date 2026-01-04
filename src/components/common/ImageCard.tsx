@@ -54,9 +54,14 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                             style={styles.image}
                             placeholder={{ blurhash: image.blurhash }}
                             contentFit="cover"
-                            transition={200}
-                            cachePolicy="disk"
                             recyclingKey={image.id}
+                            // old props
+                            // transition={200}
+                            // cachePolicy="disk"
+                            // new props
+                            placeholderContentFit="cover"
+                            transition={0}
+                            cachePolicy="memory-disk"
                         />
                     </View>
                 </Pressable>

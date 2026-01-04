@@ -1,22 +1,28 @@
 import { CarouselScreen } from '@/src/components/carousel';
 import { Text } from '@/src/components/ui';
+import { flattenForYouPages, useForYouFeed } from '@/src/screens/home/hooks/useForYouFeed';
 import type { Image } from '@/src/types/image.types';
-import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export default function ImageDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const queryClient = useQueryClient();
 
-    const cachedData = queryClient.getQueryData(['feed', 'for-you', { limit: 20 }]) as any;
+    // Use the same feed hook - shares cache with HomeScreen
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useForYouFeed({ limit: 20 });
 
+    // Flatten all pages into single array
     const allImages: Image[] = useMemo(() => {
-        if (!cachedData?.pages) return [];
-        return cachedData.pages.flatMap((page: any) => page.data || []);
-    }, [cachedData]);
+        return flattenForYouPages(data);
+    }, [data]);
 
+    // Find initial index
     const initialIndex = useMemo(() => {
         const index = allImages.findIndex((img) => img.id === id);
         return index >= 0 ? index : 0;
@@ -30,7 +36,15 @@ export default function ImageDetailScreen() {
         );
     }
 
-    return <CarouselScreen images={allImages} initialIndex={initialIndex} />;
+    return (
+        <CarouselScreen
+            images={allImages}
+            initialIndex={initialIndex}
+            onFetchMore={fetchNextPage}
+            hasMore={hasNextPage}
+            isFetchingMore={isFetchingNextPage}
+        />
+    );
 }
 
 const styles = StyleSheet.create({

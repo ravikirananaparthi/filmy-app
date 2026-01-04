@@ -92,7 +92,6 @@ export const CreateFolderSheet = forwardRef<CreateFolderSheetRef, CreateFolderSh
                 cornerRadius={24}
                 grabber={true}
                 backgroundColor={backgroundColor}
-                keyboardMode="pan"
                 header={
                     <View style={[styles.header, { backgroundColor, borderBottomColor: borderColor }]}>
                         <Text weight="bold" style={[styles.title, { color: textColor }]}>
