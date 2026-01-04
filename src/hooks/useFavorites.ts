@@ -10,6 +10,7 @@ import {
 import type { FavoriteFolder } from '@/src/types/favorites.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
+import { Platform, ToastAndroid } from 'react-native';
 
 // Query keys
 export const FAVORITES_KEYS = {
@@ -47,7 +48,7 @@ export const useCreateFolder = () => {
                     return [...old, response.data.folder];
                 }
             );
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
         },
         onError: () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -67,7 +68,10 @@ export const useAddToFolder = () => {
         onSuccess: (_, { folderId }) => {
             // Invalidate folders to update image count
             queryClient.invalidateQueries({ queryKey: FAVORITES_KEYS.folders });
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            if (Platform.OS === 'android') {
+                ToastAndroid.show('Image saved to collection!', ToastAndroid.SHORT);
+            }
         },
         onError: () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
