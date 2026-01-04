@@ -45,6 +45,14 @@ export const API_ENDPOINTS = {
         IMAGES: '/trending',
     },
 
+    // Favorites
+    FAVORITES: {
+        FOLDERS: '/favorites/folders',
+        CREATE_FOLDER: '/favorites/folders',
+        FOLDER_IMAGES: (folderId: string) => `/favorites/folders/${folderId}/images`,
+        ADD_IMAGE: (folderId: string, imageId: string) => `/favorites/folders/${folderId}/images/${imageId}`,
+    },
+
     // Tags
     TAGS: {
         POPULAR: '/tags/popular',

@@ -13,9 +13,11 @@
   "dependencies": {
     "@expo-google-fonts/google-sans-flex": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
+    "@lodev09/react-native-true-sheet": "^3.7.0-beta.5",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
+    "@react-navigation/stack": "^7.6.13",
     "@rnrepo/expo-config-plugin": "^0.1.0-beta.0",
     "@shopify/flash-list": "2.0.2",
     "@shopify/react-native-skia": "2.2.12",

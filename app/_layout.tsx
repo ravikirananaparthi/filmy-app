@@ -63,7 +63,6 @@ export default function RootLayout() {
                                 screenOptions={{
                                     headerShown: false,
                                     contentStyle: { backgroundColor },
-                                    presentation: 'transparentModal',
                                 }}
                             >
                                 <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
@@ -71,6 +70,7 @@ export default function RootLayout() {
                                 <Stack.Screen name="image/[id]" options={{ presentation: 'card' }} />
                                 <Stack.Screen name="wallpaper/[id]" options={{ animation: 'slide_from_bottom' }} />
                                 <Stack.Screen name="modal" options={{ presentation: 'transparentModal' }} />
+                                <Stack.Screen name="(modal)" options={{ presentation: 'transparentModal' }} />
                             </Stack>
                         </View>
                     </ThemeProvider>
