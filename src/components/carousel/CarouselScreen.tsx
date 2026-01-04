@@ -1,3 +1,4 @@
+import { downloadImageToGallery } from '@/src/services/download.service';
 import type { Image as ImageType } from '@/src/types/image.types';
 import useLike from '@hooks/useLike';
 import { useLikesStore } from '@store/slices/likesSlice';
@@ -24,6 +25,7 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
     const flatListRef = useRef<FlatList<ImageType>>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
     const [menuVisible, setMenuVisible] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const { toggleLike } = useLike();
     const initFromApiData = useLikesStore((state) => state.initFromApiData);
 
@@ -73,6 +75,16 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
             router.navigate(`/wallpaper/${currentImage.id}` as any);
         }
     }, [currentImage?.id]);
+
+    // Download handler
+    const handleDownloadPress = useCallback(async () => {
+        if (!currentImage || isDownloading) return;
+
+        setIsDownloading(true);
+        const actressName = currentImage.actress?.name;
+        await downloadImageToGallery(currentImage.image_url, currentImage.id, actressName);
+        setIsDownloading(false);
+    }, [currentImage, isDownloading]);
 
     const handleLikePress = useCallback(
         (imageId: string) => {
@@ -136,6 +148,7 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
                     <BottomBar
                         actressName={actressName}
                         imageId={currentImage.id}
+                        onDownloadPress={handleDownloadPress}
                         onLikePress={handleLikePress}
                     />
                 )}

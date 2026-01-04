@@ -11,7 +11,6 @@
     "lint": "expo lint"
   },
   "dependencies": {
-    "@ajaybhatia/react-native-wallpaper-manager": "^0.0.3",
     "@expo-google-fonts/google-sans-flex": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.4.0",

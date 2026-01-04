@@ -1,7 +1,6 @@
 import { BackIcon } from '@/components/icons/ui-icons/back-icon';
 import { Theme } from '@/constants/theme';
 import type { Image } from '@/src/types/image.types';
-import WallpaperManager, { TYPE } from '@ajaybhatia/react-native-wallpaper-manager';
 import { useQueryClient } from '@tanstack/react-query';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Image as ExpoImage } from 'expo-image';
@@ -103,7 +102,7 @@ export default function WallpaperScreen() {
         router.back();
     }, []);
 
-    // Set as wallpaper handler
+    // Set as wallpaper handler - saves to gallery
     const handleSetWallpaper = useCallback(async () => {
         if (!currentImage) {
             Alert.alert('Error', 'Image not found. Please go back and try again.');
@@ -113,47 +112,44 @@ export default function WallpaperScreen() {
         setIsSettingWallpaper(true);
 
         try {
+            // Request permission
+            const { status } = await MediaLibrary.requestPermissionsAsync();
+            if (status !== 'granted') {
+                Alert.alert('Permission Required', 'Please allow access to save the image.');
+                setIsSettingWallpaper(false);
+                return;
+            }
+
             // Download image to local file first
             const fileName = `wallpaper_${currentImage.id}.jpg`;
             const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
-            console.log('Downloading image to:', fileUri);
 
             const downloadResult = await FileSystem.downloadAsync(
                 currentImage.image_url,
                 fileUri
             );
 
-            console.log('Download result:', downloadResult.status, downloadResult.uri);
-
             if (downloadResult.status !== 200) {
                 throw new Error(`Download failed with status ${downloadResult.status}`);
             }
 
+            // Save to gallery
+            await MediaLibrary.saveToLibraryAsync(downloadResult.uri);
+
             if (Platform.OS === 'android') {
-                // Set as wallpaper using native module
-                console.log('Setting wallpaper...');
-                await WallpaperManager.setWallpaper(
-                    { uri: `file://${downloadResult.uri.replace('file://', '')}` },
-                    TYPE.BOTH
+                ToastAndroid.show('Image saved to gallery!', ToastAndroid.SHORT);
+                Alert.alert(
+                    'Saved to Gallery',
+                    'To set as wallpaper:\n\n1. Open Gallery/Photos\n2. Long press the image\n3. Select "Set as Wallpaper"'
                 );
-                ToastAndroid.show('Wallpaper set successfully!', ToastAndroid.SHORT);
-                router.back();
             } else {
-                // iOS: Save to gallery (can't set wallpaper programmatically)
-                const { status } = await MediaLibrary.requestPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert('Permission Required', 'Please allow access to save the image.');
-                    setIsSettingWallpaper(false);
-                    return;
-                }
-                await MediaLibrary.saveToLibraryAsync(downloadResult.uri);
                 Alert.alert(
                     'Saved to Photos',
                     'To set as wallpaper:\n\n1. Open Photos app\n2. Select this image\n3. Tap Share\n4. Choose "Use as Wallpaper"'
                 );
             }
         } catch (error: any) {
-            console.error('Failed to set wallpaper:', error);
+            console.error('Failed to save wallpaper:', error);
             const errorMessage = error?.message || 'Unknown error';
             if (Platform.OS === 'android') {
                 ToastAndroid.show(`Failed: ${errorMessage}`, ToastAndroid.LONG);

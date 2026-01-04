@@ -36,14 +36,22 @@ export const BottomBar: React.FC<BottomBarProps> = memo(({
 }) => {
     const insets = useSafeAreaInsets();
     const [isDownloaded, setIsDownloaded] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [isBookmarked, setIsBookmarked] = useState(false);
 
     // Get like state from store
     const isLiked = useLikesStore((state) => state.likedImages.get(imageId) ?? false);
 
-    const handleDownload = () => {
-        setIsDownloaded(true);
-        onDownloadPress?.();
+    const handleDownload = async () => {
+        if (isDownloading) return;
+
+        setIsDownloading(true);
+        try {
+            await onDownloadPress?.();
+            setIsDownloaded(true);
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const handleBookmark = () => {
