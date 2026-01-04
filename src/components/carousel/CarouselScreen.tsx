@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, StyleSheet, View, ViewToken } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import SaveToFavoritesSheet from '../sheets/SaveToFavoritesSheet';
 import { BottomBar } from './BottomBar';
 import { CarouselItem } from './CarouselItem';
 import { MenuDropdown } from './MenuDropdown';
@@ -23,6 +24,7 @@ interface CarouselScreenProps {
  */
 export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
     const flatListRef = useRef<FlatList<ImageType>>(null);
+    const sheetRef = useRef<SaveToFavoritesSheetRef>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
     const [menuVisible, setMenuVisible] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
@@ -93,6 +95,10 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
         [toggleLike]
     );
 
+    const handleBookmarkPress = useCallback(() => {
+        sheetRef.current?.present();
+    }, []);
+
     const renderItem = useCallback(
         ({ item, index }: { item: ImageType; index: number }) => (
             <CarouselItem
@@ -149,6 +155,7 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
                         actressName={actressName}
                         imageId={currentImage.id}
                         onDownloadPress={handleDownloadPress}
+                        onBookmarkPress={handleBookmarkPress}
                         onLikePress={handleLikePress}
                     />
                 )}
@@ -158,6 +165,13 @@ export function CarouselScreen({ images, initialIndex }: CarouselScreenProps) {
                     visible={menuVisible}
                     onClose={handleCloseMenu}
                     onSetWallpaper={handleSetWallpaper}
+                />
+
+                {/* Save to Favorites Sheet */}
+                <SaveToFavoritesSheet
+                    ref={sheetRef}
+                    imageId={currentImage?.id}
+                    imageUrl={currentImage?.image_url}
                 />
             </View>
         </GestureHandlerRootView>

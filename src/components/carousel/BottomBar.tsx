@@ -55,7 +55,6 @@ export const BottomBar: React.FC<BottomBarProps> = ({
     };
 
     const handleBookmark = () => {
-        setIsBookmarked(!isBookmarked);
         onBookmarkPress?.();
     };
 
