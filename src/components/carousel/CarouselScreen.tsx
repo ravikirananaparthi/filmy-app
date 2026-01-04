@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, StyleSheet, View, ViewToken } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import SaveToFavoritesSheet from '../sheets/SaveToFavoritesSheet';
+import SaveToFavoritesSheet, { SaveToFavoritesSheetRef } from '../sheets/SaveToFavoritesSheet';
 import { BottomBar } from './BottomBar';
 import { CarouselItem } from './CarouselItem';
 import { MenuDropdown } from './MenuDropdown';
