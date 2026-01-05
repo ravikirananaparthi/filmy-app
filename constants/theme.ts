@@ -171,6 +171,14 @@ export const Theme = {
       shadowRadius: 12,
       elevation: 8,
     }),
+    // Featured card shadow (Apple TV style)
+    featured: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.35,
+      shadowRadius: 24,
+      elevation: 12,
+    },
   },
 } as const;
 
@@ -221,6 +229,14 @@ export const Typography = {
     fontSize: 48,
     lineHeight: 56,
     fontWeight: '700' as const,
+  },
+  // Apple TV-style large title
+  largeTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: 34,
+    lineHeight: 41,
+    fontWeight: '700' as const,
+    letterSpacing: -0.5,
   },
   // Page titles
   h1: {
