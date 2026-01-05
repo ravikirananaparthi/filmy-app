@@ -45,6 +45,12 @@ export const API_ENDPOINTS = {
         IMAGES: '/trending',
     },
 
+    // Explore
+    EXPLORE: {
+        HIGHLIGHTS: '/explore/highlights',
+        FEATURED_ACTRESSES: '/explore/featured-actresses',
+    },
+
     // Favorites
     FAVORITES: {
         FOLDERS: '/favorites/folders',
