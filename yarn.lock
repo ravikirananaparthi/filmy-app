@@ -6250,6 +6250,11 @@ react-native-motionify@^1.0.1:
   resolved "https://registry.yarnpkg.com/react-native-motionify/-/react-native-motionify-1.0.1.tgz#4833bf46c83288bb5be861130c3feee0559a6990"
   integrity sha512-SJE/49CBcU3wnn4jUEFbvcFb+wmXUvI9WifqElDWo+1VsXwDeLVgnDesZbg9avuIGVHK0ajQKfVrUuhHVAnilw==
 
+react-native-pager-view@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-8.0.0.tgz#9a6cc7d8239d97581840fe51691f07320d1ce4f7"
+  integrity sha512-oAwlWT1lhTkIs9HhODnjNNl/owxzn9DP1MbP+az6OTUdgbmzA16Up83sBH8NRKwrH8rNm7iuWnX1qMqiiWOLhg==
+
 react-native-reanimated-carousel@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/react-native-reanimated-carousel/-/react-native-reanimated-carousel-4.0.3.tgz#975f4ff3f5da5bb3790fe60850a46ad8119612bc"

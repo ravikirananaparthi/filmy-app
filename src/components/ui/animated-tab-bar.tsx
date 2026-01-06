@@ -13,7 +13,7 @@ import {
 import { Theme } from '@/constants/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   Dimensions,
   Pressable,
@@ -22,9 +22,7 @@ import {
   View,
 } from 'react-native';
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
+  useAnimatedStyle
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -99,27 +97,42 @@ const TabItem = memo(function TabItem({
   );
 });
 
+// Try to get tab navigation context (optional - works without it for tap-only mode)
+function useOptionalTabNavigation() {
+  try {
+    // Dynamic import to avoid circular dependency
+    const { useTabNavigation } = require('@/src/contexts/TabNavigationContext');
+    return useTabNavigation();
+  } catch {
+    return null;
+  }
+}
+
 export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap }: BottomTabBarProps & { onHomeDoubleTap?: () => void }) {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   // Reference implies dark bar in BOTH modes
   const isDark = true;
 
-  // Animated position of the sliding indicator
-  const indicatorPosition = useSharedValue(state.index * TAB_ITEM_WIDTH + INDICATOR_PADDING);
-
-  // Update indicator position when tab changes
-  useEffect(() => {
-    indicatorPosition.value = withSpring(
-      state.index * TAB_ITEM_WIDTH + INDICATOR_PADDING,
-      SPRING_CONFIG
-    );
-  }, [state.index, indicatorPosition]);
+  // Try to get swipe navigation context
+  const tabNavContext = useOptionalTabNavigation();
 
   // Animated style for the sliding indicator
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorPosition.value }],
-  }));
+  // Always uses scrollPosition from context for smooth, unified animation
+  const indicatorStyle = useAnimatedStyle(() => {
+    // If we have scroll position from PagerView, use it directly
+    if (tabNavContext?.scrollPosition) {
+      const position = tabNavContext.scrollPosition.value * TAB_ITEM_WIDTH + INDICATOR_PADDING;
+      return {
+        transform: [{ translateX: position }],
+      };
+    }
+    // Fallback: use state.index (for when context is not available)
+    const position = state.index * TAB_ITEM_WIDTH + INDICATOR_PADDING;
+    return {
+      transform: [{ translateX: position }],
+    };
+  });
 
   // Theme overrides for the specific "Artistry" look
   const tabBarBackground = '#121212'; // Deep matte black
@@ -159,6 +172,8 @@ export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap
 
               if (!isFocused && !event.defaultPrevented) {
                 navigation.navigate(route.name);
+                // Also navigate PagerView if available
+                tabNavContext?.navigateToTab(index);
               } else if (isFocused && route.name === 'index' && onHomeDoubleTap) {
                 // Trigger refresh when tapping home tab while already on home
                 onHomeDoubleTap();
