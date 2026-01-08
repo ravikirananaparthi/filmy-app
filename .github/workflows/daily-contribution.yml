@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: master
+          ref: git-commits
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -31,4 +31,4 @@ jobs:
           done
 
       - name: Push commits
-        run: git push origin master
+        run: git push origin git-commits
