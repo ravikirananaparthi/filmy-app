@@ -24,6 +24,7 @@ interface MasonryImageGridProps {
     ListHeaderComponent?: React.ReactElement | null;
     contentContainerStyle?: any;
     onScroll?: any; // Scroll handler from useMotionify for scroll-driven animations
+    hideLikeButton?: boolean; // Hide like button on image cards
 }
 
 /**
@@ -43,6 +44,7 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
     ListHeaderComponent,
     contentContainerStyle,
     onScroll,
+    hideLikeButton = false,
 }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -70,10 +72,11 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                     onLike={onLike}
                     onPress={onImagePress}
                     columnWidth={COLUMN_WIDTH}
+                    hideLikeButton={hideLikeButton}
                 />
             );
         },
-        [onLike, onImagePress]
+        [onLike, onImagePress, hideLikeButton]
     );
 
     const keyExtractor = useCallback((item: Image) => item.id, []);
