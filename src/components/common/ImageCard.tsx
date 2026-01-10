@@ -13,6 +13,7 @@ interface ImageCardProps {
     onLike: (imageId: string) => void;
     onPress: (imageId: string) => void;
     columnWidth: number;
+    hideLikeButton?: boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     onLike,
     onPress,
     columnWidth,
+    hideLikeButton = false,
 }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -67,13 +69,15 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                 </Pressable>
 
                 {/* Like Button */}
-                <View style={styles.likeButtonContainer}>
-                    <LikeButton
-                        imageId={image.id}
-                        onLikePress={onLike}
-                        size={32}
-                    />
-                </View>
+                {!hideLikeButton && (
+                    <View style={styles.likeButtonContainer}>
+                        <LikeButton
+                            imageId={image.id}
+                            onLikePress={onLike}
+                            size={32}
+                        />
+                    </View>
+                )}
 
                 {/* Actress Name */}
                 {actressName && (
