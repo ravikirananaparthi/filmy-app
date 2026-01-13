@@ -3,17 +3,17 @@ import { Text } from '@/src/components/ui';
 import { router } from 'expo-router';
 import React, { useCallback } from 'react';
 import {
-    ActivityIndicator,
     RefreshControl,
     ScrollView,
     StatusBar,
     StyleSheet,
     View,
-    useColorScheme,
+    useColorScheme
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FollowingCard, PreviewCard } from './components';
+import { ShimmerFavoritesPreview } from './components/ShimmerFavoritesPreview';
 import { useFavoritesPreview } from './hooks';
 
 /**
@@ -44,9 +44,13 @@ export default function FavoritesScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, styles.centered, { backgroundColor, paddingTop: insets.top }]}>
+            <View style={[styles.container, { backgroundColor, paddingTop: insets.top }]}>
                 <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={backgroundColor} />
-                <ActivityIndicator size="large" color={textColor} />
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={[styles.headerTitle, { color: textColor }]}>Favorites</Text>
+                </View>
+                <ShimmerFavoritesPreview />
             </View>
         );
     }
