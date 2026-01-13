@@ -1,12 +1,13 @@
 import type { Image } from '@/src/types/image.types';
 import { Theme } from '@constants/theme';
+import { useDebouncePress } from '@hooks/useDebouncePress';
 import { FlashList } from '@shopify/flash-list';
 import { useLikesStore } from '@store/slices/likesSlice';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Dimensions, RefreshControl, StyleSheet, useColorScheme, View } from 'react-native';
 import { EmptyState } from './EmptyState';
 import { ImageCard } from './ImageCard';
-import { LoadingState } from './LoadingState';
+import { ShimmerGrid } from './ShimmerPlaceholder';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const NUM_COLUMNS = 2;
@@ -23,7 +24,9 @@ interface MasonryImageGridProps {
     onEndReached?: () => void;
     ListHeaderComponent?: React.ReactElement | null;
     contentContainerStyle?: any;
-    onScroll?: any; // Scroll handler from useMotionify for scroll-driven animations
+    onScroll?: any;
+    hideLikeButton?: boolean;
+    hideActressName?: boolean;
 }
 
 /**
@@ -43,6 +46,8 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
     ListHeaderComponent,
     contentContainerStyle,
     onScroll,
+    hideLikeButton = false,
+    hideActressName = false,
 }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -59,6 +64,9 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
         }
     }, [data, initFromApiData]);
 
+    // Debounce image press to prevent double-tap navigation
+    const debouncedImagePress = useDebouncePress(onImagePress);
+
     const renderItem = useCallback(
         ({ item }: { item: Image }) => {
             const actressName = item.actress?.name;
@@ -68,12 +76,14 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                     image={item}
                     actressName={actressName}
                     onLike={onLike}
-                    onPress={onImagePress}
+                    onPress={debouncedImagePress}
                     columnWidth={COLUMN_WIDTH}
+                    hideLikeButton={hideLikeButton}
+                    hideActressName={hideActressName}
                 />
             );
         },
-        [onLike, onImagePress]
+        [onLike, debouncedImagePress, hideLikeButton, hideActressName]
     );
 
     const keyExtractor = useCallback((item: Image) => item.id, []);
@@ -94,7 +104,7 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
     );
 
     if (isLoading && data.length === 0) {
-        return <LoadingState />;
+        return <ShimmerGrid count={6} />;
     }
 
     if (!isLoading && data.length === 0) {
@@ -109,6 +119,7 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                 keyExtractor={keyExtractor}
                 numColumns={NUM_COLUMNS}
                 masonry
+                drawDistance={400}
                 optimizeItemArrangement
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.5}

@@ -38,6 +38,8 @@ export const API_ENDPOINTS = {
         LIST: '/actresses',
         SEARCH: '/actresses/search',
         DETAIL: (id: string) => `/actresses/${id}`,
+        FOLLOW: (id: string) => `/actresses/${id}/follow`,
+        UNFOLLOW: (id: string) => `/actresses/${id}/follow`, // DELETE same endpoint
     },
 
     // Trending
@@ -45,12 +47,25 @@ export const API_ENDPOINTS = {
         IMAGES: '/trending',
     },
 
+    // Explore
+    EXPLORE: {
+        HIGHLIGHTS: '/explore/highlights',
+        FEATURED_ACTRESSES: '/explore/featured-actresses',
+    },
+
     // Favorites
     FAVORITES: {
+        PREVIEW: '/favorites/preview',
         FOLDERS: '/favorites/folders',
         CREATE_FOLDER: '/favorites/folders',
         FOLDER_IMAGES: (folderId: string) => `/favorites/folders/${folderId}/images`,
         ADD_IMAGE: (folderId: string, imageId: string) => `/favorites/folders/${folderId}/images/${imageId}`,
+    },
+
+    // Likes
+    LIKES: {
+        LIST: '/likes',
+        COUNT: '/likes/count',
     },
 
     // Tags
@@ -58,6 +73,13 @@ export const API_ENDPOINTS = {
         POPULAR: '/tags/popular',
         SEARCH: '/tags/search',
         ALL: '/tags',
+    },
+
+    // Search
+    SEARCH: {
+        UNIFIED: '/search',
+        AUTOCOMPLETE: '/search/autocomplete',
+        RECENT: '/search/recent',
     },
 
     // Admin (not needed for app, but included for reference)

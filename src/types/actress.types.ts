@@ -26,3 +26,22 @@ export interface ActressCard {
     image_count?: number;
     popularity_rating: number;
 }
+
+// API Response wrapper for actress profile endpoint
+export interface ActressProfileResponse {
+    actress: ActressProfile;
+    pagination: {
+        page: number;
+        limit: number;
+        totalImages: number;
+        totalPages: number;
+        hasNextPage: boolean;
+        hasPrevPage: boolean;
+    };
+    filters?: {
+        tags?: string[];
+        minHotness?: number;
+        maxHotness?: number;
+        sortBy?: string;
+    };
+}
