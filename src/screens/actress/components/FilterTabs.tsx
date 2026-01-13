@@ -10,7 +10,7 @@ import {
 import Animated, {
     SharedValue,
     useAnimatedStyle,
-    withTiming
+    withSpring,
 } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -29,6 +29,13 @@ const TABS: FilterTab[] = [
 ];
 
 const TAB_WIDTH = SCREEN_WIDTH / 3;
+
+// Spring config for snappy indicator movement
+const SPRING_CONFIG = {
+    damping: 20,
+    stiffness: 300,
+    mass: 0.8,
+};
 
 interface FilterTabsProps {
     activeIndex: number;
@@ -50,9 +57,9 @@ export default function FilterTabs({
                 transform: [{ translateX }],
             };
         }
-        // Snap to active tab
+        // Snap to active tab with spring animation
         return {
-            transform: [{ translateX: withTiming(activeIndex * TAB_WIDTH, { duration: 200 }) }],
+            transform: [{ translateX: withSpring(activeIndex * TAB_WIDTH, SPRING_CONFIG) }],
         };
     });
 

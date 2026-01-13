@@ -46,9 +46,9 @@ export const FolderCard: React.FC<FolderCardProps> = ({ folder, onPress, isLoadi
             >
                 {/* Cover Image or Placeholder */}
                 <View style={[styles.coverContainer, { backgroundColor: placeholderBg }]}>
-                    {folder.coverImage ? (
+                    {folder.coverImage?.thumbnailUrl ? (
                         <Image
-                            source={{ uri: folder.coverImage.imageUrl }}
+                            source={{ uri: folder.coverImage.thumbnailUrl }}
                             style={styles.coverImage}
                             resizeMode="cover"
                         />

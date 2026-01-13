@@ -1,7 +1,8 @@
+import { ShimmerActressesRow, ShimmerHighlightsCarousel } from '@components/common/ShimmerPlaceholder';
+import { useDebouncePress } from '@hooks/useDebouncePress';
 import { router } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import {
-    ActivityIndicator,
     StatusBar,
     StyleSheet,
     View,
@@ -63,17 +64,18 @@ export default function SearchScreen() {
 
     // Handlers
     const handleSearchPress = useCallback(() => {
-        // TODO: Navigate to search input screen
-        console.log('Search pressed');
+        router.push('/search');
     }, []);
 
     const handleHighlightPress = useCallback((item: HighlightItem) => {
         router.push(`/image/${item.id}`);
     }, []);
 
-    const handleActressPress = useCallback((item: ActressItem) => {
+    // Use debounce to prevent double-tap from pushing same screen twice
+    const handleActressPressRaw = useCallback((item: ActressItem) => {
         router.push(`/actress/${item.id}` as any);
     }, []);
+    const handleActressPress = useDebouncePress(handleActressPressRaw);
 
     const handleSeeAllHighlights = useCallback(() => {
         // TODO: Navigate to all highlights
@@ -84,8 +86,6 @@ export default function SearchScreen() {
         // Navigate to actresses list
         router.push('/actresses' as any);
     }, []);
-
-    const isLoading = highlightsLoading || actressesLoading;
 
     return (
         <View style={[styles.container, { backgroundColor }]}>
@@ -113,9 +113,7 @@ export default function SearchScreen() {
                     onPress={handleSeeAllHighlights}
                 />
                 {highlightsLoading ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
-                    </View>
+                    <ShimmerHighlightsCarousel />
                 ) : highlights.length > 0 ? (
                     <HighlightsCarousel
                         data={highlights}
@@ -130,9 +128,7 @@ export default function SearchScreen() {
                     onPress={handleSeeAllActresses}
                 />
                 {actressesLoading ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
-                    </View>
+                    <ShimmerActressesRow />
                 ) : actresses.length > 0 ? (
                     <FeaturedActressesRow
                         data={actresses}
@@ -156,11 +152,6 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingBottom: 20,
-    },
-    loadingContainer: {
-        height: 200,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     bottomPadding: {
         height: 100, // Space for floating tab bar

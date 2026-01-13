@@ -37,7 +37,6 @@ export default function HighlightCard({
             onPress={onPress}
             style={({ pressed }) => [
                 styles.container,
-                pressed && styles.pressed,
             ]}
         >
             <ImageBackground
@@ -76,9 +75,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         // iOS shadow
         ...Theme.shadows.featured,
-    },
-    pressed: {
-        transform: [{ scale: 0.99 }],
     },
     image: {
         width: '100%',

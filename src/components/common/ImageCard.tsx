@@ -2,7 +2,6 @@ import { Text } from '@/src/components/ui';
 import type { Image as ImageType } from '@/src/types/image.types';
 import { Theme } from '@constants/theme';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, View, useColorScheme } from 'react-native';
 import { LikeButton } from './LikeButton';
@@ -14,11 +13,28 @@ interface ImageCardProps {
     onPress: (imageId: string) => void;
     columnWidth: number;
     hideLikeButton?: boolean;
+    hideActressName?: boolean;
 }
+
+// Custom comparison function to prevent unnecessary re-renders
+// Only re-render if image data or visual props actually changed
+const areEqual = (prevProps: ImageCardProps, nextProps: ImageCardProps): boolean => {
+    return (
+        prevProps.image.id === nextProps.image.id &&
+        prevProps.image.thumbnail_url === nextProps.image.thumbnail_url &&
+        prevProps.image.aspect_ratio === nextProps.image.aspect_ratio &&
+        prevProps.image.blurhash === nextProps.image.blurhash &&
+        prevProps.actressName === nextProps.actressName &&
+        prevProps.columnWidth === nextProps.columnWidth &&
+        prevProps.hideLikeButton === nextProps.hideLikeButton &&
+        prevProps.hideActressName === nextProps.hideActressName
+    );
+};
 
 /**
  * Image card component for the feed
  * Simple navigation - just pushes to image detail screen
+ * Uses custom memo comparison to prevent re-renders on callback changes
  */
 export const ImageCard: React.FC<ImageCardProps> = memo(({
     image,
@@ -27,6 +43,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     onPress,
     columnWidth,
     hideLikeButton = false,
+    hideActressName = false,
 }) => {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -35,8 +52,9 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     const imageHeight = columnWidth / (image.aspect_ratio || 0.75);
 
     const handlePress = useCallback(() => {
-        router.push(`/image/${image.id}`);
-    }, [image.id]);
+        // Use onPress callback from parent to preserve context (e.g., actressId)
+        onPress(image.id);
+    }, [image.id, onPress]);
 
     const cardBackground = isDark
         ? Theme.colors.background.surface.dark
@@ -57,10 +75,6 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                             placeholder={{ blurhash: image.blurhash }}
                             contentFit="cover"
                             recyclingKey={image.id}
-                            // old props
-                            // transition={200}
-                            // cachePolicy="disk"
-                            // new props
                             placeholderContentFit="cover"
                             transition={0}
                             cachePolicy="memory-disk"
@@ -80,7 +94,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
                 )}
 
                 {/* Actress Name */}
-                {actressName && (
+                {actressName && !hideActressName && (
                     <View style={styles.infoContainer}>
                         <Text style={[styles.actressName, { color: textColor }]} numberOfLines={1}>
                             {actressName}
@@ -90,7 +104,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
             </View>
         </View>
     );
-});
+}, areEqual);
 
 ImageCard.displayName = 'ImageCard';
 

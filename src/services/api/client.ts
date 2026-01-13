@@ -11,6 +11,7 @@ const apiClient: AxiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Cache-Control': 'no-cache',// change it later before prod release
         // DO NOT include Accept-Encoding - React Native can't decompress br/gzip
     },
     // Ensure automatic JSON parsing

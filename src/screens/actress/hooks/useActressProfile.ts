@@ -8,13 +8,14 @@ interface UseActressProfileOptions {
     sortBy?: SortOption;
     minHotness?: number;
     tags?: string[];
+    enabled?: boolean; // For lazy loading - only fetch when true
 }
 
 export function useActressProfile(
     actressId: string,
     options: UseActressProfileOptions = {}
 ) {
-    const { sortBy = 'popularity', minHotness, tags } = options;
+    const { sortBy = 'popularity', minHotness, tags, enabled = true } = options;
 
     return useInfiniteQuery({
         queryKey: ['actress-profile', actressId, { sortBy, minHotness, tags }],
@@ -49,7 +50,7 @@ export function useActressProfile(
             return undefined;
         },
         initialPageParam: 1,
-        enabled: !!actressId,
+        enabled: !!actressId && enabled, // Only fetch when enabled and has actressId
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 }

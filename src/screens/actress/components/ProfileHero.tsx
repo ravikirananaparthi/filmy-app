@@ -1,12 +1,11 @@
+import { FavlistButton } from '@components/common/FavlistButton';
 import { Text } from '@components/ui/Text';
 import { Theme, Typography } from '@constants/theme';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
     Dimensions,
-    Pressable,
     StyleSheet,
     View,
 } from 'react-native';
@@ -17,26 +16,21 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const HERO_HEIGHT = SCREEN_HEIGHT * 0.45;
+const HERO_HEIGHT = SCREEN_HEIGHT * 0.65;
+const GRADIENT_HEIGHT = 50;
 
 interface ProfileHeroProps {
+    actressId: string;
     name: string;
     coverImageUrl: string;
-    imageCount: number;
     scrollY: SharedValue<number>;
-    isFavorite?: boolean;
-    onFavlistPress?: () => void;
-    showFavlistButton?: boolean; // Hide button until backend supports it
 }
 
 export default function ProfileHero({
+    actressId,
     name,
     coverImageUrl,
-    imageCount,
     scrollY,
-    isFavorite = false,
-    onFavlistPress,
-    showFavlistButton = false, // Hidden by default
 }: ProfileHeroProps) {
     // Parallax effect - image moves slower than scroll
     const imageAnimatedStyle = useAnimatedStyle(() => {
@@ -80,45 +74,33 @@ export default function ProfileHero({
                 />
             </Animated.View>
 
-            {/* Gradient Overlay */}
+            {/* Main Gradient Overlay */}
             <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.85)']}
                 locations={[0, 0.4, 1]}
                 style={styles.gradient}
             />
 
-            {/* Content Overlay */}
+            {/* Content Overlay - Name and Favlist in Row */}
             <Animated.View style={[styles.content, contentAnimatedStyle]}>
-                {/* Actress Name - Lighter weight */}
-                <Text style={styles.name}>{name}</Text>
-
-                {/* Bottom row */}
                 <View style={styles.bottomRow}>
-                    {/* Favlist Button */}
-                    <Pressable
-                        onPress={onFavlistPress}
-                        style={({ pressed }) => [
-                            styles.favlistButton,
-                            isFavorite && styles.favlistButtonActive,
-                            pressed && styles.favlistButtonPressed,
-                        ]}
-                    >
-                        <Ionicons
-                            name={isFavorite ? 'heart' : 'heart-outline'}
-                            size={18}
-                            color={isFavorite ? '#FFFFFF' : Theme.palette.primary}
-                        />
-                        <Text
-                            style={[
-                                styles.favlistText,
-                                isFavorite && styles.favlistTextActive,
-                            ]}
-                        >
-                            {isFavorite ? 'In Favlist' : 'Favlist'}
-                        </Text>
-                    </Pressable>
+                    {/* Actress Name */}
+                    <Text style={styles.name}>{name}</Text>
+
+                    {/* Favlist Button - uses Zustand store for state */}
+                    <FavlistButton
+                        actressId={actressId}
+                        variant="pill"
+                    />
                 </View>
             </Animated.View>
+
+            {/* Bottom Gradient Separator - Dark fade to tabs */}
+            <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.95)', '#000000']}
+                locations={[0, 0.6, 1]}
+                style={styles.bottomGradient}
+            />
         </View>
     );
 }
@@ -133,8 +115,7 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
     image: {
-        width: '100%',
-        height: '100%',
+        ...StyleSheet.absoluteFillObject,
     },
     gradient: {
         ...StyleSheet.absoluteFillObject,
@@ -143,57 +124,29 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         justifyContent: 'flex-end',
         paddingHorizontal: Theme.spacing.lg,
-        paddingBottom: Theme.spacing.lg,
-    },
-    name: {
-        ...Typography.h1,
-        color: '#FFFFFF',
-        fontWeight: '500', // Lighter weight
-        marginBottom: Theme.spacing.md,
-        textShadowColor: 'rgba(0, 0, 0, 0.5)',
-        textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 4,
+        paddingBottom: Theme.spacing.xl + GRADIENT_HEIGHT / 2,
     },
     bottomRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    statsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Theme.spacing.xs,
-    },
-    statText: {
-        ...Typography.bodySmall,
-        color: 'rgba(255,255,255,0.8)',
-    },
-    favlistButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Theme.spacing.xs,
-        paddingHorizontal: Theme.spacing.md,
-        paddingVertical: Theme.spacing.sm,
-        borderRadius: Theme.radius.full,
-        borderWidth: 1.5,
-        borderColor: Theme.palette.primary,
-        backgroundColor: 'rgba(0,0,0,0.3)',
-    },
-    favlistButtonActive: {
-        backgroundColor: Theme.palette.primary,
-        borderColor: Theme.palette.primary,
-    },
-    favlistButtonPressed: {
-        opacity: 0.8,
-        transform: [{ scale: 0.98 }],
-    },
-    favlistText: {
-        ...Typography.bodySmall,
-        color: Theme.palette.primary,
-        fontWeight: '600',
-    },
-    favlistTextActive: {
+    name: {
+        ...Typography.h2,
         color: '#FFFFFF',
+        fontWeight: '500',
+        flex: 1,
+        marginRight: Theme.spacing.md,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
+    },
+    bottomGradient: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: GRADIENT_HEIGHT,
     },
 });
 
