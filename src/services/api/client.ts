@@ -1,103 +1,80 @@
 import { ENV } from '@config/env';
+import { authService } from '@services/auth.service';
+import { useAuthStore } from '@store/slices/authSlice';
 import axios, { AxiosInstance } from 'axios';
 
-// Conditionally import Reactotron only in development
 const Reactotron = __DEV__ ? require('@config/reactotron').default : null;
 
-// Create axios instance
 const apiClient: AxiosInstance = axios.create({
     baseURL: ENV.API_BASE_URL,
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Cache-Control': 'no-cache',// change it later before prod release
-        // DO NOT include Accept-Encoding - React Native can't decompress br/gzip
     },
-    // Ensure automatic JSON parsing
     responseType: 'json',
 });
 
-// Request interceptor - add auth token
+// Request interceptor — inject token from auth store
 apiClient.interceptors.request.use(
     (config) => {
-        // For development, use hardcoded token
-        const token = ENV.DEV_AUTH_TOKEN;
-
+        const token = useAuthStore.getState().token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Log to Reactotron in development
-        if (__DEV__ && Reactotron.display) {
+        if (__DEV__ && Reactotron?.display) {
             Reactotron.display({
                 name: '🚀 API REQUEST',
                 preview: `${config.method?.toUpperCase()} ${config.url}`,
-                value: {
-                    url: config.url,
-                    baseURL: config.baseURL,
-                    method: config.method,
-                    headers: config.headers,
-                    params: config.params,
-                    data: config.data,
-                },
+                value: { url: config.url, method: config.method, headers: config.headers, params: config.params, data: config.data },
             });
         }
 
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle errors globally
+// Response interceptor — refresh token on 401, log in dev
 apiClient.interceptors.response.use(
     (response) => {
-        // Log successful responses in development for debugging
-        if (ENV.IS_DEV) {
-
-
-            // Log to Reactotron with properly formatted JSON
-            if (Reactotron?.display) {
-                Reactotron.display({
-                    name: '✅ API RESPONSE',
-                    preview: `${response.status} ${response.config?.url}`,
-                    value: {
-                        url: response.config?.url,
-                        method: response.config?.method,
-                        status: response.status,
-                        statusText: response.statusText,
-                        contentType: response.headers?.['content-type'],
-                        data: response.data, // ✅ This will be properly decompressed JSON!
-                    },
-                    important: true,
-                });
-            }
+        if (__DEV__ && Reactotron?.display) {
+            Reactotron.display({
+                name: '✅ API RESPONSE',
+                preview: `${response.status} ${response.config?.url}`,
+                value: { url: response.config?.url, method: response.config?.method, status: response.status, data: response.data },
+                important: true,
+            });
         }
         return response;
     },
-    (error) => {
-        // Log errors in development
-        if (ENV.IS_DEV) {
+    async (error) => {
+        const originalRequest = error.config;
 
-            // Log to Reactotron
-            if (Reactotron?.display) {
-                Reactotron.display({
-                    name: '❌ API ERROR',
-                    preview: `${error.response?.status || 'Network Error'} - ${error.message}`,
-                    value: {
-                        message: error.message,
-                        url: error.config?.url,
-                        method: error.config?.method,
-                        status: error.response?.status,
-                        statusText: error.response?.statusText,
-                        data: error.response?.data,
-                        headers: error.response?.headers,
-                    },
-                    important: true,
-                });
+        // Auto-refresh on 401 (token expired)
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                const newSession = await authService.refreshSession();
+                if (newSession) {
+                    useAuthStore.getState().setSession(newSession.access_token, newSession.refresh_token);
+                    originalRequest.headers.Authorization = `Bearer ${newSession.access_token}`;
+                    return apiClient(originalRequest);
+                }
+            } catch {
+                // Refresh failed — logout
+                await useAuthStore.getState().logout();
             }
+        }
+
+        if (__DEV__ && Reactotron?.display) {
+            Reactotron.display({
+                name: '❌ API ERROR',
+                preview: `${error.response?.status || 'Network Error'} - ${error.message}`,
+                value: { message: error.message, url: error.config?.url, status: error.response?.status, data: error.response?.data },
+                important: true,
+            });
         }
 
         return Promise.reject(error);
@@ -106,7 +83,6 @@ apiClient.interceptors.response.use(
 
 export { apiClient };
 
-// Helper types for API responses
 export interface ApiResponse<T = any> {
     success: boolean;
     message?: string;
