@@ -3,7 +3,17 @@
     "allow": [
       "Bash(npx expo *)",
       "Bash(yarn add *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(sed -i 's/const { handleLike } = useLike\\(\\);/const { toggleLike } = useLike\\(\\);/' \"D:\\\\projects\\\\filmy-app\\\\src\\\\screens\\\\search\\\\SearchScreen.tsx\")",
+      "Bash(sed -i 's/onLike={handleLike}/onLike={toggleLike}/' \"D:\\\\projects\\\\filmy-app\\\\src\\\\screens\\\\search\\\\SearchScreen.tsx\")",
+      "Bash(echo \"exit: $?\")",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.expo.dev)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const ss=require\\('./node_modules/expo-secure-store/package.json'\\); const as=require\\('./node_modules/expo-auth-session/package.json'\\); const ec=require\\('./node_modules/expo-crypto/package.json'\\); console.log\\('expo-secure-store:', ss.version\\); console.log\\('expo-auth-session:', as.version\\); console.log\\('expo-crypto:', ec.version\\);\")",
+      "Bash(node -e \"const ss=require\\('./node_modules/expo-secure-store/package.json'\\); const as=require\\('./node_modules/expo-auth-session/package.json'\\); console.log\\('expo-secure-store:', ss.version\\); console.log\\('expo-auth-session:', as.version\\);\")",
+      "Bash(npx react-native *)",
+      "Bash(git config *)"
     ]
   }
 }
