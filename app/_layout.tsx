@@ -5,6 +5,8 @@ if (__DEV__) {
 
 import { Theme } from '@/constants/theme';
 import { ApiProvider } from '@/src/providers/ApiProvider';
+import { apiClient } from '@/src/services/api/client';
+import { API_ENDPOINTS } from '@/src/services/api/endpoints';
 import { useAuthStore } from '@/src/store/slices/authSlice';
 import {
     GoogleSansFlex_400Regular,
@@ -67,6 +69,7 @@ function RootNavigator() {
                 >
                     <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
                     <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
+                    <Stack.Screen name="auth/callback" options={{ animation: 'none', headerShown: false }} />
                     <Stack.Screen name="search/index" options={{ presentation: 'transparentModal' }} />
                     <Stack.Screen name="image/[id]" options={{ presentation: 'card' }} />
                     <Stack.Screen name="upload/index" options={{ presentation: 'card', animation: 'slide_from_bottom' }} />
@@ -75,6 +78,7 @@ function RootNavigator() {
                     <Stack.Screen name="favorites/saved" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="favorites/folder/[id]" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="favorites/following" options={{ animation: 'slide_from_right' }} />
+                    <Stack.Screen name="profile/settings" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="modal" options={{ presentation: 'transparentModal' }} />
                     <Stack.Screen name="(modal)" options={{ presentation: 'transparentModal' }} />
                 </Stack>
@@ -94,7 +98,25 @@ export default function RootLayout() {
     });
 
     useEffect(() => {
-        hydrate();
+        const init = async () => {
+            await hydrate();
+
+            // After restoring the session, fetch the user object from the DB so that
+            // profile screens, avatars, and display names work without re-login.
+            const { isAuthenticated } = useAuthStore.getState();
+            if (isAuthenticated) {
+                try {
+                    const { data } = await apiClient.get(API_ENDPOINTS.AUTH.ME);
+                    const dbUser = data?.data?.user ?? null;
+                    // Only store if we got a real user — don't call setUser(null) which
+                    // would flip isAuthenticated to false and log the user out.
+                    if (dbUser) useAuthStore.getState().setUser(dbUser);
+                } catch {
+                    // Non-fatal: user stays authenticated, profile will load via its own hook
+                }
+            }
+        };
+        init();
     }, []);
 
     useEffect(() => {

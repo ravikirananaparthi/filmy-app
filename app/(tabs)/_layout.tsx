@@ -16,8 +16,8 @@ function TabLayoutContent() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: styles.hiddenTabBar,
-          lazy: true, // Lazy load inactive tabs
-          freezeOnBlur: true, // Freeze inactive screens to save memory
+          lazy: true,
+          freezeOnBlur: true,
         }}
         tabBar={(props) => (
           <MotionifyView
@@ -31,36 +31,12 @@ function TabLayoutContent() {
           </MotionifyView>
         )}
       >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Home',
-          }}
-        />
-        <Tabs.Screen
-          name="trending"
-          options={{
-            title: 'Trending',
-          }}
-        />
-        <Tabs.Screen
-          name="search"
-          options={{
-            title: 'Search',
-          }}
-        />
-        <Tabs.Screen
-          name="favorites"
-          options={{
-            title: 'Favorites',
-          }}
-        />
-        <Tabs.Screen
-          name="menu"
-          options={{
-            title: 'Menu',
-          }}
-        />
+        <Tabs.Screen name="index"     options={{ title: 'Home' }} />
+        <Tabs.Screen name="search"    options={{ title: 'Explore' }} />
+        {/* Centre upload button — navigation handled inside AnimatedTabBar */}
+        <Tabs.Screen name="upload"    options={{ title: 'Upload' }} />
+        <Tabs.Screen name="favorites" options={{ title: 'Favorites' }} />
+        <Tabs.Screen name="menu"      options={{ title: 'Profile' }} />
       </Tabs>
     </View>
   );
