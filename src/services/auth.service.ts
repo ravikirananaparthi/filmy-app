@@ -1,24 +1,56 @@
 import { supabase } from '@config/supabase';
-import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
-import { Platform } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 
-WebBrowser.maybeCompleteAuthSession();
+// Note: WebBrowser.maybeCompleteAuthSession() is called in app/auth/callback.tsx
+// (the component that renders at the OAuth redirect URI path) — not here.
 
-const getRedirectUri = () =>
-    makeRedirectUri({
-        scheme: 'filmyapp',
-        path: 'auth/callback',
-    });
+/**
+ * Deep-link URI Supabase redirects to after Google OAuth.
+ *
+ * ⚠️  This exact value MUST be added to:
+ *   Supabase Dashboard → Authentication → URL Configuration → Redirect URLs
+ *
+ * Add:  filmyapp://auth/callback
+ *       filmyapp://**
+ */
+const REDIRECT_URI = makeRedirectUri({
+    scheme: 'filmyapp',
+    path: 'auth/callback',
+});
+
+if (__DEV__) {
+    console.log('[authService] OAuth redirect URI:', REDIRECT_URI);
+}
+
+/**
+ * Extract Supabase tokens from the deep-link callback URL.
+ * Supabase encodes them in the URL hash fragment:
+ *   filmyapp://auth/callback#access_token=...&refresh_token=...
+ * but may also use the query string on some platforms.
+ */
+function extractTokens(url: string) {
+    // Try hash fragment first (Supabase default), fall back to query string
+    const raw = url.includes('#')
+        ? url.split('#')[1]
+        : url.includes('?')
+        ? url.split('?')[1]
+        : '';
+
+    const params = new URLSearchParams(raw);
+    return {
+        accessToken: params.get('access_token'),
+        refreshToken: params.get('refresh_token'),
+        error: params.get('error_description') ?? params.get('error'),
+    };
+}
 
 export const authService = {
     signInWithGoogle: async () => {
-        const redirectTo = getRedirectUri();
-
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo,
+                redirectTo: REDIRECT_URI,
                 queryParams: {
                     access_type: 'offline',
                     prompt: 'consent',
@@ -28,21 +60,25 @@ export const authService = {
         });
 
         if (error) throw error;
-        if (!data.url) throw new Error('No OAuth URL returned');
+        if (!data.url) throw new Error('No OAuth URL returned from Supabase');
 
-        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, REDIRECT_URI, {
             showInRecents: false,
         });
 
-        if (result.type !== 'success') {
-            return { session: null, cancelled: result.type === 'cancel' };
+        if (result.type === 'cancel') {
+            return { session: null, cancelled: true };
         }
 
-        // Extract tokens from the callback URL
-        const url = result.url;
-        const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1] || '');
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
+        if (result.type !== 'success') {
+            return { session: null, cancelled: false };
+        }
+
+        const { accessToken, refreshToken, error: oauthError } = extractTokens(result.url);
+
+        if (oauthError) {
+            throw new Error(`OAuth error: ${oauthError}`);
+        }
 
         if (accessToken && refreshToken) {
             const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
@@ -53,7 +89,7 @@ export const authService = {
             return { session: sessionData.session, cancelled: false };
         }
 
-        // Fallback: check existing session (deep link may have already set it)
+        // Fallback: auth state change listener may have already set the session
         const { data: currentSession } = await supabase.auth.getSession();
         return { session: currentSession.session, cancelled: false };
     },

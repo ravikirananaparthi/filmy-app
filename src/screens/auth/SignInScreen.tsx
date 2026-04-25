@@ -1,4 +1,6 @@
 import { Theme } from '@/constants/theme';
+import { apiClient } from '@services/api/client';
+import { API_ENDPOINTS } from '@services/api/endpoints';
 import { authService } from '@services/auth.service';
 import { useAuthStore } from '@store/slices/authSlice';
 import { router } from 'expo-router';
@@ -6,8 +8,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
-    Image,
-    Platform,
     Pressable,
     StyleSheet,
     Text,
@@ -19,26 +19,45 @@ export default function SignInScreen() {
     const insets = useSafeAreaInsets();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { setSession } = useAuthStore();
+
+    const setSession = useAuthStore((s) => s.setSession);
+    const setUser = useAuthStore((s) => s.setUser);
 
     const handleGoogleSignIn = async () => {
         setLoading(true);
         setError(null);
         try {
             const { session, cancelled } = await authService.signInWithGoogle();
-            if (cancelled) {
-                setLoading(false);
+
+            if (cancelled) return;
+
+            if (!session) {
+                setError('Sign-in failed. Please try again.');
                 return;
             }
-            if (session) {
-                setSession(session.access_token, session.refresh_token);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                router.replace('/(tabs)' as any);
-            } else {
-                setError('Sign-in failed. Please try again.');
+
+            // 1. Store tokens so the API client can attach them to requests
+            setSession(session.access_token, session.refresh_token);
+
+            // 2. Call /auth/me — this auto-creates the user row in the DB for new
+            //    Google accounts AND returns the full user object. Must succeed before
+            //    navigating so every subsequent API call can pass the auth middleware.
+            const { data: meRes } = await apiClient.get(API_ENDPOINTS.AUTH.ME);
+            const dbUser = meRes?.data?.user ?? null;
+
+            if (!dbUser) {
+                setError('Could not create your profile. Please try again.');
+                return;
             }
+
+            // 3. Store user → also sets isAuthenticated: true
+            setUser(dbUser);
+
+            // 4. Navigate — AuthGuard now sees isAuthenticated: true and allows it
+            router.replace('/(tabs)' as any);
         } catch (e: any) {
-            setError(e?.message || 'Something went wrong.');
+            console.error('[SignIn] Error:', e);
+            setError(e?.message || 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
