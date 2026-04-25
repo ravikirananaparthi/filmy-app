@@ -6,4 +6,7 @@ export { default as HighlightCard } from './HighlightCard';
 export { default as HighlightsCarousel } from './HighlightsCarousel';
 export type { HighlightItem } from './HighlightsCarousel';
 export { default as SectionHeader } from './SectionHeader';
+export { default as TagCard } from './TagCard';
+export { default as TagsGrid } from './TagsGrid';
+export { default as TrendingPreview } from './TrendingPreview';
 

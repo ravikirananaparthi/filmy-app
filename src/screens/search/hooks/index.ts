@@ -1,2 +1,9 @@
-export { exploreKeys, useFeaturedActresses, useHighlights } from './useExplore';
+export {
+    exploreKeys,
+    useDiscoverImages,
+    useFeaturedActresses,
+    useHighlights,
+    usePopularTags,
+    useTrendingPreview,
+} from './useExplore';
 

@@ -1,160 +1,160 @@
+import { MasonryImageGrid } from '@components/common/MasonryImageGrid';
 import { ShimmerActressesRow, ShimmerHighlightsCarousel } from '@components/common/ShimmerPlaceholder';
 import { useDebouncePress } from '@hooks/useDebouncePress';
+import { useLike } from '@hooks/useLike';
 import { router } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
-import {
-    StatusBar,
-    StyleSheet,
-    View,
-    useColorScheme,
-} from 'react-native';
+import { StatusBar, StyleSheet, View, useColorScheme } from 'react-native';
 import { useMotionify } from 'react-native-motionify';
-import Animated from 'react-native-reanimated';
 
-// Local components
 import {
     ExploreHeader,
     FeaturedActressesRow,
     HighlightsCarousel,
     SectionHeader,
+    TagsGrid,
+    TrendingPreview,
     type ActressItem,
     type HighlightItem,
 } from './components';
+import {
+    useDiscoverImages,
+    useFeaturedActresses,
+    useHighlights,
+    usePopularTags,
+    useTrendingPreview,
+} from './hooks';
+import type { Tag } from '@services/api/tags.service';
 
-// Hooks
-import { useFeaturedActresses, useHighlights } from './hooks';
-
-/**
- * Explore Screen (Search Tab)
- * Apple TV / Apple Movies style premium UI.
- * Supports both dark and light modes.
- */
 export default function SearchScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
-
     const backgroundColor = isDark ? '#000000' : '#FFFFFF';
 
-    // Scroll-driven animations hook (for bottom tab collapse)
     const { onScroll } = useMotionify();
 
-    // Fetch data from API
     const { data: highlightsData, isLoading: highlightsLoading } = useHighlights();
     const { data: actressesData, isLoading: actressesLoading } = useFeaturedActresses();
+    const { data: trendingImages = [] } = useTrendingPreview();
+    const { data: popularTags = [] } = usePopularTags();
+    const {
+        data: discoverData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useDiscoverImages();
 
-    // Transform API data to component format
+    const { toggleLike } = useLike();
+
     const highlights: HighlightItem[] = useMemo(() => {
         if (!highlightsData?.images) return [];
-        return highlightsData.images.map((image) => ({
-            id: image.id,
-            imageUrl: image.imageUrl,
-            name: image.actress.name,
-            caption: `${image.likesCount} likes`,
+        return highlightsData.images.map((img) => ({
+            id: img.id,
+            imageUrl: img.imageUrl,
+            name: img.actress.name,
+            caption: `${img.likesCount} likes`,
         }));
     }, [highlightsData]);
 
     const actresses: ActressItem[] = useMemo(() => {
         if (!actressesData?.actresses) return [];
-        return actressesData.actresses.map((actress) => ({
-            id: actress.id,
-            imageUrl: actress.coverImageUrl,
-            name: actress.name,
+        return actressesData.actresses.map((a) => ({
+            id: a.id,
+            imageUrl: a.coverImageUrl,
+            name: a.name,
         }));
     }, [actressesData]);
 
-    // Handlers
-    const handleSearchPress = useCallback(() => {
-        router.push('/search');
-    }, []);
+    const discoverImages = useMemo(
+        () => discoverData?.pages.flatMap((p) => p.data) ?? [],
+        [discoverData]
+    );
 
-    const handleHighlightPress = useCallback((item: HighlightItem) => {
-        router.push(`/image/${item.id}`);
-    }, []);
+    const handleSearchPress = useCallback(() => router.push('/search'), []);
 
-    // Use debounce to prevent double-tap from pushing same screen twice
-    const handleActressPressRaw = useCallback((item: ActressItem) => {
-        router.push(`/actress/${item.id}` as any);
-    }, []);
+    const handleHighlightPress = useCallback(
+        (item: HighlightItem) => router.push(`/image/${item.id}` as any),
+        []
+    );
+
+    const handleActressPressRaw = useCallback(
+        (item: ActressItem) => router.push(`/actress/${item.id}` as any),
+        []
+    );
     const handleActressPress = useDebouncePress(handleActressPressRaw);
 
-    const handleSeeAllHighlights = useCallback(() => {
-        // TODO: Navigate to all highlights
-        console.log('See all highlights');
+    const handleTagPress = useCallback((tag: Tag) => {
+        router.push(`/search?tag=${encodeURIComponent(tag.name)}` as any);
     }, []);
 
-    const handleSeeAllActresses = useCallback(() => {
-        // Navigate to actresses list
-        router.push('/actresses' as any);
-    }, []);
+    const handleImagePress = useCallback(
+        (imageId: string) => router.push(`/image/${imageId}` as any),
+        []
+    );
 
-    return (
-        <View style={[styles.container, { backgroundColor }]}>
-            <StatusBar
-                animated={true}
-                barStyle={isDark ? 'light-content' : 'dark-content'}
-                backgroundColor={backgroundColor}
-            />
+    const handleLoadMore = useCallback(() => {
+        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-            {/* Static Header */}
-            <ExploreHeader onSearchPress={handleSearchPress} />
-
-            {/* Scrollable Content with motionify scroll handler */}
-            <Animated.ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                onScroll={onScroll}
-                scrollEventThrottle={16}
-            >
-                {/* Section 1: Highlights */}
-                <SectionHeader
-                    title="Highlights"
-                    subtitle="Discover trending celebrity moments"
-                    onPress={handleSeeAllHighlights}
-                />
+    const ListHeader = useMemo(
+        () => (
+            <View style={{ backgroundColor }}>
+                <SectionHeader title="Highlights" subtitle="Trending celebrity moments" />
                 {highlightsLoading ? (
                     <ShimmerHighlightsCarousel />
                 ) : highlights.length > 0 ? (
-                    <HighlightsCarousel
-                        data={highlights}
-                        onItemPress={handleHighlightPress}
-                    />
+                    <HighlightsCarousel data={highlights} onItemPress={handleHighlightPress} />
                 ) : null}
 
-                {/* Section 2: Featured Actresses */}
                 <SectionHeader
-                    title="Featured Actresses"
-                    subtitle="Popular actresses wallpapers curated for you"
-                    onPress={handleSeeAllActresses}
+                    title="Featured"
+                    subtitle="Popular profiles curated for you"
+                    onPress={() => router.push('/actresses' as any)}
                 />
                 {actressesLoading ? (
                     <ShimmerActressesRow />
                 ) : actresses.length > 0 ? (
-                    <FeaturedActressesRow
-                        data={actresses}
-                        onItemPress={handleActressPress}
-                    />
+                    <FeaturedActressesRow data={actresses} onItemPress={handleActressPress} />
                 ) : null}
 
-                {/* Bottom padding for tab bar */}
-                <View style={styles.bottomPadding} />
-            </Animated.ScrollView>
+                {trendingImages.length > 0 && (
+                    <>
+                        <SectionHeader title="Trending This Week" subtitle="Most liked in the last 7 days" />
+                        <TrendingPreview images={trendingImages} />
+                    </>
+                )}
+
+                {popularTags.length > 0 && (
+                    <>
+                        <SectionHeader title="Browse by Mood" />
+                        <TagsGrid tags={popularTags} onTagPress={handleTagPress} />
+                    </>
+                )}
+
+                <SectionHeader title="Discover" subtitle="Fresh picks just for you" />
+            </View>
+        ),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [backgroundColor, highlights, highlightsLoading, actresses, actressesLoading, trendingImages, popularTags]
+    );
+
+    return (
+        <View style={[styles.container, { backgroundColor }]}>
+            <StatusBar animated barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={backgroundColor} />
+            <ExploreHeader onSearchPress={handleSearchPress} />
+            <MasonryImageGrid
+                data={discoverImages}
+                onLike={toggleLike}
+                onImagePress={handleImagePress}
+                onEndReached={handleLoadMore}
+                ListHeaderComponent={ListHeader}
+                onScroll={onScroll}
+                hideActressName={false}
+            />
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingBottom: 20,
-    },
-    bottomPadding: {
-        height: 100, // Space for floating tab bar
-    },
+    container: { flex: 1 },
 });
-
