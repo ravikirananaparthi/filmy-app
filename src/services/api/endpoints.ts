@@ -2,8 +2,8 @@
 export const API_ENDPOINTS = {
     // Auth
     AUTH: {
-        SEND_OTP: '/auth/phone/start',
-        VERIFY_OTP: '/auth/phone/verify',
+        ME: '/auth/me',
+        SIGNOUT: '/auth/signout',
     },
 
     // Onboarding
@@ -28,9 +28,12 @@ export const API_ENDPOINTS = {
         LIST: '/images',
         DETAIL: (id: string) => `/images/${id}`,
         LIKE: (id: string) => `/images/${id}/like`,
-        UNLIKE: (id: string) => `/images/${id}/like`, // DELETE same endpoint as LIKE
+        UNLIKE: (id: string) => `/images/${id}/like`,
         DOWNLOAD: (id: string) => `/images/${id}/download`,
         WALLPAPER: (id: string) => `/images/${id}/wallpaper`,
+        VIEW: (id: string) => `/images/${id}/view`,
+        RELATED: (id: string) => `/images/${id}/related`,
+        UPLOAD: '/upload/image',
     },
 
     // Actresses
@@ -39,7 +42,7 @@ export const API_ENDPOINTS = {
         SEARCH: '/actresses/search',
         DETAIL: (id: string) => `/actresses/${id}`,
         FOLLOW: (id: string) => `/actresses/${id}/follow`,
-        UNFOLLOW: (id: string) => `/actresses/${id}/follow`, // DELETE same endpoint
+        UNFOLLOW: (id: string) => `/actresses/${id}/follow`,
     },
 
     // Trending
@@ -51,6 +54,12 @@ export const API_ENDPOINTS = {
     EXPLORE: {
         HIGHLIGHTS: '/explore/highlights',
         FEATURED_ACTRESSES: '/explore/featured-actresses',
+    },
+
+    // User
+    USER: {
+        ME: '/users/me',
+        UPLOADS: '/users/me/uploads',
     },
 
     // Favorites
@@ -82,7 +91,7 @@ export const API_ENDPOINTS = {
         RECENT: '/search/recent',
     },
 
-    // Admin (not needed for app, but included for reference)
+    // Admin
     ADMIN: {
         CREATE_ACTRESS: '/admin/actress',
         UPDATE_ACTRESS: (id: string) => `/admin/actress/${id}`,
