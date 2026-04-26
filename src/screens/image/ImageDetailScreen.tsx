@@ -5,7 +5,9 @@ import { flattenLikedPages, useLikedImages } from '@/src/screens/favorites/hooks
 import { flattenFolderPages, useFolderImages } from '@/src/screens/favorites/hooks/useFolderImages';
 import { flattenForYouPages, useForYouFeed } from '@/src/screens/home/hooks/useForYouFeed';
 import { flattenSearchPages, useUnifiedSearch } from '@/src/screens/search-input/hooks/useActressSearch';
+import { getImageDetail } from '@/src/services/api/image.service';
 import type { Image } from '@/src/types/image.types';
+import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
@@ -29,6 +31,13 @@ export default function ImageDetailScreen() {
 
     // Home feed hook - default source
     const homeFeed = useForYouFeed({ limit: 20 });
+
+    const imageDetail = useQuery({
+        queryKey: ['images', id, 'detail'],
+        queryFn: () => getImageDetail(id),
+        enabled: !!id,
+        staleTime: 1000 * 60 * 5,
+    });
 
     // Actress feed hook
     const actressFeed = useActressProfile(actressId || '', {
@@ -78,16 +87,24 @@ export default function ImageDetailScreen() {
         return homeFeedImages;
     }, [isFromLiked, isFromFolder, isFromSearch, isFromActressProfile, likedImages, folderImages, searchImages, actressImages, homeFeedImages]);
 
+    const displayImages = useMemo(() => {
+        if (allImages.some((img) => img.id === id)) return allImages;
+        if (imageDetail.data) return [imageDetail.data as Image];
+        return allImages;
+    }, [allImages, imageDetail.data, id]);
+
     // Determine loading state
     const isLoading = useMemo(() => {
+        if (displayImages.length > 0) return false;
         if (isFromLiked) return likedFeed.isLoading || likedImages.length === 0;
         if (isFromFolder) return folderFeed.isLoading || folderImages.length === 0;
         if (isFromSearch) return searchFeed.isLoading || searchImages.length === 0;
         if (isFromActressProfile) return actressFeed.isLoading || actressImages.length === 0;
-        return homeFeed.isLoading || homeFeedImages.length === 0;
+        return homeFeed.isLoading || imageDetail.isLoading || homeFeedImages.length === 0;
     }, [
+        displayImages.length,
         isFromLiked, isFromFolder, isFromSearch, isFromActressProfile,
-        likedFeed.isLoading, folderFeed.isLoading, searchFeed.isLoading, actressFeed.isLoading, homeFeed.isLoading,
+        likedFeed.isLoading, folderFeed.isLoading, searchFeed.isLoading, actressFeed.isLoading, homeFeed.isLoading, imageDetail.isLoading,
         likedImages.length, folderImages.length, searchImages.length, actressImages.length, homeFeedImages.length,
     ]);
 
@@ -130,9 +147,9 @@ export default function ImageDetailScreen() {
 
     // Find initial index
     const initialIndex = useMemo(() => {
-        const index = allImages.findIndex((img) => img.id === id);
+        const index = displayImages.findIndex((img) => img.id === id);
         return index >= 0 ? index : 0;
-    }, [allImages, id]);
+    }, [displayImages, id]);
 
     if (isLoading) {
         return (
@@ -145,7 +162,7 @@ export default function ImageDetailScreen() {
 
     return (
         <CarouselScreen
-            images={allImages}
+            images={displayImages}
             initialIndex={initialIndex}
             onFetchMore={handleFetchMore}
             hasMore={hasMore}
