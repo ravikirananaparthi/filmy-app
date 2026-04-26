@@ -7,7 +7,7 @@ export interface UserProfile {
     email: string;
     displayName: string;
     avatarUrl: string | null;
-    pinsCount: number;
+    postsCount: number;
     followingCount: number;
 }
 
