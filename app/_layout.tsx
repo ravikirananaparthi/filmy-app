@@ -16,11 +16,11 @@ import {
     useFonts,
 } from '@expo-google-fonts/google-sans-flex';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, router, useSegments } from 'expo-router';
+import { Stack, router, usePathname, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { View, useColorScheme } from 'react-native';
+import { BackHandler, View, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
@@ -51,10 +51,29 @@ function AuthGuard() {
 
 function RootNavigator() {
     const colorScheme = useColorScheme();
+    const pathname = usePathname();
 
     const backgroundColor = colorScheme === 'dark'
         ? Theme.colors.background.dark
         : Theme.colors.background.light;
+
+    useEffect(() => {
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (router.canGoBack()) {
+                router.back();
+                return true;
+            }
+
+            if (pathname !== '/') {
+                router.replace('/(tabs)' as any);
+                return true;
+            }
+
+            return false;
+        });
+
+        return () => subscription.remove();
+    }, [pathname]);
 
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : undefined}>

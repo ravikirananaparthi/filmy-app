@@ -3,10 +3,11 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 interface UseForYouFeedOptions {
     limit?: number;
+    enabled?: boolean;
 }
 
 export const useForYouFeed = (options: UseForYouFeedOptions = {}) => {
-    const { limit = 20 } = options;
+    const { limit = 20, enabled = true } = options;
 
     return useInfiniteQuery({
         queryKey: ['feed', 'for-you', { limit }],
@@ -22,6 +23,7 @@ export const useForYouFeed = (options: UseForYouFeedOptions = {}) => {
             return undefined;
         },
         initialPageParam: undefined as { score: number; id: string } | undefined,
+        enabled,
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 30, // 30 minutes
         retry: 3,

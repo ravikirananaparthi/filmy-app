@@ -3,6 +3,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 interface UseUnifiedSearchOptions {
     limit?: number;
+    enabled?: boolean;
 }
 
 /**
@@ -10,7 +11,7 @@ interface UseUnifiedSearchOptions {
  * Returns actresses on first page, then only images on subsequent pages
  */
 export function useUnifiedSearch(query: string, options: UseUnifiedSearchOptions = {}) {
-    const { limit = 20 } = options;
+    const { limit = 20, enabled = true } = options;
     const trimmedQuery = query.trim();
 
     return useInfiniteQuery({
@@ -29,7 +30,7 @@ export function useUnifiedSearch(query: string, options: UseUnifiedSearchOptions
             return undefined;
         },
         initialPageParam: undefined as string | undefined,
-        enabled: trimmedQuery.length >= 2,
+        enabled: enabled && trimmedQuery.length >= 2,
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 10, // 10 minutes
     });

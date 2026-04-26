@@ -50,7 +50,7 @@ export default function HomeScreen() {
 
     // Handlers
     const handleImagePress = useCallback((imageId: string) => {
-        router.push(`/image/${imageId}`);
+        router.push(`/image/${imageId}?source=home` as any);
     }, []);
 
     // Simplified: toggleLike now reads state from Zustand store
@@ -111,6 +111,7 @@ export default function HomeScreen() {
                 onScroll={onScroll}
                 ListHeaderComponent={ListHeader}
                 contentContainerStyle={{ paddingTop: 140 }}
+                hideActressName
             />
         </View>
     );

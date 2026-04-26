@@ -44,10 +44,10 @@ const SPRING_CONFIG = {
 
 // Icon map for non-upload tabs
 const TAB_ICONS: Record<string, { filled: React.FC<any>; unfilled: React.FC<any> }> = {
-  index:     { filled: HomeIcon,      unfilled: HomeIconUF },
-  search:    { filled: SearchIcon,    unfilled: SearchIconUF },
+  index: { filled: HomeIcon, unfilled: HomeIconUF },
+  search: { filled: SearchIcon, unfilled: SearchIconUF },
   favorites: { filled: FavoritesIcon, unfilled: FavoritesIconUF },
-  menu:      { filled: MenuIcon,      unfilled: MenuIconUF },
+  menu: { filled: MenuIcon, unfilled: MenuIconUF },
 };
 
 // Routes that should NOT move the indicator
@@ -131,11 +131,11 @@ export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap
   // Indicator positions for navigable tabs: 0,1,3,4 positions (skip 2=upload)
   const getIndicatorX = (routeName: string): number => {
     const posMap: Record<string, number> = {
-      index:     0,
-      search:    1,
-      upload:    2, // won't be used
+      index: 0,
+      search: 1,
+      upload: 2, // won't be used
       favorites: 3,
-      menu:      4,
+      menu: 4,
     };
     const pos = posMap[routeName] ?? 0;
     return pos * NAV_TAB_WIDTH + INDICATOR_PADDING;
@@ -158,7 +158,7 @@ export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap
   }));
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 17) }]}>
       <View style={[styles.tabBarWrapper, { backgroundColor: '#121212' }]}>
         {/* Sliding indicator (hidden behind upload button position) */}
         <Animated.View

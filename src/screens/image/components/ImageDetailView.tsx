@@ -4,6 +4,7 @@ import type { Image as ImageType } from '@/src/types/image.types';
 import { Image } from 'expo-image';
 import { Share2 } from 'lucide-react-native';
 import React, { memo, useCallback, useMemo } from 'react';
+import { InteractionManager } from 'react-native';
 import { Dimensions, Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -42,6 +43,7 @@ export const ImageDetailView: React.FC<ImageDetailViewProps> = memo(({
     const insets = useSafeAreaInsets();
     const scale = useSharedValue(1);
     const savedScale = useSharedValue(1);
+    const [shouldLoadRelated, setShouldLoadRelated] = React.useState(false);
 
     const imageHeight = useMemo(() => {
         const ratio = image.aspect_ratio || (image.width && image.height ? image.width / image.height : 0.75);
@@ -78,6 +80,19 @@ export const ImageDetailView: React.FC<ImageDetailViewProps> = memo(({
             savedScale.value = 1;
         }
     }, [isActive, scale, savedScale]);
+
+    React.useEffect(() => {
+        if (!isActive) {
+            setShouldLoadRelated(false);
+            return;
+        }
+
+        const handle = InteractionManager.runAfterInteractions(() => {
+            setShouldLoadRelated(true);
+        });
+
+        return () => handle.cancel();
+    }, [image.id, isActive]);
 
     const handleShare = useCallback(() => {
         Share.share({
@@ -158,7 +173,7 @@ export const ImageDetailView: React.FC<ImageDetailViewProps> = memo(({
             </View>
 
             <Text weight="bold" style={styles.heading}>More like this</Text>
-            <RelatedImagesMasonry imageId={image.id} />
+            <RelatedImagesMasonry imageId={image.id} enabled={shouldLoadRelated} />
         </ScrollView>
     );
 });

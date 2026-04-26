@@ -7,16 +7,15 @@ import { ActivityIndicator, Dimensions, StyleSheet, View } from 'react-native';
 import { useRelatedImages } from '../hooks/useRelatedImages';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const COLUMN_GAP = 8;
-const HORIZONTAL_PADDING = 16;
-const COLUMN_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
+const COLUMN_WIDTH = SCREEN_WIDTH / 2;
 
 interface RelatedImagesMasonryProps {
     imageId: string;
+    enabled?: boolean;
 }
 
-export const RelatedImagesMasonry: React.FC<RelatedImagesMasonryProps> = ({ imageId }) => {
-    const { data: images = [], isLoading } = useRelatedImages(imageId);
+export const RelatedImagesMasonry: React.FC<RelatedImagesMasonryProps> = ({ imageId, enabled = true }) => {
+    const { data: images = [], isLoading } = useRelatedImages(imageId, enabled);
     const { toggleLike } = useLike();
 
     const columns = useMemo(() => {
@@ -44,6 +43,14 @@ export const RelatedImagesMasonry: React.FC<RelatedImagesMasonryProps> = ({ imag
     }, []);
 
     if (isLoading) {
+        return (
+            <View style={styles.loading}>
+                <ActivityIndicator color="#8B5CF6" />
+            </View>
+        );
+    }
+
+    if (!enabled && images.length === 0) {
         return (
             <View style={styles.loading}>
                 <ActivityIndicator color="#8B5CF6" />
@@ -86,7 +93,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     empty: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 4,
         paddingVertical: 20,
     },
     emptyText: {
@@ -95,11 +102,10 @@ const styles = StyleSheet.create({
     },
     grid: {
         flexDirection: 'row',
-        gap: COLUMN_GAP,
-        paddingHorizontal: HORIZONTAL_PADDING,
+        paddingHorizontal: 0,
     },
     column: {
-        width: COLUMN_WIDTH,
+        width: SCREEN_WIDTH / 2,
     },
 });
 

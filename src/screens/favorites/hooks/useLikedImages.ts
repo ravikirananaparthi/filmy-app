@@ -3,13 +3,14 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 interface UseLikedImagesOptions {
     limit?: number;
+    enabled?: boolean;
 }
 
 /**
  * Hook for fetching liked images with cursor pagination
  */
 export function useLikedImages(options: UseLikedImagesOptions = {}) {
-    const { limit = 20 } = options;
+    const { limit = 20, enabled = true } = options;
 
     return useInfiniteQuery({
         queryKey: ['likes', 'images', { limit }],
@@ -26,6 +27,7 @@ export function useLikedImages(options: UseLikedImagesOptions = {}) {
             return undefined;
         },
         initialPageParam: undefined as string | undefined,
+        enabled,
         staleTime: 1000 * 60 * 2, // 2 minutes
         gcTime: 1000 * 60 * 10, // 10 minutes
     });

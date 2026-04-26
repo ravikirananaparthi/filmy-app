@@ -28,14 +28,15 @@ export default function ImageDetailScreen() {
     const isFromFolder = source === 'folder' && !!folderId;
     const isFromSearch = !!searchQuery;
     const isFromActressProfile = !!actressId;
+    const isFromHome = source === 'home' || (!isFromLiked && !isFromFolder && !isFromSearch && !isFromActressProfile);
 
     // Home feed hook - default source
-    const homeFeed = useForYouFeed({ limit: 20 });
+    const homeFeed = useForYouFeed({ limit: 20, enabled: isFromHome });
 
     const imageDetail = useQuery({
         queryKey: ['images', id, 'detail'],
         queryFn: () => getImageDetail(id),
-        enabled: !!id,
+        enabled: !!id && !source && !searchQuery && !actressId && !folderId,
         staleTime: 1000 * 60 * 5,
     });
 
@@ -46,10 +47,10 @@ export default function ImageDetailScreen() {
     });
 
     // Search feed hook
-    const searchFeed = useUnifiedSearch(searchQuery || '', { limit: 20 });
+    const searchFeed = useUnifiedSearch(searchQuery || '', { limit: 20, enabled: isFromSearch });
 
     // Liked images hook
-    const likedFeed = useLikedImages({ limit: 20 });
+    const likedFeed = useLikedImages({ limit: 20, enabled: isFromLiked });
 
     // Folder images hook
     const folderFeed = useFolderImages(folderId || '', { limit: 30 });
