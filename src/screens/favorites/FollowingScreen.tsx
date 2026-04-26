@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFavoritesPreview } from './hooks';
 
 /**
- * Screen showing all followed actress profiles
+ * Screen showing all followed creator profiles
  */
 export default function FollowingScreen() {
     const colorScheme = useColorScheme();
@@ -85,7 +85,7 @@ export default function FollowingScreen() {
                     <Ionicons name="people-outline" size={64} color={isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'} />
                     <Text style={[styles.emptyText, { color: textColor }]}>Not following anyone yet</Text>
                     <Text style={[styles.emptySubtext, { color: secondaryTextColor }]}>
-                        Follow your favorite actresses to see them here
+                        Follow creators to see them here
                     </Text>
                 </View>
             ) : (

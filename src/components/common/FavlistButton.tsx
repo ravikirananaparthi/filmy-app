@@ -5,7 +5,7 @@ import React, { memo, useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface FavlistButtonProps {
-    actressId: string;
+    profileId: string;
     size?: number;
     showLabel?: boolean;
     variant?: 'icon' | 'pill'; // icon = just icon, pill = icon + text in pill shape
@@ -13,23 +13,22 @@ interface FavlistButtonProps {
 
 /**
  * Favlist (Follow) Button Component
- * 
+ *
  * Optimistic UI - taps instantly update state, API syncs in background.
  * Uses Zustand store as single source of truth.
  */
 export const FavlistButton: React.FC<FavlistButtonProps> = memo(({
-    actressId,
+    profileId,
     size = 24,
     showLabel = false,
     variant = 'icon',
 }) => {
-    // Subscribe to followed state for this specific actress
-    const isFollowed = useFavlistStore((state) => state.isFollowed(actressId));
+    const isFollowed = useFavlistStore((state) => state.isFollowed(profileId));
     const { toggleFollow } = useFavlist();
 
     const handlePress = useCallback(() => {
-        toggleFollow(actressId);
-    }, [toggleFollow, actressId]);
+        toggleFollow(profileId);
+    }, [toggleFollow, profileId]);
 
     if (variant === 'pill') {
         return (

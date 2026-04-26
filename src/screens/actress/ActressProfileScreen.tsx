@@ -34,7 +34,7 @@ const FILTER_TABS_HEIGHT = 52;
 
 // Per-tab content component to handle its own data
 interface TabContentProps {
-    actressId: string;
+    profileId: string;
     sortBy: SortOption;
     isActive: boolean;
     onImagePress: (id: string) => void;
@@ -42,7 +42,7 @@ interface TabContentProps {
     insets: { bottom: number };
 }
 
-function TabContent({ actressId, sortBy, isActive, onImagePress, onScroll, insets }: TabContentProps) {
+function TabContent({ profileId, sortBy, isActive, onImagePress, onScroll, insets }: TabContentProps) {
     // Track if this tab has ever been active (for keeping data after switching away)
     const [hasBeenActive, setHasBeenActive] = React.useState(false);
 
@@ -60,7 +60,7 @@ function TabContent({ actressId, sortBy, isActive, onImagePress, onScroll, inset
         hasNextPage,
         fetchNextPage,
         refetch,
-    } = useActressProfile(actressId, {
+    } = useActressProfile(profileId, {
         sortBy,
         // Only fetch when tab is/was active
         enabled: isActive || hasBeenActive,
@@ -123,7 +123,7 @@ function ActressProfileContent() {
     // Scroll-driven animations via motionify
     const { onScroll, scrollY } = useMotionify();
 
-    // Get actress info from first tab's data (defer until ready)
+    // Get profile info from first tab's data (defer until ready)
     const { data } = useActressProfile(id || '', { sortBy: 'popularity', enabled: isReady });
     const actress = data?.pages[0]?.actress;
 
@@ -180,8 +180,8 @@ function ActressProfileContent() {
     }, [activeTabIndex]);
 
     const handleImagePress = useCallback((imageId: string) => {
-        // Pass actressId to image detail so it uses actress images, not home feed
-        router.push(`/image/${imageId}?actressId=${id}`);
+        // Pass profileId to image detail so it uses profile images, not home feed
+        router.push(`/image/${imageId}?profileId=${id}`);
     }, [router, id]);
 
     const totalHeaderHeight = HEADER_HEIGHT + insets.top;
@@ -195,8 +195,8 @@ function ActressProfileContent() {
 
             {/* Custom Animated Header */}
             <AnimatedProfileHeader
-                actressId={id || ''}
-                actressName={actress?.name || ''}
+                profileId={id || ''}
+                profileName={actress?.name || ''}
                 coverImageUrl={actress?.cover_image_url || ''}
                 scrollY={scrollY}
                 heroHeight={HERO_HEIGHT}
@@ -228,7 +228,7 @@ function ActressProfileContent() {
                 {/* Hero Section */}
                 {actress ? (
                     <ProfileHero
-                        actressId={actress.id}
+                        profileId={actress.id}
                         name={actress.name}
                         coverImageUrl={actress.cover_image_url}
                         scrollY={scrollY}
@@ -256,7 +256,7 @@ function ActressProfileContent() {
                     {/* Popular Tab - lazy mount after navigation */}
                     {isReady ? (
                         <TabContent
-                            actressId={id || ''}
+                            profileId={id || ''}
                             sortBy="popularity"
                             isActive={activeTabIndex === 0}
                             onImagePress={handleImagePress}
@@ -269,7 +269,7 @@ function ActressProfileContent() {
                     {/* Recent Tab - lazy mount after navigation */}
                     {isReady ? (
                         <TabContent
-                            actressId={id || ''}
+                            profileId={id || ''}
                             sortBy="recent"
                             isActive={activeTabIndex === 1}
                             onImagePress={handleImagePress}
@@ -282,7 +282,7 @@ function ActressProfileContent() {
                     {/* Hottest Tab - lazy mount after navigation */}
                     {isReady ? (
                         <TabContent
-                            actressId={id || ''}
+                            profileId={id || ''}
                             sortBy="hotness"
                             isActive={activeTabIndex === 2}
                             onImagePress={handleImagePress}

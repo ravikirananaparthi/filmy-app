@@ -19,25 +19,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const HEADER_HEIGHT = 56;
 
 interface AnimatedProfileHeaderProps {
-    actressId: string;
-    actressName: string;
+    profileId: string;
+    profileName: string;
     coverImageUrl: string;
     scrollY: SharedValue<number>;
     heroHeight: number;
 }
 
 /**
- * Animated header for actress profile screen.
+ * Animated header for profile screen.
  * - Back button (left) - always visible with glass background
- * - Actress name (center) - fades in when hero scrolls up
- * - Heart icon (right) - toggles favorite state
+ * - Profile name (center) - fades in when hero scrolls up
+ * - Heart icon (right) - toggles follow state
  * - Background: blurred cover image that fades in on scroll
- * 
+ *
  * Uses React Native Reanimated for smooth animations.
  */
 export default function AnimatedProfileHeader({
-    actressId,
-    actressName,
+    profileId,
+    profileName,
     coverImageUrl,
     scrollY,
     heroHeight,
@@ -124,16 +124,16 @@ export default function AnimatedProfileHeader({
                         <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
                     </Pressable>
 
-                    {/* Actress name (animated) */}
+                    {/* Profile name (animated) */}
                     <Animated.Text
                         style={[styles.title, titleStyle]}
                         numberOfLines={1}
                     >
-                        {actressName}
+                        {profileName}
                     </Animated.Text>
 
                     {/* Favlist button - uses Zustand store */}
-                    <FavlistButton actressId={actressId} size={22} />
+                    <FavlistButton profileId={profileId} size={22} />
                 </View>
             </View>
         </View>

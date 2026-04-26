@@ -85,25 +85,11 @@ Modify `src/screens/image/ImageDetailScreen.tsx`:
 
 ---
 
-## Phase 7 — Variable Renaming
+## Phase 7 — Variable Renaming ✅ COMPLETE
 
 **Goal**: Replace all user-visible "actress" strings with neutral alternatives.
 
-**Scope**: UI text strings, component display names. NOT API endpoint paths or DB column names.
-
-Run to find all instances:
-```bash
-grep -r "actress" src/ app/ --include="*.tsx" --include="*.ts" -i -l
-```
-
-Rename map:
-| Current text | Replace with |
-|-------------|--------------|
-| "Actress Profile" | "Profile" |
-| "Favorite Actresses" | "Following" |
-| "actress" in button/toast text | context-appropriate (e.g., "creator", "profile") |
-| State var `actressImages` | `profileImages` |
-| Prop `actressId` | `profileId` |
+See `IMPLEMENTATION_STATUS.md` for the full file-by-file breakdown.
 
 ---
 
@@ -111,7 +97,7 @@ Rename map:
 
 **Goal**: After Google Sign-In, show new users a 2-step onboarding (preferences + follow users).
 
-**Depends on**: Phase 7 complete (so "users to follow" not "actresses to follow").
+**Depends on**: Phase 7 (now complete — neutral UI terminology in place).
 
 ### Flow
 1. After first-time Google login → route to `/(auth)/onboarding/preferences`

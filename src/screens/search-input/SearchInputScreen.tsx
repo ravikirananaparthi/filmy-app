@@ -195,7 +195,7 @@ export default function SearchInputScreen() {
         setShowResults(true);
     }, [saveRecentSearch]);
 
-    const handleActressPress = useCallback((actress: Actress) => {
+    const handleProfilePress = useCallback((actress: Actress) => {
         router.push(`/actress/${actress.id}` as any);
     }, []);
 
@@ -243,7 +243,7 @@ export default function SearchInputScreen() {
                     images={images}
                     isLoading={searchLoading}
                     isFetchingMore={isFetchingNextPage}
-                    onActressPress={handleActressPress}
+                    onProfilePress={handleProfilePress}
                     onImagePress={handleImagePress}
                     onLike={handleLike}
                     onEndReached={handleEndReached}

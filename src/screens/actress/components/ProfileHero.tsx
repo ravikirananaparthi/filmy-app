@@ -20,14 +20,14 @@ const HERO_HEIGHT = SCREEN_HEIGHT * 0.65;
 const GRADIENT_HEIGHT = 50;
 
 interface ProfileHeroProps {
-    actressId: string;
+    profileId: string;
     name: string;
     coverImageUrl: string;
     scrollY: SharedValue<number>;
 }
 
 export default function ProfileHero({
-    actressId,
+    profileId,
     name,
     coverImageUrl,
     scrollY,
@@ -84,12 +84,12 @@ export default function ProfileHero({
             {/* Content Overlay - Name and Favlist in Row */}
             <Animated.View style={[styles.content, contentAnimatedStyle]}>
                 <View style={styles.bottomRow}>
-                    {/* Actress Name */}
+                    {/* Profile Name */}
                     <Text style={styles.name}>{name}</Text>
 
                     {/* Favlist Button - uses Zustand store for state */}
                     <FavlistButton
-                        actressId={actressId}
+                        profileId={profileId}
                         variant="pill"
                     />
                 </View>

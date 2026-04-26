@@ -14,7 +14,7 @@ import {
     SectionHeader,
     TagsGrid,
     TrendingPreview,
-    type ActressItem,
+    type ProfileItem,
     type HighlightItem,
 } from './components';
 import {
@@ -34,7 +34,7 @@ export default function SearchScreen() {
     const { onScroll } = useMotionify();
 
     const { data: highlightsData, isLoading: highlightsLoading } = useHighlights();
-    const { data: actressesData, isLoading: actressesLoading } = useFeaturedActresses();
+    const { data: profilesData, isLoading: profilesLoading } = useFeaturedActresses();
     const { data: trendingImages = [] } = useTrendingPreview();
     const { data: popularTags = [] } = usePopularTags();
     const {
@@ -56,14 +56,14 @@ export default function SearchScreen() {
         }));
     }, [highlightsData]);
 
-    const actresses: ActressItem[] = useMemo(() => {
-        if (!actressesData?.actresses) return [];
-        return actressesData.actresses.map((a) => ({
+    const profiles: ProfileItem[] = useMemo(() => {
+        if (!profilesData?.actresses) return [];
+        return profilesData.actresses.map((a) => ({
             id: a.id,
             imageUrl: a.coverImageUrl,
             name: a.name,
         }));
-    }, [actressesData]);
+    }, [profilesData]);
 
     const discoverImages = useMemo(
         () => discoverData?.pages.flatMap((p) => p.data) ?? [],
@@ -77,11 +77,11 @@ export default function SearchScreen() {
         []
     );
 
-    const handleActressPressRaw = useCallback(
-        (item: ActressItem) => router.push(`/actress/${item.id}` as any),
+    const handleProfilePressRaw = useCallback(
+        (item: ProfileItem) => router.push(`/actress/${item.id}` as any),
         []
     );
-    const handleActressPress = useDebouncePress(handleActressPressRaw);
+    const handleProfilePress = useDebouncePress(handleProfilePressRaw);
 
     const handleTagPress = useCallback((tag: Tag) => {
         router.push(`/search?tag=${encodeURIComponent(tag.name)}` as any);
@@ -111,10 +111,10 @@ export default function SearchScreen() {
                     subtitle="Popular profiles curated for you"
                     onPress={() => router.push('/actresses' as any)}
                 />
-                {actressesLoading ? (
+                {profilesLoading ? (
                     <ShimmerActressesRow />
-                ) : actresses.length > 0 ? (
-                    <FeaturedActressesRow data={actresses} onItemPress={handleActressPress} />
+                ) : profiles.length > 0 ? (
+                    <FeaturedActressesRow data={profiles} onItemPress={handleProfilePress} />
                 ) : null}
 
                 {trendingImages.length > 0 && (
@@ -135,7 +135,7 @@ export default function SearchScreen() {
             </View>
         ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [backgroundColor, highlights, highlightsLoading, actresses, actressesLoading, trendingImages, popularTags]
+        [backgroundColor, highlights, highlightsLoading, profiles, profilesLoading, trendingImages, popularTags]
     );
 
     return (

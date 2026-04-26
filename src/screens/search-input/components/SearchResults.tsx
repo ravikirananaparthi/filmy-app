@@ -21,16 +21,16 @@ interface SearchResultsProps {
     images: ImageType[];
     isLoading: boolean;
     isFetchingMore: boolean;
-    onActressPress: (actress: Actress) => void;
+    onProfilePress: (actress: Actress) => void;
     onImagePress: (imageId: string) => void;
     onLike: (imageId: string) => void;
     onEndReached: () => void;
 }
 
 /**
- * Search results component showing actresses and images
- * Actresses: Full-width rectangular cards in a scrollable list
- * Images: MasonryGrid without actress names
+ * Search results component showing profiles and images
+ * Profiles: Full-width rectangular cards in a scrollable list
+ * Images: MasonryGrid without creator names
  */
 export function SearchResults({
     query,
@@ -38,7 +38,7 @@ export function SearchResults({
     images,
     isLoading,
     isFetchingMore,
-    onActressPress,
+    onProfilePress,
     onImagePress,
     onLike,
     onEndReached,
@@ -76,7 +76,7 @@ export function SearchResults({
                 <Pressable
                     key={actress.id}
                     style={[styles.actressCard, { backgroundColor: cardBgColor, borderColor }]}
-                    onPress={() => onActressPress(actress)}
+                    onPress={() => onProfilePress(actress)}
                 >
                     <Image
                         source={{ uri: actress.cover_image_url }}

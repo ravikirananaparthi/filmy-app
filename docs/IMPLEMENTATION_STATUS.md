@@ -1,7 +1,7 @@
 # Filmy App — Implementation Status
 
 > Last updated: 2026-04-26
-> Current phase: Phase 6 (AI Embeddings + Smart Feed + AI Search) — NOT STARTED
+> Current phase: Phase 7 (Variable Renaming) — COMPLETE; Phase 8 (Onboarding) next
 
 ---
 
@@ -212,16 +212,43 @@
 
 ---
 
-## Phase 7 — Variable Renaming 🔴 NOT STARTED
+## Phase 7 — Variable Renaming ✅ COMPLETE
 
-UI-facing strings only (not API paths or DB column names):
-| Current | New |
-|---------|-----|
-| "Actress Profile" | "Profile" |
-| "Favorite Actresses" | "Following" |
-| `actress` in toast/button text | context-appropriate |
-| `actressImages` (state var) | `profileImages` |
-| `actressId` (component prop) | `profileId` |
+### What was done
+- User-visible text: "Follow your favorite actresses" → "Follow creators" in `FollowingScreen`
+- URL query param `actressId` → `profileId` (both the push in `ActressProfileScreen` and the extraction in `ImageDetailScreen`)
+- Component props renamed throughout the actress profile component tree:
+  - `AnimatedProfileHeader`: `actressId` → `profileId`, `actressName` → `profileName`
+  - `ProfileHero`: `actressId` → `profileId`
+  - `FavlistButton`: `actressId` → `profileId`
+- Local vars in `ImageDetailScreen`: `actressImages` → `profileImages`, `actressFeed` → `profileFeed`, `isFromActressProfile` → `isFromProfile`
+- `ActressItem` type → `ProfileItem` in `FeaturedActressesRow` and its barrel export
+- Local vars in `SearchScreen`: `actressesData` → `profilesData`, `actresses` → `profiles`, `handleActressPress` → `handleProfilePress`
+- Local vars in `SearchInputScreen`: `handleActressPress` → `handleProfilePress`
+- `SearchResults` prop: `onActressPress` → `onProfilePress`
+
+### Not renamed (intentionally kept)
+- Backend DB columns (`actress_id`), API endpoint paths, API service function names
+- `useFavlist.ts` / `favlistSlice.ts` internal parameter names (pure implementation detail, no user impact)
+- `followActress.service.ts` service name (API contract)
+- `useActressProfile` hook name and query key (internal, stable)
+- `app/actress/[id].tsx` route path (URL path)
+- `actressName`/`hideActressName` props on `MasonryImageGrid`/`ImageCard` (shared low-level data contract, not user-visible)
+
+### Files modified
+| File | Change |
+|------|--------|
+| `src/screens/favorites/FollowingScreen.tsx` | User text: "actresses" → "creators" |
+| `src/screens/actress/components/AnimatedProfileHeader.tsx` | Props `actressId`/`actressName` → `profileId`/`profileName` |
+| `src/screens/actress/components/ProfileHero.tsx` | Prop `actressId` → `profileId` |
+| `src/components/common/FavlistButton.tsx` | Prop `actressId` → `profileId` |
+| `src/screens/actress/ActressProfileScreen.tsx` | Prop names + URL param push updated |
+| `src/screens/image/ImageDetailScreen.tsx` | URL param, `actressImages`→`profileImages`, `actressFeed`→`profileFeed`, `isFromActressProfile`→`isFromProfile` |
+| `src/screens/search/components/FeaturedActressesRow.tsx` | `ActressItem` → `ProfileItem` |
+| `src/screens/search/components/index.ts` | Re-export updated to `ProfileItem` |
+| `src/screens/search/SearchScreen.tsx` | Local vars + type import updated |
+| `src/screens/search-input/SearchInputScreen.tsx` | `handleActressPress` → `handleProfilePress`, prop name |
+| `src/screens/search-input/components/SearchResults.tsx` | `onActressPress` → `onProfilePress` |
 
 ---
 
@@ -243,11 +270,11 @@ Depends on Phase 7 being complete. Follow users (not actress profiles).
 
 | Phase | Status | Blocker |
 |-------|--------|---------|
-| 1 — Google Auth | ✅ Done | Manual: Supabase dashboard Google provider + SQL migration |
+| 1 — Google Auth | ✅ Done | Manual: Supabase Google provider + SQL migration |
 | 2 — Explore Screen | ✅ Done | — |
 | 3 — Profile Screen | ✅ Done | — |
 | 4 — User Upload | ✅ Done | Manual: run 009 + 010 migrations, deploy backend |
 | 5 — Image Detail | ✅ Done | Manual: deploy backend |
 | 6 — AI Tags + CLIP Related | 🟡 Implemented | Manual: run 011, configure OpenAI + CLIP service, deploy backend |
-| 7 — Renaming | 🔴 Not started | All phases done first |
+| 7 — Renaming | ✅ Done | — |
 | 8 — Onboarding | 🔴 Not started | Phase 7 |

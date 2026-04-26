@@ -52,7 +52,7 @@ export const ImageCard: React.FC<ImageCardProps> = memo(({
     const imageHeight = columnWidth / (image.aspect_ratio || 0.75);
 
     const handlePress = useCallback(() => {
-        // Use onPress callback from parent to preserve context (e.g., actressId)
+        // Use onPress callback from parent to preserve context (e.g., profileId)
         onPress(image.id);
     }, [image.id, onPress]);
 

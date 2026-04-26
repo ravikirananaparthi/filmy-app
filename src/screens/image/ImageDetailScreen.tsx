@@ -15,9 +15,9 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 type ImageSource = 'liked' | 'folder' | 'search' | 'actress' | 'home';
 
 export default function ImageDetailScreen() {
-    const { id, actressId, searchQuery, source, folderId } = useLocalSearchParams<{
+    const { id, profileId, searchQuery, source, folderId } = useLocalSearchParams<{
         id: string;
-        actressId?: string;
+        profileId?: string;
         searchQuery?: string;
         source?: ImageSource;
         folderId?: string;
@@ -27,8 +27,8 @@ export default function ImageDetailScreen() {
     const isFromLiked = source === 'liked';
     const isFromFolder = source === 'folder' && !!folderId;
     const isFromSearch = !!searchQuery;
-    const isFromActressProfile = !!actressId;
-    const isFromHome = source === 'home' || (!isFromLiked && !isFromFolder && !isFromSearch && !isFromActressProfile);
+    const isFromProfile = !!profileId;
+    const isFromHome = source === 'home' || (!isFromLiked && !isFromFolder && !isFromSearch && !isFromProfile);
 
     // Home feed hook - default source
     const homeFeed = useForYouFeed({ limit: 20, enabled: isFromHome });
@@ -36,14 +36,14 @@ export default function ImageDetailScreen() {
     const imageDetail = useQuery({
         queryKey: ['images', id, 'detail'],
         queryFn: () => getImageDetail(id),
-        enabled: !!id && !source && !searchQuery && !actressId && !folderId,
+        enabled: !!id && !source && !searchQuery && !profileId && !folderId,
         staleTime: 1000 * 60 * 5,
     });
 
-    // Actress feed hook
-    const actressFeed = useActressProfile(actressId || '', {
+    // Profile feed hook
+    const profileFeed = useActressProfile(profileId || '', {
         sortBy: 'popularity',
-        enabled: isFromActressProfile,
+        enabled: isFromProfile,
     });
 
     // Search feed hook
@@ -68,12 +68,12 @@ export default function ImageDetailScreen() {
         return flattenSearchPages(searchFeed.data).images;
     }, [searchFeed.data]);
 
-    const actressImages: Image[] = useMemo(() => {
-        if (!actressFeed.data?.pages) return [];
-        return actressFeed.data.pages.flatMap(
+    const profileImages: Image[] = useMemo(() => {
+        if (!profileFeed.data?.pages) return [];
+        return profileFeed.data.pages.flatMap(
             (page) => page.actress?.images || []
         ) as Image[];
-    }, [actressFeed.data?.pages]);
+    }, [profileFeed.data?.pages]);
 
     const homeFeedImages: Image[] = useMemo(() => {
         return flattenForYouPages(homeFeed.data);
@@ -84,9 +84,9 @@ export default function ImageDetailScreen() {
         if (isFromLiked && likedImages.length > 0) return likedImages;
         if (isFromFolder && folderImages.length > 0) return folderImages;
         if (isFromSearch && searchImages.length > 0) return searchImages;
-        if (isFromActressProfile && actressImages.length > 0) return actressImages;
+        if (isFromProfile && profileImages.length > 0) return profileImages;
         return homeFeedImages;
-    }, [isFromLiked, isFromFolder, isFromSearch, isFromActressProfile, likedImages, folderImages, searchImages, actressImages, homeFeedImages]);
+    }, [isFromLiked, isFromFolder, isFromSearch, isFromProfile, likedImages, folderImages, searchImages, profileImages, homeFeedImages]);
 
     const displayImages = useMemo(() => {
         if (allImages.some((img) => img.id === id)) return allImages;
@@ -100,13 +100,13 @@ export default function ImageDetailScreen() {
         if (isFromLiked) return likedFeed.isLoading || likedImages.length === 0;
         if (isFromFolder) return folderFeed.isLoading || folderImages.length === 0;
         if (isFromSearch) return searchFeed.isLoading || searchImages.length === 0;
-        if (isFromActressProfile) return actressFeed.isLoading || actressImages.length === 0;
+        if (isFromProfile) return profileFeed.isLoading || profileImages.length === 0;
         return homeFeed.isLoading || imageDetail.isLoading || homeFeedImages.length === 0;
     }, [
         displayImages.length,
-        isFromLiked, isFromFolder, isFromSearch, isFromActressProfile,
-        likedFeed.isLoading, folderFeed.isLoading, searchFeed.isLoading, actressFeed.isLoading, homeFeed.isLoading, imageDetail.isLoading,
-        likedImages.length, folderImages.length, searchImages.length, actressImages.length, homeFeedImages.length,
+        isFromLiked, isFromFolder, isFromSearch, isFromProfile,
+        likedFeed.isLoading, folderFeed.isLoading, searchFeed.isLoading, profileFeed.isLoading, homeFeed.isLoading, imageDetail.isLoading,
+        likedImages.length, folderImages.length, searchImages.length, profileImages.length, homeFeedImages.length,
     ]);
 
     // Pagination handlers
@@ -129,11 +129,11 @@ export default function ImageDetailScreen() {
                 isFetchingMore: searchFeed.isFetchingNextPage,
             };
         }
-        if (isFromActressProfile) {
+        if (isFromProfile) {
             return {
-                handleFetchMore: actressFeed.fetchNextPage,
-                hasMore: actressFeed.hasNextPage,
-                isFetchingMore: actressFeed.isFetchingNextPage,
+                handleFetchMore: profileFeed.fetchNextPage,
+                hasMore: profileFeed.hasNextPage,
+                isFetchingMore: profileFeed.isFetchingNextPage,
             };
         }
         return {
@@ -142,8 +142,8 @@ export default function ImageDetailScreen() {
             isFetchingMore: homeFeed.isFetchingNextPage,
         };
     }, [
-        isFromLiked, isFromFolder, isFromSearch, isFromActressProfile,
-        likedFeed, searchFeed, actressFeed, homeFeed,
+        isFromLiked, isFromFolder, isFromSearch, isFromProfile,
+        likedFeed, searchFeed, profileFeed, homeFeed,
     ]);
 
     // Find initial index

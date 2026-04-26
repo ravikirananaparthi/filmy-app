@@ -12,20 +12,20 @@ const CARD_HEIGHT = 200;
 const CARD_SPACING = 12;
 const ITEM_WIDTH = CARD_WIDTH + CARD_SPACING;
 
-export interface ActressItem {
+export interface ProfileItem {
     id: string;
     imageUrl: string;
     name: string;
 }
 
 interface FeaturedActressesRowProps {
-    data: ActressItem[];
-    onItemPress?: (item: ActressItem) => void;
+    data: ProfileItem[];
+    onItemPress?: (item: ProfileItem) => void;
     style?: ViewStyle;
 }
 
 /**
- * Horizontal row of actress mini cards.
+ * Horizontal row of profile mini cards.
  * Smooth scroll with no bounce jitter.
  */
 export default function FeaturedActressesRow({
@@ -33,7 +33,7 @@ export default function FeaturedActressesRow({
     onItemPress,
     style,
 }: FeaturedActressesRowProps) {
-    const renderItem = ({ item }: { item: ActressItem }) => (
+    const renderItem = ({ item }: { item: ProfileItem }) => (
         <View style={styles.cardWrapper}>
             <ActressMiniCard
                 imageUrl={item.imageUrl}
