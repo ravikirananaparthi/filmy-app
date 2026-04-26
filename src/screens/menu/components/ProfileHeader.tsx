@@ -27,7 +27,7 @@ export function ProfileHeader() {
     const displayName = profile?.displayName ?? user?.display_name ?? 'User';
     const email = profile?.email ?? user?.email ?? '';
     const avatarUrl = profile?.avatarUrl ?? user?.avatar_url;
-    const pinsCount = profile?.pinsCount ?? 0;
+    const pinsCount = profile?.postsCount ?? 0;
     const followingCount = profile?.followingCount ?? 0;
     const initials = displayName.charAt(0).toUpperCase();
 
@@ -77,7 +77,7 @@ export function ProfileHeader() {
             <View style={[styles.statsRow, { borderColor: dividerColor }]}>
                 <View style={styles.statItem}>
                     <Text style={[styles.statCount, { color: textColor }]}>{pinsCount}</Text>
-                    <Text style={[styles.statLabel, { color: subtextColor }]}>Pins</Text>
+                    <Text style={[styles.statLabel, { color: subtextColor }]}>Posts</Text>
                 </View>
                 <View style={[styles.statVerticalDivider, { backgroundColor: dividerColor }]} />
                 <TouchableOpacity
@@ -94,7 +94,7 @@ export function ProfileHeader() {
             {/* Section tab */}
             <View style={[styles.sectionTabRow, { borderBottomColor: dividerColor }]}>
                 <View style={styles.sectionTab}>
-                    <Text style={[styles.sectionTabText, { color: textColor }]}>Pins</Text>
+                    <Text style={[styles.sectionTabText, { color: textColor }]}>Posts</Text>
                     <View style={[styles.sectionTabIndicator, { backgroundColor: Theme.colors.primary.main }]} />
                 </View>
             </View>

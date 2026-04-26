@@ -1,20 +1,15 @@
 import React from 'react';
-import Svg, { Path, SvgProps } from 'react-native-svg';
+import Svg, { SvgProps, Line } from 'react-native-svg';
 
 export interface UploadIconProps extends SvgProps {
     size?: number;
     color?: string;
+    strokeWidth?: number;
 }
 
-export const UploadIcon = ({ size = 24, color = '#fff', style, ...props }: UploadIconProps) => (
+export const UploadIcon = ({ size = 24, color = '#fff', strokeWidth = 2.5, style, ...props }: UploadIconProps) => (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} {...props}>
-        <Path
-            d="M12 3L7 8H10V16H14V8H17L12 3Z"
-            fill={color}
-        />
-        <Path
-            d="M5 18H19V20H5V18Z"
-            fill={color}
-        />
+        <Line x1="12" y1="4" x2="12" y2="20" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+        <Line x1="4" y1="12" x2="20" y2="12" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
     </Svg>
 );

@@ -13,7 +13,7 @@ function EmptyPinsState() {
     return (
         <View style={styles.emptyContainer}>
             <Text style={[styles.emptyText, { color: isDark ? '#999' : '#666' }]}>
-                No pins yet — upload your first image!
+                No posts yet — upload your first image!
             </Text>
         </View>
     );
