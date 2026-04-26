@@ -1,14 +1,20 @@
 import { RefreshProvider, useRefreshContext } from '@/src/contexts/RefreshContext';
 import { AnimatedTabBar } from '@components/ui/animated-tab-bar';
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { useUploadStore } from '@store/slices/uploadSlice';
+import { Tabs, router } from 'expo-router';
+import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { MotionifyProvider, MotionifyView } from 'react-native-motionify';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+// ─── Main layout ─────────────────────────────────────────────────────────────
 function TabLayoutContent() {
-  const insets = useSafeAreaInsets();
   const { triggerRefresh } = useRefreshContext();
+  const reset = useUploadStore((s) => s.reset);
+
+  const handleUploadPress = useCallback(() => {
+    reset();
+    router.push('/upload/pick' as any);
+  }, [reset]);
 
   return (
     <View style={styles.container}>
@@ -27,13 +33,16 @@ function TabLayoutContent() {
             animationDuration={150}
             style={styles.tabBarMotionify}
           >
-            <AnimatedTabBar {...props} onHomeDoubleTap={triggerRefresh} />
+            <AnimatedTabBar
+              {...props}
+              onHomeDoubleTap={triggerRefresh}
+              onUploadPress={handleUploadPress}
+            />
           </MotionifyView>
         )}
       >
         <Tabs.Screen name="index"     options={{ title: 'Home' }} />
         <Tabs.Screen name="search"    options={{ title: 'Explore' }} />
-        {/* Centre upload button — navigation handled inside AnimatedTabBar */}
         <Tabs.Screen name="upload"    options={{ title: 'Upload' }} />
         <Tabs.Screen name="favorites" options={{ title: 'Favorites' }} />
         <Tabs.Screen name="menu"      options={{ title: 'Profile' }} />
@@ -52,13 +61,10 @@ export default function TabLayout() {
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  hiddenTabBar: {
-    display: 'none',
-  },
+  container: { flex: 1 },
+  hiddenTabBar: { display: 'none' },
   tabBarMotionify: {
     position: 'absolute',
     bottom: 0,
