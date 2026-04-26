@@ -2,13 +2,15 @@ import type { Image as ImageType } from '@/src/types/image.types';
 import React, { memo } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { ZoomableImage } from './ZoomableImage';
+import ImageDetailView from '@/src/screens/image/components/ImageDetailView';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface CarouselItemProps {
     image: ImageType;
     isActive: boolean;
+    onLikePress: (imageId: string) => void;
+    onBookmarkPress: () => void;
 }
 
 /**
@@ -18,10 +20,17 @@ interface CarouselItemProps {
 export const CarouselItem: React.FC<CarouselItemProps> = memo(({
     image,
     isActive,
+    onLikePress,
+    onBookmarkPress,
 }) => {
     return (
         <Animated.View style={styles.container}>
-            <ZoomableImage image={image} isActive={isActive} />
+            <ImageDetailView
+                image={image}
+                isActive={isActive}
+                onLikePress={onLikePress}
+                onBookmarkPress={onBookmarkPress}
+            />
         </Animated.View>
     );
 });
@@ -31,8 +40,7 @@ CarouselItem.displayName = 'CarouselItem';
 const styles = StyleSheet.create({
     container: {
         width: SCREEN_WIDTH,
-        justifyContent: 'center',
-        alignItems: 'center',
+        flex: 1,
     },
 });
 
