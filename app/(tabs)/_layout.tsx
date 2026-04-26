@@ -19,6 +19,7 @@ function TabLayoutContent() {
   return (
     <View style={styles.container}>
       <Tabs
+        backBehavior="history"
         screenOptions={{
           headerShown: false,
           tabBarStyle: styles.hiddenTabBar,
