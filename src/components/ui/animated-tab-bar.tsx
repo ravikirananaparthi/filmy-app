@@ -12,7 +12,6 @@ import {
 import { Theme } from '@/constants/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
 import React, { memo, useCallback, useEffect } from 'react';
 import {
   Dimensions,
@@ -85,7 +84,7 @@ const TabItem = memo(function TabItem({
         style={styles.uploadTabItem}
       >
         <View style={styles.uploadCircle}>
-          <UploadIcon size={22} color="#fff" />
+          <UploadIcon size={20} color="#fff" strokeWidth={2.8} />
         </View>
       </Pressable>
     );
@@ -112,9 +111,10 @@ const TabItem = memo(function TabItem({
 
 interface AnimatedTabBarProps extends BottomTabBarProps {
   onHomeDoubleTap?: () => void;
+  onUploadPress?: () => void;
 }
 
-export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap }: AnimatedTabBarProps) {
+export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap, onUploadPress }: AnimatedTabBarProps) {
   const insets = useSafeAreaInsets();
 
   // Exclude the upload route from indicator positioning
@@ -179,10 +179,10 @@ export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap
             const isFocused = state.index === state.routes.indexOf(route);
 
             const onPress = () => {
-              // Upload tab → push to upload screen, don't navigate to tab
+              // Upload tab → open the sheet (no route push needed)
               if (route.name === UPLOAD_ROUTE) {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push('/upload/index' as any);
+                onUploadPress?.();
                 return;
               }
               const event = navigation.emit({
