@@ -72,7 +72,8 @@ function RootNavigator() {
                     <Stack.Screen name="auth/callback" options={{ animation: 'none', headerShown: false }} />
                     <Stack.Screen name="search/index" options={{ presentation: 'transparentModal' }} />
                     <Stack.Screen name="image/[id]" options={{ presentation: 'card' }} />
-                    <Stack.Screen name="upload/index" options={{ presentation: 'card', animation: 'slide_from_bottom' }} />
+                    <Stack.Screen name="upload/pick" options={{ presentation: 'card', animation: 'slide_from_bottom', headerShown: false }} />
+                    <Stack.Screen name="upload/review" options={{ presentation: 'card', animation: 'slide_from_right', headerShown: false }} />
                     <Stack.Screen name="wallpaper/[id]" options={{ animation: 'slide_from_bottom' }} />
                     <Stack.Screen name="favorites/liked" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="favorites/saved" options={{ animation: 'slide_from_right' }} />

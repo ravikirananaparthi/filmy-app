@@ -13,7 +13,10 @@
       "Bash(node -e \"const ss=require\\('./node_modules/expo-secure-store/package.json'\\); const as=require\\('./node_modules/expo-auth-session/package.json'\\); const ec=require\\('./node_modules/expo-crypto/package.json'\\); console.log\\('expo-secure-store:', ss.version\\); console.log\\('expo-auth-session:', as.version\\); console.log\\('expo-crypto:', ec.version\\);\")",
       "Bash(node -e \"const ss=require\\('./node_modules/expo-secure-store/package.json'\\); const as=require\\('./node_modules/expo-auth-session/package.json'\\); console.log\\('expo-secure-store:', ss.version\\); console.log\\('expo-auth-session:', as.version\\);\")",
       "Bash(npx react-native *)",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(yarn remove *)",
+      "Bash(dir /s /b \"D:\\\\filmy-backend\\\\supabase\")",
+      "Bash(findstr /i \".sql\")"
     ]
   }
 }

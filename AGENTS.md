@@ -1,4 +1,4 @@
-# Filmy App — Claude Code Context
+# Filmy App — Codex Context
 
 ## What is this project?
 Filmy is a **Pinterest-style UGC image discovery app** built in React Native / Expo.
@@ -28,57 +28,47 @@ Filmy is a **Pinterest-style UGC image discovery app** built in React Native / E
 | Lists | @shopify/flash-list (masonry + horizontal) |
 | Forms | react-hook-form + zod |
 | Font | Google Sans Flex (400/500/600/700) |
-| Media | expo-media-library (image picking — NOT expo-image-picker, not in dev client) |
 
 ---
 
 ## Project Structure
 ```
 app/                    ← Expo Router file-based routes
-├── _layout.tsx         ← Root layout: fonts, auth guard, providers, Stack screens
+├── _layout.tsx         ← Root layout: fonts, auth guard, providers
 ├── (auth)/             ← Unauthenticated screens (Google Sign-In)
 │   ├── _layout.tsx
 │   └── index.tsx       → src/screens/auth/SignInScreen.tsx
 ├── (tabs)/             ← Main tab navigation
-│   ├── _layout.tsx     ← 5 tabs: Home | Explore | [+] | Favorites | Profile
-│   │                      Upload press → router.push('/upload/pick') directly
+│   ├── _layout.tsx     ← 5 tabs: Home | Explore | Upload(+) | Favorites | Profile
 │   ├── index.tsx       → HomeScreen
 │   ├── search.tsx      → SearchScreen (Explore)
-│   ├── upload.tsx      ← Stub — redirects to /(tabs). Tab handled by AnimatedTabBar.
+│   ├── upload.tsx      ← Stub only — upload handled via router.push('/upload/index')
 │   ├── favorites.tsx   → FavoritesScreen
-│   └── menu.tsx        → ProfileScreen ✅ Phase 3 done
-├── image/[id].tsx      → ImageDetailScreen (carousel + related — Phase 5 next)
+│   └── menu.tsx        → ProfileScreen (placeholder, implement Phase 3)
+├── image/[id].tsx      → ImageDetailScreen (carousel + related images)
 ├── actress/[id].tsx    → ActressProfileScreen
 ├── search/index.tsx    → SearchInputScreen (full search modal)
-├── upload/
-│   ├── index.tsx       ← Safety redirect to /(tabs) (keeps Expo Router happy)
-│   ├── pick.tsx        → PickScreen (expo-media-library custom grid)
-│   └── review.tsx      → ReviewScreen (carousel, tags, upload progress)
-├── profile/
-│   └── settings.tsx    → SettingsScreen
+├── upload/index.tsx    → UploadScreen (Phase 4 — not yet built)
 ├── favorites/          ← liked, saved, folder/[id], following
 └── (modal)/            ← save-to-favorites modal
 
 src/
-├── screens/
+├── screens/            ← All screen components (linked from app/ routes)
 │   ├── auth/           ← SignInScreen ✅
 │   ├── home/           ← HomeScreen ✅ (full feed + like + infinite scroll)
 │   ├── search/         ← SearchScreen ✅ (explore: highlights + profiles + trending + tags + discover)
-│   ├── image/          ← ImageDetailScreen ✅ (carousel — Phase 5: add vertical scroll + related)
+│   ├── image/          ← ImageDetailScreen ✅ (carousel, needs Pinterest layout — Phase 5)
 │   ├── actress/        ← ActressProfileScreen ✅ (3-tab, animated hero)
 │   ├── favorites/      ← All favorites screens ✅
 │   ├── search-input/   ← SearchInputScreen ✅ (autocomplete, recent, results)
-│   ├── menu/           ← ProfileScreen ✅ Phase 3 done (postsCount, settings)
+│   ├── menu/           ← MenuScreen 🟡 PLACEHOLDER → Phase 3
 │   ├── wallpaper/      ← WallpaperScreen ❌ empty
-│   └── upload/         ← ✅ Phase 4 done
-│       ├── PickScreen.tsx        ← expo-media-library, custom 3-col grid, multi-select (max 10)
-│       ├── ReviewScreen.tsx      ← carousel, per-image tags, upload progress
-│       └── components/
-│           └── TagSelector.tsx   ← popular chips + autocomplete + apply-to-all
+│   └── upload/         ← UploadScreen ❌ Phase 4
 ├── services/
 │   └── api/
-│       ├── client.ts             ← Axios + dynamic token + 401 auto-refresh
-│       ├── endpoints.ts          ← All API endpoint constants (incl. UPLOAD.POST)
+│       ├── client.ts       ← Axios + dynamic token from authStore + 401 auto-refresh
+│       ├── endpoints.ts    ← All API endpoint constants
+│       ├── auth.service.ts ← (handled via src/services/auth.service.ts now)
 │       ├── feed.service.ts
 │       ├── image.service.ts
 │       ├── actress.service.ts
@@ -88,44 +78,40 @@ src/
 │       ├── favorites.service.ts
 │       ├── likes.service.ts
 │       ├── followActress.service.ts
-│       ├── tags.service.ts       ← getPopularTags, getDiscoverImages
-│       ├── upload.service.ts     ✅ uploadPost(images, tagsPerImage, onProgress)
-│       └── user.service.ts       ✅ getUserProfile, getUserUploads
+│       ├── tags.service.ts ✅ (new — getPopularTags, getDiscoverImages)
+│       └── upload.service.ts ❌ Phase 4
 ├── store/
 │   └── slices/
-│       ├── authSlice.ts          ← Zustand: user, token, hydrate(), logout()
-│       ├── likesSlice.ts         ← Optimistic likes with server sync
+│       ├── authSlice.ts    ← Zustand: user, token, hydrate(), logout()
+│       ├── likesSlice.ts   ← Optimistic likes with server sync
 │       ├── favoritesSlice.ts
-│       ├── favlistSlice.ts
-│       └── uploadSlice.ts        ✅ selectedImages, tagsPerImage, isUploading, reset
+│       └── favlistSlice.ts
 ├── config/
-│   ├── env.ts
-│   ├── supabase.ts
-│   └── reactotron.ts
+│   ├── env.ts          ← API_BASE_URL, SUPABASE_URL, SUPABASE_ANON_KEY
+│   ├── supabase.ts     ← Supabase client with SecureStore adapter
+│   └── reactotron.ts   ← Dev logging (DEV only)
 ├── types/
-│   ├── user.types.ts
+│   ├── user.types.ts   ← User (email, display_name, avatar_url — Google OAuth fields)
 │   ├── image.types.ts
 │   └── api.types.ts
 ├── components/
 │   ├── common/
-│   │   ├── MasonryImageGrid.tsx
+│   │   ├── MasonryImageGrid.tsx  ← FlashList masonry, accepts ListHeaderComponent
 │   │   ├── ImageCard.tsx
 │   │   ├── LikeButton.tsx
 │   │   └── ShimmerPlaceholder.tsx
-│   ├── carousel/
+│   ├── carousel/               ← Full carousel for ImageDetailScreen
 │   └── ui/
-│       └── animated-tab-bar.tsx  ← canonical; keep in sync with components/ui/ copy
+│       └── animated-tab-bar.tsx ← Custom pill tab bar, Upload = center FAB
 ├── hooks/
-│   ├── useLike.ts
+│   ├── useLike.ts      ← returns { toggleLike } — debounced optimistic updates
 │   ├── useDebouncePress.ts
 │   └── ...
 └── contexts/
-    └── RefreshContext.tsx         ← Double-tap home tab to refresh feed
+    └── RefreshContext.tsx  ← Double-tap home tab to refresh feed
 
-components/
-└── icons/tab-bar/
-    ├── upload-icon.tsx            ← Plus (+) SVG (two <Line> elements, strokeLinecap="round")
-    └── ...
+components/             ← Shared UI components (outside src/)
+└── icons/tab-bar/      ← SVG tab icons: Home, Search, Favorites, Menu, Upload
 ```
 
 ---
@@ -177,44 +163,16 @@ Always cast typed routes with `as any` until Expo Router regenerates types:
 ```tsx
 router.push(`/image/${id}` as any)
 router.replace('/(tabs)' as any)
-router.navigate('/(tabs)' as any)   ← use navigate() to pop back to existing tab stack entry
 ```
-
-### Post-upload navigation
-After a successful upload use `router.navigate('/(tabs)' as any)` — this finds the existing
-tabs entry in the stack and pops everything above it. Do NOT use `router.dismissAll()` +
-`router.replace()` together; that double-action breaks the navigator.
-
-### Never call router.* during render
-All `router.push / replace / navigate` calls must be inside `useEffect` or event handlers.
-Calling them during render causes "setState during render" errors.
 
 ---
 
 ## Tab Bar
 **Current tabs:** Home | Explore | **[+]** Upload | Favorites | Profile
-- Canonical file: `src/components/ui/animated-tab-bar.tsx`
-- Copy (keep in sync): `components/ui/animated-tab-bar.tsx`
-- Upload slot (`route.name === 'upload'`): renders glowing circular `+` button
-- Pressing `+` calls `onUploadPress?.()` → defined in `app/(tabs)/_layout.tsx` as:
-  `reset(); router.push('/upload/pick' as any)` — navigates directly, no bottom sheet
+- File: `src/components/ui/animated-tab-bar.tsx` (canonical) + `components/ui/animated-tab-bar.tsx` (copy — keep in sync)
+- Upload tab (`route.name === 'upload'`): renders glowing circular `+` button, press → `router.push('/upload/index')`
 - Indicator: animated pill that slides between non-upload tabs
 - Tab bar hides on scroll via `react-native-motionify`
-- Upload icon: `components/icons/tab-bar/upload-icon.tsx` — pure `+` SVG (two `<Line>` elements)
-
----
-
-## Upload Flow (Phase 4)
-1. User presses `+` tab → `PickScreen` (`/upload/pick`)
-2. `PickScreen` uses `expo-media-library` — custom 3-column grid, multi-select up to 10 images
-   - On iOS: `ph://` URIs resolved to `file://` via `MediaLibrary.getAssetInfoAsync(asset).localUri`
-3. Selected images saved to `useUploadStore` (Zustand `uploadSlice`)
-4. → `ReviewScreen` (`/upload/review`)
-5. Carousel through images, `TagSelector` per image (popular tags + autocomplete)
-6. "Create" button → `upload.service.ts` multipart FormData POST to `/upload/post`
-7. Progress overlay → success → `router.navigate('/(tabs)' as any)`
-
-**DO NOT use `expo-image-picker`** — it requires a native rebuild not present in the current dev client.
 
 ---
 
@@ -231,7 +189,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon key in .env>
 - Located at `D:\filmy-backend`
 - Deployed at `https://filmy-backend.onrender.com`
 - TypeScript + Express + Supabase PostgreSQL
-- **See `D:\filmy-backend\CLAUDE.md` for backend-specific context**
+- **See `D:\filmy-backend\AGENTS.md` for backend-specific context**
 
 ---
 
@@ -242,8 +200,6 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=<anon key in .env>
 - Do not import from `@types/xxx` — use `@types/xxx` alias (existing pattern, pre-existing TS warning, doesn't affect runtime)
 - Do not add Boards feature (removed from scope)
 - Do not add Trending as a standalone tab (removed — content lives in Explore screen)
-- Do not use `expo-image-picker` — not compiled into the dev client; use `expo-media-library`
-- Do not call `router.*` during render — always inside `useEffect` or event handler
 
 ## Naming Convention Note
 Many internal variables use `actress*` naming (e.g., `actressId`, `favoriteActresses`). This is intentional for now. **Phase 7** will rename UI-facing strings. Don't rename prematurely.
