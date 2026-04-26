@@ -1,14 +1,21 @@
-import type { ApiResponse } from '@types/api.types';
-import type { ImageDetail } from '@types/image.types';
-import { apiClient } from './client';
+import type { Image, ImageDetail } from '@/src/types/image.types';
+import { apiClient, type ApiResponse } from './client';
 import { API_ENDPOINTS } from './endpoints';
 
 // Get image details
-export const getImageDetail = async (id: string) => {
-    const response = await apiClient.get<ApiResponse<ImageDetail>>(
+export const getImageDetail = async (id: string): Promise<ImageDetail> => {
+    const response = await apiClient.get<ApiResponse<{ image: ImageDetail }>>(
         API_ENDPOINTS.IMAGES.DETAIL(id)
     );
-    return response.data;
+    return response.data.data.image;
+};
+
+// Get related images for detail page
+export const getRelatedImages = async (id: string): Promise<Image[]> => {
+    const response = await apiClient.get<ApiResponse<{ images: Image[] }>>(
+        API_ENDPOINTS.IMAGES.RELATED(id)
+    );
+    return response.data.data?.images ?? [];
 };
 
 // Like image
