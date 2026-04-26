@@ -91,6 +91,11 @@ export const API_ENDPOINTS = {
         RECENT: '/search/recent',
     },
 
+    // Upload (user posts)
+    UPLOAD: {
+        POST: '/upload/post',
+    },
+
     // Admin
     ADMIN: {
         CREATE_ACTRESS: '/admin/actress',
