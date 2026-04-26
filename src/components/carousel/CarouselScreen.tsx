@@ -1,4 +1,3 @@
-import { downloadImageToGallery } from '@/src/services/download.service';
 import type { Image as ImageType } from '@/src/types/image.types';
 import useLike from '@hooks/useLike';
 import { useLikesStore } from '@store/slices/likesSlice';
@@ -7,7 +6,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dimensions, FlatList, StyleSheet, View, ViewToken } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import SaveToFavoritesSheet, { SaveToFavoritesSheetRef } from '../sheets/SaveToFavoritesSheet';
-import { BottomBar } from './BottomBar';
 import { CarouselItem } from './CarouselItem';
 import { MenuDropdown } from './MenuDropdown';
 import { TopBar } from './TopBar';
@@ -37,7 +35,6 @@ export function CarouselScreen({
     const sheetRef = useRef<SaveToFavoritesSheetRef>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
     const [menuVisible, setMenuVisible] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false);
     const { toggleLike } = useLike();
     const initFromApiData = useLikesStore((state) => state.initFromApiData);
 
@@ -95,16 +92,6 @@ export function CarouselScreen({
         }
     }, [currentImage?.id]);
 
-    // Download handler
-    const handleDownloadPress = useCallback(async () => {
-        if (!currentImage || isDownloading) return;
-
-        setIsDownloading(true);
-        const actressName = currentImage.actress?.name;
-        await downloadImageToGallery(currentImage.image_url, currentImage.id, actressName);
-        setIsDownloading(false);
-    }, [currentImage, isDownloading]);
-
     const handleLikePress = useCallback(
         (imageId: string) => {
             toggleLike(imageId);
@@ -121,9 +108,11 @@ export function CarouselScreen({
             <CarouselItem
                 image={item}
                 isActive={index === activeIndex}
+                onLikePress={handleLikePress}
+                onBookmarkPress={handleBookmarkPress}
             />
         ),
-        [activeIndex]
+        [activeIndex, handleLikePress, handleBookmarkPress]
     );
 
     const keyExtractor = useCallback((item: ImageType) => item.id, []);
@@ -136,8 +125,6 @@ export function CarouselScreen({
         }),
         []
     );
-
-    const actressName = currentImage?.actress?.name || 'Unknown';
 
     return (
         <GestureHandlerRootView style={styles.container}>
@@ -166,16 +153,6 @@ export function CarouselScreen({
                 />
 
                 <TopBar onBackPress={handleBackPress} onMenuPress={handleMenuPress} />
-
-                {currentImage && (
-                    <BottomBar
-                        actressName={actressName}
-                        imageId={currentImage.id}
-                        onDownloadPress={handleDownloadPress}
-                        onBookmarkPress={handleBookmarkPress}
-                        onLikePress={handleLikePress}
-                    />
-                )}
 
                 {/* Menu Dropdown */}
                 <MenuDropdown
