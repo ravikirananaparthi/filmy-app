@@ -67,7 +67,7 @@ export const SearchBarSkeleton: React.FC<SearchBarSkeletonProps> = ({
         >
             <Search size={18} color={iconColor} strokeWidth={2.5} />
             <Text style={[styles.placeholder, { color: textColor }]}>
-                Search actresses, tags...
+                Search ...
             </Text>
         </AnimatedPressable>
     );

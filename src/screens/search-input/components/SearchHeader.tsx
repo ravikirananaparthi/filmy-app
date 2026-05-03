@@ -48,7 +48,7 @@ export const SearchHeader = forwardRef<any, SearchHeaderProps>(
                     <TextInput
                         ref={ref}
                         style={[styles.input, { color: textColor }]}
-                        placeholder="Search actresses..."
+                        placeholder="Search..."
                         placeholderTextColor={placeholderColor}
                         value={query}
                         onChangeText={onQueryChange}
