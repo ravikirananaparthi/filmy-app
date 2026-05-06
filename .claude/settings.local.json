@@ -16,7 +16,17 @@
       "Bash(git config *)",
       "Bash(yarn remove *)",
       "Bash(dir /s /b \"D:\\\\filmy-backend\\\\supabase\")",
-      "Bash(findstr /i \".sql\")"
+      "Bash(findstr /i \".sql\")",
+      "Bash(npx skills *)",
+      "Bash(dir /s /b app-icon*)",
+      "Bash(magick --version)",
+      "Bash(convert --version)",
+      "Bash(where magick *)",
+      "Bash(where convert *)",
+      "Bash(node -e ' *)",
+      "Read(//d/filmy-backend/**)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(Object.keys\\(p.dependencies\\).filter\\(k => k.includes\\('svg'\\) || k.includes\\('vector'\\)\\)\\)\")"
     ]
   }
 }
