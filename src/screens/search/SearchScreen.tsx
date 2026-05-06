@@ -1,5 +1,5 @@
 import { MasonryImageGrid } from '@components/common/MasonryImageGrid';
-import { ShimmerActressesRow, ShimmerHighlightsCarousel } from '@components/common/ShimmerPlaceholder';
+import { ShimmerActressesRow, ShimmerBannerCarousel } from '@components/common/ShimmerPlaceholder';
 import { useDebouncePress } from '@hooks/useDebouncePress';
 import { useLike } from '@hooks/useLike';
 import { router } from 'expo-router';
@@ -8,20 +8,20 @@ import { StatusBar, StyleSheet, View, useColorScheme } from 'react-native';
 import { useMotionify } from 'react-native-motionify';
 
 import {
+    BannerCarousel,
     ExploreHeader,
     FeaturedActressesRow,
-    HighlightsCarousel,
     SectionHeader,
     TagsGrid,
     TrendingPreview,
+    type BannerItem,
     type ProfileItem,
-    type HighlightItem,
 } from './components';
 import {
     useDiscoverImages,
     useFeaturedActresses,
     useHighlights,
-    usePopularTags,
+    useTagsWithPreviews,
     useTrendingPreview,
 } from './hooks';
 import type { Tag } from '@services/api/tags.service';
@@ -36,23 +36,24 @@ export default function SearchScreen() {
     const { data: highlightsData, isLoading: highlightsLoading } = useHighlights();
     const { data: profilesData, isLoading: profilesLoading } = useFeaturedActresses();
     const { data: trendingImages = [] } = useTrendingPreview();
-    const { data: popularTags = [] } = usePopularTags();
+    const { data: tagsWithPreviews = [] } = useTagsWithPreviews();
     const {
         data: discoverData,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
+        isLoading: discoverLoading,
     } = useDiscoverImages();
 
     const { toggleLike } = useLike();
 
-    const highlights: HighlightItem[] = useMemo(() => {
+    // Map highlights → BannerItem shape (no subtitle — keep the banner clean)
+    const bannerItems: BannerItem[] = useMemo(() => {
         if (!highlightsData?.images) return [];
         return highlightsData.images.map((img) => ({
             id: img.id,
             imageUrl: img.imageUrl,
-            name: img.actress.name,
-            caption: `${img.likesCount} likes`,
+            title: img.actress.name,
         }));
     }, [highlightsData]);
 
@@ -72,8 +73,8 @@ export default function SearchScreen() {
 
     const handleSearchPress = useCallback(() => router.push('/search'), []);
 
-    const handleHighlightPress = useCallback(
-        (item: HighlightItem) => router.push(`/image/${item.id}` as any),
+    const handleBannerPress = useCallback(
+        (item: BannerItem) => router.push(`/image/${item.id}` as any),
         []
     );
 
@@ -99,17 +100,20 @@ export default function SearchScreen() {
     const ListHeader = useMemo(
         () => (
             <View style={{ backgroundColor }}>
-                <SectionHeader title="Highlights" subtitle="Trending celebrity moments" />
+                {/* ── Hero banner (replaces HighlightsCarousel) ─────────── */}
                 {highlightsLoading ? (
-                    <ShimmerHighlightsCarousel />
-                ) : highlights.length > 0 ? (
-                    <HighlightsCarousel data={highlights} onItemPress={handleHighlightPress} />
+                    <ShimmerBannerCarousel />
+                ) : bannerItems.length > 0 ? (
+                    <BannerCarousel
+                        data={bannerItems}
+                        onItemPress={handleBannerPress}
+                    />
                 ) : null}
 
+                {/* ── Featured creators ─────────────────────────────────── */}
                 <SectionHeader
                     title="Featured"
-                    subtitle="Popular profiles curated for you"
-                    onPress={() => router.push('/actresses' as any)}
+                    subtitle="Popular creators for you"
                 />
                 {profilesLoading ? (
                     <ShimmerActressesRow />
@@ -117,6 +121,7 @@ export default function SearchScreen() {
                     <FeaturedActressesRow data={profiles} onItemPress={handleProfilePress} />
                 ) : null}
 
+                {/* ── Trending this week ────────────────────────────────── */}
                 {trendingImages.length > 0 && (
                     <>
                         <SectionHeader title="Trending This Week" subtitle="Most liked in the last 7 days" />
@@ -124,10 +129,11 @@ export default function SearchScreen() {
                     </>
                 )}
 
-                {popularTags.length > 0 && (
+                {/* ── Browse by mood / tags ─────────────────────────────── */}
+                {tagsWithPreviews.length > 0 && (
                     <>
                         <SectionHeader title="Browse by Mood" />
-                        <TagsGrid tags={popularTags} onTagPress={handleTagPress} />
+                        <TagsGrid tags={tagsWithPreviews} onTagPress={handleTagPress} />
                     </>
                 )}
 
@@ -135,7 +141,7 @@ export default function SearchScreen() {
             </View>
         ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [backgroundColor, highlights, highlightsLoading, profiles, profilesLoading, trendingImages, popularTags]
+        [backgroundColor, bannerItems, highlightsLoading, profiles, profilesLoading, trendingImages, tagsWithPreviews]
     );
 
     return (
@@ -150,6 +156,7 @@ export default function SearchScreen() {
                 ListHeaderComponent={ListHeader}
                 onScroll={onScroll}
                 hideActressName={false}
+                isLoading={discoverLoading}
             />
         </View>
     );

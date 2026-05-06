@@ -37,6 +37,7 @@ export default function FeaturedActressesRow({
         <View style={styles.cardWrapper}>
             <ActressMiniCard
                 imageUrl={item.imageUrl}
+                name={item.name}
                 onPress={() => onItemPress?.(item)}
             />
         </View>
@@ -61,7 +62,7 @@ export default function FeaturedActressesRow({
 
 const styles = StyleSheet.create({
     container: {
-        height: CARD_HEIGHT + 16, // Card height + padding
+        height: CARD_HEIGHT + 52, // image + name label (~19px) + top/bottom padding
     },
     contentContainer: {
         paddingHorizontal: 16,
