@@ -1,4 +1,6 @@
 export { default as ActressMiniCard } from './ActressMiniCard';
+export { default as BannerCarousel } from './BannerCarousel';
+export type { BannerItem } from './BannerCarousel';
 export { default as ExploreHeader } from './ExploreHeader';
 export { default as FeaturedActressesRow } from './FeaturedActressesRow';
 export type { ProfileItem } from './FeaturedActressesRow';
