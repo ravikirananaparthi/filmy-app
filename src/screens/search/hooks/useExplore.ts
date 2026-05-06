@@ -1,4 +1,4 @@
-import { getDiscoverImages, getPopularTags } from '@services/api/tags.service';
+import { getDiscoverImages, getPopularTags, getTagsWithPreviews } from '@services/api/tags.service';
 import { getTrendingImages } from '@services/api/trending.service';
 import {
     getFeaturedActresses,
@@ -51,6 +51,15 @@ export function usePopularTags() {
     return useQuery({
         queryKey: exploreKeys.popularTags(),
         queryFn: getPopularTags,
+        staleTime: 10 * 60 * 1000,
+        gcTime: 60 * 60 * 1000,
+    });
+}
+
+export function useTagsWithPreviews() {
+    return useQuery({
+        queryKey: [...exploreKeys.popularTags(), 'with-previews'],
+        queryFn: getTagsWithPreviews,
         staleTime: 10 * 60 * 1000,
         gcTime: 60 * 60 * 1000,
     });

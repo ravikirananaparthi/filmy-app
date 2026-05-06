@@ -4,6 +4,7 @@ export {
     useFeaturedActresses,
     useHighlights,
     usePopularTags,
+    useTagsWithPreviews,
     useTrendingPreview,
 } from './useExplore';
 
