@@ -1,8 +1,9 @@
-import { Theme } from '@/constants/theme';
 import { apiClient } from '@services/api/client';
 import { API_ENDPOINTS } from '@services/api/endpoints';
 import { authService } from '@services/auth.service';
 import { useAuthStore } from '@store/slices/authSlice';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
@@ -14,6 +15,37 @@ import {
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path, G, ClipPath, Rect, Defs } from 'react-native-svg';
+
+function GoogleLogo({ size = 20 }: { size?: number }) {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24">
+            <Defs>
+                <ClipPath id="clip">
+                    <Rect width="24" height="24" />
+                </ClipPath>
+            </Defs>
+            <G clipPath="url(#clip)">
+                <Path
+                    d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+                    fill="#4285F4"
+                />
+                <Path
+                    d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.615 24 12.255 24z"
+                    fill="#34A853"
+                />
+                <Path
+                    d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"
+                    fill="#FBBC05"
+                />
+                <Path
+                    d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.64 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"
+                    fill="#EA4335"
+                />
+            </G>
+        </Svg>
+    );
+}
 
 export default function SignInScreen() {
     const insets = useSafeAreaInsets();
@@ -36,12 +68,8 @@ export default function SignInScreen() {
                 return;
             }
 
-            // 1. Store tokens so the API client can attach them to requests
             setSession(session.access_token, session.refresh_token);
 
-            // 2. Call /auth/me — this auto-creates the user row in the DB for new
-            //    Google accounts AND returns the full user object. Must succeed before
-            //    navigating so every subsequent API call can pass the auth middleware.
             const { data: meRes } = await apiClient.get(API_ENDPOINTS.AUTH.ME);
             const dbUser = meRes?.data?.user ?? null;
 
@@ -50,10 +78,7 @@ export default function SignInScreen() {
                 return;
             }
 
-            // 3. Store user → also sets isAuthenticated: true
             setUser(dbUser);
-
-            // 4. Navigate — AuthGuard now sees isAuthenticated: true and allows it
             router.replace('/(tabs)' as any);
         } catch (e: any) {
             console.error('[SignIn] Error:', e);
@@ -64,33 +89,41 @@ export default function SignInScreen() {
     };
 
     return (
-        <View style={[styles.container, { paddingBottom: insets.bottom + 32, paddingTop: insets.top + 32 }]}>
+        <View style={styles.container}>
             <StatusBar style="light" />
 
-            {/* Logo / Brand section */}
-            <View style={styles.brandSection}>
-                <View style={styles.logoCircle}>
-                    <Text style={styles.logoLetter}>F</Text>
-                </View>
-                <Text style={styles.appName}>Filmy</Text>
-                <Text style={styles.tagline}>Discover beautiful images</Text>
-            </View>
+            {/* Full-screen background image */}
+            <Image
+                source={require('../../../assets/images/onboarding-bg.png')}
+                style={StyleSheet.absoluteFillObject}
+                contentFit="cover"
+            />
 
-            {/* CTA section */}
-            <View style={styles.ctaSection}>
+            {/* Gradient: fades image into black at the bottom */}
+            <LinearGradient
+                colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,1)']}
+                locations={[0, 0.5, 1]}
+                style={styles.gradient}
+            />
+
+            {/* Bottom CTA panel */}
+            <View style={[styles.cta, { paddingBottom: insets.bottom + 28 }]}>
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
                 <Pressable
-                    style={({ pressed }) => [styles.googleButton, pressed && styles.googleButtonPressed]}
+                    style={({ pressed }) => [
+                        styles.googleButton,
+                        pressed && styles.googleButtonPressed,
+                    ]}
                     onPress={handleGoogleSignIn}
                     disabled={loading}
                 >
                     {loading ? (
-                        <ActivityIndicator color="#000" size="small" />
+                        <ActivityIndicator color="#444" size="small" />
                     ) : (
                         <>
-                            <GoogleIcon />
-                            <Text style={styles.googleButtonText}>Continue with Google</Text>
+                            <GoogleLogo size={20} />
+                            <Text style={styles.googleButtonText}>Sign in with Google</Text>
                         </>
                     )}
                 </Pressable>
@@ -103,104 +136,74 @@ export default function SignInScreen() {
     );
 }
 
-function GoogleIcon() {
-    return (
-        <View style={styles.googleIcon}>
-            <Text style={styles.googleIconText}>G</Text>
-        </View>
-    );
-}
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0D0A12',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        backgroundColor: '#000000',
+    },
+
+    // Gradient bridge between image and black panel — starts transparent, ends solid black
+    gradient: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 420,
+    },
+
+    // Solid black bottom panel anchored at the bottom
+    cta: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
         paddingHorizontal: 24,
-    },
-    brandSection: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 12,
-    },
-    logoCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 24,
-        backgroundColor: Theme.palette.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    logoLetter: {
-        fontSize: 42,
-        fontWeight: '700',
-        color: '#fff',
-        fontFamily: 'GoogleSansFlex_700Bold',
-    },
-    appName: {
-        fontSize: 36,
-        fontWeight: '700',
-        color: '#fff',
-        fontFamily: 'GoogleSansFlex_700Bold',
-        letterSpacing: -0.5,
-    },
-    tagline: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.5)',
-        fontFamily: 'GoogleSansFlex_400Regular',
-    },
-    ctaSection: {
-        width: '100%',
-        gap: 16,
+        paddingTop: 28,
+        backgroundColor: '#000000',
+        gap: 14,
         alignItems: 'center',
     },
+
     errorText: {
         color: '#FF6B6B',
         fontSize: 14,
         textAlign: 'center',
         fontFamily: 'GoogleSansFlex_400Regular',
     },
+
+    // Google-branded white pill button
     googleButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 100,
+        backgroundColor: '#ffffff',
+        borderRadius: 28,
         width: '100%',
-        height: 54,
-        gap: 10,
+        height: 52,
+        gap: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 6,
+        elevation: 4,
     },
     googleButtonPressed: {
-        opacity: 0.85,
-    },
-    googleIcon: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
-        backgroundColor: '#4285F4',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    googleIconText: {
-        color: '#fff',
-        fontWeight: '700',
-        fontSize: 13,
+        backgroundColor: '#f1f1f1',
     },
     googleButtonText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
-        color: '#111',
-        fontFamily: 'GoogleSansFlex_600SemiBold',
-    },
-    disclaimer: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.3)',
-        textAlign: 'center',
-        lineHeight: 18,
+        color: '#1f1f1f',
         fontFamily: 'GoogleSansFlex_400Regular',
-        paddingHorizontal: 16,
+        letterSpacing: 0.15,
+    },
+
+    disclaimer: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.35)',
+        textAlign: 'center',
+        lineHeight: 17,
+        fontFamily: 'GoogleSansFlex_400Regular',
+        paddingHorizontal: 12,
     },
 });
