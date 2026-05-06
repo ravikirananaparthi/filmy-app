@@ -103,12 +103,14 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
         [onRefresh, isRefreshing, backgroundColor]
     );
 
-    if (isLoading && data.length === 0) {
-        return <ShimmerGrid count={6} />;
-    }
-
-    if (!isLoading && data.length === 0) {
-        return <EmptyState message="No images found" />;
+    // Full-screen states only when there is no header to display
+    if (!ListHeaderComponent) {
+        if (isLoading && data.length === 0) {
+            return <ShimmerGrid count={6} />;
+        }
+        if (!isLoading && data.length === 0) {
+            return <EmptyState message="No images found" />;
+        }
     }
 
     return (
@@ -125,6 +127,13 @@ export const MasonryImageGrid: React.FC<MasonryImageGridProps> = ({
                 onEndReachedThreshold={0.5}
                 refreshControl={refreshControl}
                 ListHeaderComponent={ListHeaderComponent}
+                ListEmptyComponent={
+                    isLoading ? (
+                        <ShimmerGrid count={6} />
+                    ) : (
+                        <EmptyState message="No images found" />
+                    )
+                }
                 contentContainerStyle={[styles.contentContainer, contentContainerStyle]}
                 showsVerticalScrollIndicator={false}
                 onScroll={onScroll}

@@ -236,6 +236,29 @@ export const ShimmerActressesRow: React.FC = memo(() => {
 ShimmerActressesRow.displayName = 'ShimmerActressesRow';
 
 // ============================================
+// 5. BANNER CAROUSEL SHIMMER
+// ============================================
+
+const BANNER_SHIMMER_HEIGHT = 300;
+
+/**
+ * Shimmer placeholder for BannerCarousel — full-width hero banner
+ */
+export const ShimmerBannerCarousel: React.FC = memo(() => {
+    const shimmerColors = useShimmerColors();
+
+    return (
+        <ShimmerPlaceholder
+            style={styles.bannerCarousel}
+            shimmerColors={shimmerColors}
+            visible={false}
+        />
+    );
+});
+
+ShimmerBannerCarousel.displayName = 'ShimmerBannerCarousel';
+
+// ============================================
 // STYLES
 // ============================================
 
@@ -331,6 +354,12 @@ const styles = StyleSheet.create({
         width: 80,
         height: 12,
         borderRadius: Theme.radius.sm,
+    },
+
+    // Banner Carousel
+    bannerCarousel: {
+        width: SCREEN_WIDTH,
+        height: BANNER_SHIMMER_HEIGHT,
     },
 
     // Actresses Row
