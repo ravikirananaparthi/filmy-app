@@ -887,6 +887,11 @@
     "@eslint/core" "^0.17.0"
     levn "^0.4.1"
 
+"@expo-google-fonts/bebas-neue@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/bebas-neue/-/bebas-neue-0.4.1.tgz#5c21485bc6fda7a5b8ca4021de063fb8d4a7d84e"
+  integrity sha512-Ibnf0EQgMUj01tT/ws64RlsMQmOvDP+UDFW93bld0C/WwaOaCGWKgNnqxNkKxmL73y2kpT8EB4dkSNUOyAOEJA==
+
 "@expo-google-fonts/dancing-script@^0.4.2":
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/@expo-google-fonts/dancing-script/-/dancing-script-0.4.2.tgz#d30b9a599ce204c7e52bb348fc38540617564139"
@@ -896,6 +901,11 @@
   version "0.4.3"
   resolved "https://registry.npmjs.org/@expo-google-fonts/google-sans-flex/-/google-sans-flex-0.4.3.tgz"
   integrity sha512-LaVtAb2wJOUxRBaLPcyEdKTxgbylp1nZX8vuTgJx8pRi9ov/d6zbnE3gO9hVjmS1TjB2eD7+kiWMJQC+WzsnjA==
+
+"@expo-google-fonts/pacifico@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/pacifico/-/pacifico-0.4.1.tgz#f7852a7ffb3aabfa512e03feedea44f4a404f12d"
+  integrity sha512-w21ZIeNdwVWPH173HNszX8ML1deogOsHcxhJ0ghpbyBzr7R6PGSJ6yWL5jBixvWV/E34xDk28aNn/cX+gqzf3Q==
 
 "@expo/cli@54.0.16":
   version "54.0.16"

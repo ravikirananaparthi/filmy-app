@@ -12,7 +12,7 @@ import {
 import { Theme } from '@/constants/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import {
   Dimensions,
   Pressable,
@@ -20,6 +20,7 @@ import {
   View,
 } from 'react-native';
 import Animated, {
+  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -42,16 +43,35 @@ const SPRING_CONFIG = {
   mass: 0.8,
 };
 
-// Icon map for non-upload tabs
-const TAB_ICONS: Record<string, { filled: React.FC<any>; unfilled: React.FC<any> }> = {
-  index:     { filled: HomeIcon,      unfilled: HomeIconUF },
-  search:    { filled: SearchIcon,    unfilled: SearchIconUF },
-  favorites: { filled: FavoritesIcon, unfilled: FavoritesIconUF },
-  menu:      { filled: MenuIcon,      unfilled: MenuIconUF },
+const UPLOAD_ROUTE = 'upload';
+
+// ─── Stable position map (module-level, never recreated) ─────────────────────
+// Physical slot positions: Home=0 Search=1 Upload=2 Favorites=3 Menu=4
+const ROUTE_SLOT: Record<string, number> = {
+  index: 0,
+  search: 1,
+  favorites: 3,
+  menu: 4,
 };
 
-// Routes that should NOT move the indicator
-const UPLOAD_ROUTE = 'upload';
+/**
+ * Returns the indicator's translateX for a given route name.
+ * Returns null for upload or any unknown route — callers must treat null as
+ * "do not move the indicator".
+ */
+function getIndicatorX(routeName: string): number | null {
+  const slot = ROUTE_SLOT[routeName];
+  if (slot === undefined) return null;
+  return slot * TAB_ITEM_WIDTH + INDICATOR_PADDING;
+}
+
+// Icon map for non-upload tabs
+const TAB_ICONS: Record<string, { filled: React.FC<any>; unfilled: React.FC<any> }> = {
+  index: { filled: HomeIcon, unfilled: HomeIconUF },
+  search: { filled: SearchIcon, unfilled: SearchIconUF },
+  favorites: { filled: FavoritesIcon, unfilled: FavoritesIconUF },
+  menu: { filled: MenuIcon, unfilled: MenuIconUF },
+};
 
 interface TabItemProps {
   routeName: string;
@@ -73,7 +93,6 @@ const TabItem = memo(function TabItem({
     onPress();
   }, [onPress]);
 
-  // ── Upload center button ──────────────────────────────────────────────────
   if (routeName === UPLOAD_ROUTE) {
     return (
       <Pressable
@@ -90,7 +109,6 @@ const TabItem = memo(function TabItem({
     );
   }
 
-  // ── Regular tab item ──────────────────────────────────────────────────────
   const iconConfig = TAB_ICONS[routeName];
   if (!iconConfig) return null;
   const IconComponent = isFocused ? iconConfig.filled : iconConfig.unfilled;
@@ -114,53 +132,56 @@ interface AnimatedTabBarProps extends BottomTabBarProps {
   onUploadPress?: () => void;
 }
 
-export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap, onUploadPress }: AnimatedTabBarProps) {
+export function AnimatedTabBar({
+  state,
+  descriptors,
+  navigation,
+  onHomeDoubleTap,
+  onUploadPress,
+}: AnimatedTabBarProps) {
   const insets = useSafeAreaInsets();
 
-  // Exclude the upload route from indicator positioning
-  const navigableTabs = state.routes.filter((r) => r.name !== UPLOAD_ROUTE);
-  const focusedNavIndex = navigableTabs.findIndex(
-    (r) => r.key === state.routes[state.index]?.key
+  // The focused route name — the ONLY thing that should drive indicator position.
+  // We deliberately use the name string (not the numeric index) as the signal so
+  // that transient index fluctuations during React Navigation transitions don't
+  // trigger spurious indicator animations.
+  const focusedRouteName = state.routes[state.index]?.name ?? '';
+
+  // Remember the last route that produced a valid indicator position.
+  // This prevents the indicator from snapping to home (the ?? fallback) during
+  // brief moments where focusedRouteName is upload or undefined.
+  const lastValidX = useRef<number>(getIndicatorX('index') ?? 0);
+
+  // Derive the target X for the current route.
+  const targetX = getIndicatorX(focusedRouteName); // null when upload / unknown
+
+  // Initialise the shared value at the correct position without any animation.
+  const indicatorPosition = useSharedValue(
+    targetX !== null ? targetX : lastValidX.current
   );
-  const indicatorIndex = focusedNavIndex >= 0 ? focusedNavIndex : 0;
-
-  // Spread indicator across only non-upload tabs
-  const NAV_TAB_WIDTH = TAB_BAR_WIDTH / TAB_COUNT;
-  // Upload tab is center (index 2), so for indicator we need to skip that slot
-  // Layout: Home(0) Search(1) Upload(2) Favorites(3) Menu(4)
-  // Indicator positions for navigable tabs: 0,1,3,4 positions (skip 2=upload)
-  const getIndicatorX = (routeName: string): number => {
-    const posMap: Record<string, number> = {
-      index:     0,
-      search:    1,
-      upload:    2, // won't be used
-      favorites: 3,
-      menu:      4,
-    };
-    const pos = posMap[routeName] ?? 0;
-    return pos * NAV_TAB_WIDTH + INDICATOR_PADDING;
-  };
-
-  const currentRoute = state.routes[state.index];
-  const indicatorPosition = useSharedValue(getIndicatorX(currentRoute?.name ?? 'index'));
 
   useEffect(() => {
-    if (currentRoute?.name !== UPLOAD_ROUTE) {
-      indicatorPosition.value = withSpring(
-        getIndicatorX(currentRoute?.name ?? 'index'),
-        SPRING_CONFIG
-      );
-    }
-  }, [state.index]);
+    // If this render's route has no valid position (upload tab, unknown route,
+    // or any transient state.index glitch), do nothing — keep the indicator
+    // exactly where it was.
+    if (targetX === null) return;
+
+    // Only animate when the destination actually changes.
+    if (targetX === lastValidX.current) return;
+
+    lastValidX.current = targetX;
+    cancelAnimation(indicatorPosition);
+    indicatorPosition.value = withSpring(targetX, SPRING_CONFIG);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedRouteName]); // ← route NAME, not numeric index
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorPosition.value }],
   }));
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 17) }]}>
       <View style={[styles.tabBarWrapper, { backgroundColor: '#121212' }]}>
-        {/* Sliding indicator (hidden behind upload button position) */}
         <Animated.View
           style={[
             styles.indicator,
@@ -179,7 +200,6 @@ export function AnimatedTabBar({ state, descriptors, navigation, onHomeDoubleTap
             const isFocused = state.index === state.routes.indexOf(route);
 
             const onPress = () => {
-              // Upload tab → open the sheet (no route push needed)
               if (route.name === UPLOAD_ROUTE) {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 onUploadPress?.();

@@ -111,9 +111,10 @@ const styles = StyleSheet.create({
         height: LOGO_HEIGHT,
     },
     logoRow: {
+        height: LOGO_HEIGHT,
         paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     searchBarContainer: {
         paddingHorizontal: 16,

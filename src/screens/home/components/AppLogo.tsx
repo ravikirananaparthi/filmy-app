@@ -6,24 +6,27 @@ interface AppLogoProps {
 }
 
 export const AppLogo: React.FC<AppLogoProps> = ({ size = 'medium' }) => {
-    const fontSize = size === 'small' ? 22 : size === 'large' ? 36 : 28;
+    const fontSize = size === 'small' ? 26 : size === 'large' ? 40 : 32;
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.logo, { fontSize }]}>filmy</Text>
+            <Text style={[styles.logo, { fontSize }]}>
+                FILMY
+            </Text>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        width: '100%',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     logo: {
-        fontFamily: 'DancingScript_700Bold',
+        fontFamily: 'BebasNeue_400Regular',
         color: '#ffffff',
-        letterSpacing: 0.5,
+        letterSpacing: 4,
     },
 });
 

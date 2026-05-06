@@ -16,8 +16,8 @@ import {
     useFonts,
 } from '@expo-google-fonts/google-sans-flex';
 import {
-    DancingScript_700Bold,
-} from '@expo-google-fonts/dancing-script';
+    BebasNeue_400Regular,
+} from '@expo-google-fonts/bebas-neue';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -99,7 +99,7 @@ export default function RootLayout() {
         GoogleSansFlex_500Medium,
         GoogleSansFlex_600SemiBold,
         GoogleSansFlex_700Bold,
-        DancingScript_700Bold,
+        BebasNeue_400Regular,
     });
 
     useEffect(() => {
