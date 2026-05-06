@@ -1,7 +1,7 @@
 import type { Actress } from '@/src/types/actress.types';
 import useLike from '@hooks/useLike';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
@@ -40,6 +40,9 @@ export default function SearchInputScreen() {
     const insets = useSafeAreaInsets();
     const inputRef = useRef<any>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Pre-filled tag from Browse by Mood / tag chips (e.g. /search?tag=Cute)
+    const { tag: tagParam } = useLocalSearchParams<{ tag?: string }>();
 
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -96,6 +99,15 @@ export default function SearchInputScreen() {
         const timer = setTimeout(() => inputRef.current?.focus(), 100);
         return () => clearTimeout(timer);
     }, []);
+
+    // Pre-fill query and auto-search when navigated with a tag param
+    useEffect(() => {
+        if (!tagParam) return;
+        const decoded = Array.isArray(tagParam) ? tagParam[0] : tagParam;
+        setQuery(decoded);
+        setSubmittedQuery(decoded);
+        setShowResults(true);
+    }, [tagParam]);
 
     // ===== Storage Functions =====
     const loadRecentSearches = async () => {
