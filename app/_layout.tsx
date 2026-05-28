@@ -18,7 +18,7 @@ import {
 import {
     BebasNeue_400Regular,
 } from '@expo-google-fonts/bebas-neue';
-import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -60,7 +60,7 @@ function RootNavigator() {
         : Theme.colors.background.light;
 
     return (
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : undefined}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <View style={{ flex: 1, backgroundColor }}>
                 <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
                 <AuthGuard />
