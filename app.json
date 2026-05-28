@@ -6,11 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "filmyapp",
-    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.filmyapp"
+      "bundleIdentifier": "com.anonymous.filmyapp",
+      "userInterfaceStyle": "dark"
     },
     "android": {
       "adaptiveIcon": {

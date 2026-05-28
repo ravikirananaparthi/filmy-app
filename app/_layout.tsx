@@ -3,11 +3,13 @@ if (__DEV__) {
     require('../src/config/reactotron');
 }
 
-import { Appearance } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 
-// Force dark mode app-wide regardless of the OS color scheme.
-// Done before any component reads useColorScheme().
-Appearance.setColorScheme('dark');
+// iOS-only: force dark mode regardless of the OS color scheme.
+// Android already renders correctly with the system setting.
+if (Platform.OS === 'ios') {
+    Appearance.setColorScheme('dark');
+}
 
 import { Theme } from '@/constants/theme';
 import { ApiProvider } from '@/src/providers/ApiProvider';

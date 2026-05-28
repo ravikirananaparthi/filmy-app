@@ -3,15 +3,16 @@ import { AnimatedTabBar } from '@components/ui/animated-tab-bar';
 import { useUploadStore } from '@store/slices/uploadSlice';
 import { Tabs, router } from 'expo-router';
 import React, { useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { MotionifyProvider, MotionifyView } from 'react-native-motionify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// Tab bar pill is 62px tall (see animated-tab-bar.tsx).
-// Total visible height = pill + bottom padding (safe area). Slide must exceed it,
-// plus a small buffer, so the bar fully disappears below the screen edge.
+// iOS-only tuning: the pill (62px) + iPhone safe-area (~34px) is taller than the
+// previous 80px slide, so the bar peeked. We compute the slide from the bar
+// height + safe area + buffer. Android worked fine with the original 80.
 const TAB_BAR_HEIGHT = 62;
 const HIDE_BUFFER = 24;
+const ANDROID_HIDE_DISTANCE = 80;
 
 // ─── Main layout ─────────────────────────────────────────────────────────────
 function TabLayoutContent() {
@@ -25,7 +26,11 @@ function TabLayoutContent() {
   }, [reset]);
 
   // Distance to translate the bar so it ends fully below the screen edge.
-  const hideDistance = TAB_BAR_HEIGHT + Math.max(insets.bottom, 17) + HIDE_BUFFER;
+  // iOS: compute from actual safe area; Android: keep prior working value.
+  const hideDistance =
+    Platform.OS === 'ios'
+      ? TAB_BAR_HEIGHT + Math.max(insets.bottom, 17) + HIDE_BUFFER
+      : ANDROID_HIDE_DISTANCE;
 
   return (
     <View style={styles.container}>

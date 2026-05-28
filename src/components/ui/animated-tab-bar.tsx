@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import {
   Dimensions,
+  Platform,
   Pressable,
   StyleSheet,
   View,
@@ -180,7 +181,17 @@ export function AnimatedTabBar({
   }));
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom - 10, 8) }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingBottom:
+            Platform.OS === 'ios'
+              ? Math.max(insets.bottom - 10, 8)
+              : Math.max(insets.bottom, 17),
+        },
+      ]}
+    >
       <View style={[styles.tabBarWrapper, { backgroundColor: '#121212' }]}>
         <Animated.View
           style={[
