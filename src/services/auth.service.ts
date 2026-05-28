@@ -46,6 +46,20 @@ function extractTokens(url: string) {
 }
 
 export const authService = {
+    /**
+     * Email + password sign-in. Used for the demo account.
+     * Returns the same `{ session, cancelled }` shape as signInWithGoogle so callers
+     * can share a single handler.
+     */
+    signInWithEmail: async (email: string, password: string) => {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) throw error;
+        return { session: data.session, cancelled: false };
+    },
+
     signInWithGoogle: async () => {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',

@@ -47,44 +47,73 @@ function GoogleLogo({ size = 20 }: { size?: number }) {
     );
 }
 
+const DEMO_EMAIL = 'hello@filmy.com';
+const DEMO_PASSWORD = '123456';
+
 export default function SignInScreen() {
     const insets = useSafeAreaInsets();
     const [loading, setLoading] = useState(false);
+    const [demoLoading, setDemoLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const setSession = useAuthStore((s) => s.setSession);
     const setUser = useAuthStore((s) => s.setUser);
 
+    const completeSignIn = async (
+        signInPromise: Promise<{ session: any; cancelled: boolean }>,
+    ) => {
+        const { session, cancelled } = await signInPromise;
+
+        if (cancelled) return;
+
+        if (!session) {
+            setError('Sign-in failed. Please try again.');
+            return;
+        }
+
+        setSession(session.access_token, session.refresh_token);
+
+        const { data: meRes } = await apiClient.get(API_ENDPOINTS.AUTH.ME);
+        const dbUser = meRes?.data?.user ?? null;
+
+        if (!dbUser) {
+            setError('Could not create your profile. Please try again.');
+            return;
+        }
+
+        setUser(dbUser);
+        router.replace('/(tabs)' as any);
+    };
+
     const handleGoogleSignIn = async () => {
         setLoading(true);
         setError(null);
         try {
-            const { session, cancelled } = await authService.signInWithGoogle();
-
-            if (cancelled) return;
-
-            if (!session) {
-                setError('Sign-in failed. Please try again.');
-                return;
-            }
-
-            setSession(session.access_token, session.refresh_token);
-
-            const { data: meRes } = await apiClient.get(API_ENDPOINTS.AUTH.ME);
-            const dbUser = meRes?.data?.user ?? null;
-
-            if (!dbUser) {
-                setError('Could not create your profile. Please try again.');
-                return;
-            }
-
-            setUser(dbUser);
-            router.replace('/(tabs)' as any);
+            await completeSignIn(authService.signInWithGoogle());
         } catch (e: any) {
             console.error('[SignIn] Error:', e);
             setError(e?.message || 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDemoSignIn = async () => {
+        setDemoLoading(true);
+        setError(null);
+        try {
+            await completeSignIn(
+                authService.signInWithEmail(DEMO_EMAIL, DEMO_PASSWORD),
+            );
+        } catch (e: any) {
+            console.error('[SignIn] Demo error:', e);
+            setError(
+                e?.message?.includes('Invalid login')
+                    ? 'Demo account not provisioned. Run `npm run seed:demo` in the backend.'
+                    : e?.message || 'Demo sign-in failed. Please try again.',
+            );
+        } finally {
+            setDemoLoading(false);
         }
     };
 
@@ -116,7 +145,7 @@ export default function SignInScreen() {
                         pressed && styles.googleButtonPressed,
                     ]}
                     onPress={handleGoogleSignIn}
-                    disabled={loading}
+                    disabled={loading || demoLoading}
                 >
                     {loading ? (
                         <ActivityIndicator color="#444" size="small" />
@@ -125,6 +154,19 @@ export default function SignInScreen() {
                             <GoogleLogo size={20} />
                             <Text style={styles.googleButtonText}>Sign in with Google</Text>
                         </>
+                    )}
+                </Pressable>
+
+                <Pressable
+                    onPress={handleDemoSignIn}
+                    disabled={loading || demoLoading}
+                    hitSlop={12}
+                    style={styles.demoLink}
+                >
+                    {demoLoading ? (
+                        <ActivityIndicator color="rgba(255,255,255,0.8)" size="small" />
+                    ) : (
+                        <Text style={styles.demoLinkText}>Continue as demo</Text>
                     )}
                 </Pressable>
 
@@ -196,6 +238,20 @@ const styles = StyleSheet.create({
         color: '#1f1f1f',
         fontFamily: 'GoogleSansFlex_400Regular',
         letterSpacing: 0.15,
+    },
+
+    demoLink: {
+        marginTop: 2,
+        height: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    demoLinkText: {
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.7)',
+        textDecorationLine: 'underline',
+        fontFamily: 'GoogleSansFlex_500Medium',
+        letterSpacing: 0.1,
     },
 
     disclaimer: {

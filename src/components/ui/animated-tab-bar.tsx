@@ -180,7 +180,7 @@ export function AnimatedTabBar({
   }));
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 17) }]}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom - 10, 8) }]}>
       <View style={[styles.tabBarWrapper, { backgroundColor: '#121212' }]}>
         <Animated.View
           style={[
