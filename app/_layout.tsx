@@ -81,7 +81,7 @@ function RootNavigator() {
                     <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
                     <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
                     <Stack.Screen name="auth/callback" options={{ animation: 'none', headerShown: false }} />
-                    <Stack.Screen name="search/index" options={{ presentation: 'transparentModal' }} />
+                    <Stack.Screen name="search/index" options={{ animation: 'slide_from_right' }} />
                     <Stack.Screen name="image/[id]" options={{ presentation: 'card' }} />
                     <Stack.Screen name="upload/pick" options={{ presentation: 'card', animation: 'slide_from_bottom', headerShown: false }} />
                     <Stack.Screen name="upload/review" options={{ presentation: 'card', animation: 'slide_from_right', headerShown: false }} />

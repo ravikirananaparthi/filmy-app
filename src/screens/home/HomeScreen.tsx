@@ -59,7 +59,7 @@ export default function HomeScreen() {
     }, [toggleLike]);
 
     const handleSearchPress = useCallback(() => {
-        router.push('/(tabs)/search');
+        router.push('/search' as any);
     }, []);
 
     const handleEndReached = useCallback(() => {
