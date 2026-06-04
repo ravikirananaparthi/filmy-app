@@ -1,5 +1,7 @@
 # Filmy App — Frontend Architecture
 
+> Maintainer note: keep this file aligned with `CLAUDE.md` and `docs/IMPLEMENTATION_STATUS.md` when routes or patterns change.
+
 ## Project Root Layout
 ```
 D:\projects\filmy-app\
