@@ -2,7 +2,7 @@
 
 **Base URL:** `http://localhost:3000/api/v1`
 
-**Last Updated:** 2025-12-19
+**Last Updated:** 2026-06-04 (header only; endpoint details may lag production)
 
 ---
 
