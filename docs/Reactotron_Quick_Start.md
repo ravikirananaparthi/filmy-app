@@ -1,5 +1,7 @@
 # Reactotron Quick Start Guide
 
+See also: `docs/Reactotron_Setup.md`, `docs/Reactotron_Troubleshooting.md`, `docs/Reactotron_Physical_Device.md`.
+
 ## ✅ Installation Complete!
 
 Reactotron has been successfully installed and configured in your Filmy App!
