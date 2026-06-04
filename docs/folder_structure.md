@@ -1,4 +1,7 @@
 Filmy App - Production Folder Structure Proposal
+
+> Historical proposal (2025). Live layout is documented in `docs/ARCHITECTURE.md` and `CLAUDE.md`.
+
 Overview
 This document outlines the proposed industry-standard folder structure for the Filmy app, a React Native/Expo application for browsing actress images with features like feeds, trending, search, favorites, and personalization.
 
