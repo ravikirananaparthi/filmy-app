@@ -1,3 +1,9 @@
+# Filmy App
+
+Pinterest-style UGC image discovery app (React Native / Expo). See `docs/ARCHITECTURE.md`, `docs/IMPLEMENTATION_STATUS.md`, and `docs/TASKS.md` for project context.
+
+---
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
