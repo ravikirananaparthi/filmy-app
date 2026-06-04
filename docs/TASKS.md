@@ -2,6 +2,7 @@
 
 > See `IMPLEMENTATION_STATUS.md` for what's already done (Phases 1–4).
 > See `ARCHITECTURE.md` for patterns and conventions.
+> Doc index: all files under `docs/` — start with `IMPLEMENTATION_STATUS.md` for current phase.
 
 ---
 
