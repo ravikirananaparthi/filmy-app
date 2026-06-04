@@ -11,6 +11,7 @@ Filmy is a **Pinterest-style UGC image discovery app** built in React Native / E
 1. `docs/IMPLEMENTATION_STATUS.md` — what's done, what's pending, current phase
 2. `docs/ARCHITECTURE.md` — file structure, patterns, conventions
 3. `docs/TASKS.md` — remaining phases with detailed specs
+4. `README.md` — quick start and links to Expo docs
 
 ---
 
