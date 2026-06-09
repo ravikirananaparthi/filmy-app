@@ -15,6 +15,7 @@ import * as Haptics from 'expo-haptics';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import {
   Dimensions,
+  Platform,
   Pressable,
   StyleSheet,
   View,
@@ -28,14 +29,14 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const TAB_BAR_MARGIN = 20;
-const TAB_BAR_HEIGHT = 62;
+const TAB_BAR_MARGIN = 18;
+const TAB_BAR_HEIGHT = 56;
 const TAB_COUNT = 5;
-const TAB_BAR_WIDTH = SCREEN_WIDTH - TAB_BAR_MARGIN * 2;
+const TAB_BAR_WIDTH = Math.min(SCREEN_WIDTH - TAB_BAR_MARGIN * 2, 304);
 const TAB_ITEM_WIDTH = TAB_BAR_WIDTH / TAB_COUNT;
-const INDICATOR_SIZE = 50;
+const INDICATOR_SIZE = 44;
 const INDICATOR_PADDING = (TAB_ITEM_WIDTH - INDICATOR_SIZE) / 2;
-const UPLOAD_SIZE = 46;
+const UPLOAD_SIZE = 42;
 
 const SPRING_CONFIG = {
   damping: 25,
@@ -103,7 +104,7 @@ const TabItem = memo(function TabItem({
         style={styles.uploadTabItem}
       >
         <View style={styles.uploadCircle}>
-          <UploadIcon size={20} color="#fff" strokeWidth={2.8} />
+          <UploadIcon size={19} color="#fff" strokeWidth={3} />
         </View>
       </Pressable>
     );
@@ -122,7 +123,7 @@ const TabItem = memo(function TabItem({
       onLongPress={onLongPress}
       style={styles.tabItem}
     >
-      <IconComponent size={24} color="#FFFFFF" />
+      <IconComponent size={23} color="#FFFFFF" />
     </Pressable>
   );
 });
@@ -180,7 +181,17 @@ export function AnimatedTabBar({
   }));
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 17) }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingBottom:
+            Platform.OS === 'ios'
+              ? Math.max(insets.bottom - 10, 8)
+              : Math.max(insets.bottom, 17),
+        },
+      ]}
+    >
       <View style={[styles.tabBarWrapper, { backgroundColor: '#121212' }]}>
         <Animated.View
           style={[
@@ -249,11 +260,13 @@ const styles = StyleSheet.create({
     borderRadius: TAB_BAR_HEIGHT / 2,
     overflow: 'hidden',
     position: 'relative',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 20,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.34,
+    shadowRadius: 16,
+    elevation: 16,
   },
   indicator: {
     position: 'absolute',
@@ -267,7 +280,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
   },
   tabItem: {
     flex: 1,
@@ -289,9 +301,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: Theme.palette.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.6,
+    shadowRadius: 7,
+    elevation: 7,
   },
 });

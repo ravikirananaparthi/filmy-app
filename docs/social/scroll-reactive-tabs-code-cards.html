@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scroll-Reactive Tabs Code Cards</title>
+  <style>
+    :root {
+      --ink: #f6f4ec;
+      --muted: #9d9b94;
+      --panel: #151513;
+      --line: #2b2a26;
+      --accent: #ff4d2e;
+      --blue: #78b7ff;
+      --green: #8ed39a;
+      --yellow: #f0c674;
+      --pink: #f18bbd;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #090908;
+      color: var(--ink);
+      font-family: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
+    }
+
+    body {
+      display: grid;
+      gap: 80px;
+      justify-content: center;
+      padding: 80px;
+    }
+
+    .card {
+      position: relative;
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      padding: 58px 66px;
+      border: 1px solid #32312d;
+      border-radius: 38px;
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255, 77, 46, .22), transparent 28%),
+        radial-gradient(circle at 4% 92%, rgba(120, 183, 255, .12), transparent 32%),
+        linear-gradient(145deg, #191917 0%, #0e0e0d 68%);
+      box-shadow: 0 34px 90px rgba(0, 0, 0, .58);
+    }
+
+    .eyebrow {
+      margin-bottom: 14px;
+      color: var(--accent);
+      font: 700 19px/1.2 -apple-system, BlinkMacSystemFont, sans-serif;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 1020px;
+      margin: 0 0 26px;
+      font: 760 44px/1.03 -apple-system, BlinkMacSystemFont, sans-serif;
+      letter-spacing: -.045em;
+    }
+
+    .code {
+      margin: 0;
+      padding: 24px 30px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(7, 7, 6, .76);
+      font-size: 20px;
+      line-height: 1.42;
+      white-space: pre-wrap;
+      tab-size: 2;
+    }
+
+    .kw { color: var(--pink); }
+    .fn { color: var(--blue); }
+    .str { color: var(--green); }
+    .num { color: var(--yellow); }
+    .cm { color: #77756f; font-style: italic; }
+    .accent { color: var(--accent); }
+
+    .note {
+      position: absolute;
+      right: 66px;
+      bottom: 42px;
+      color: var(--muted);
+      font: 600 18px/1.3 -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .number {
+      position: absolute;
+      left: 66px;
+      bottom: 38px;
+      color: #4d4c47;
+      font: 800 32px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <section class="card" id="card-1">
+    <div class="eyebrow">01 / Shared Motion State</div>
+    <h1>Give the tab bar and every feed the same scroll-direction signal.</h1>
+    <pre class="code"><span class="kw">export default function</span> <span class="fn">TabLayout</span>() {
+  <span class="kw">return</span> (
+    &lt;<span class="fn">MotionifyProvider</span> threshold={<span class="num">10</span>} supportIdle={<span class="kw">false</span>}&gt;
+      &lt;<span class="fn">Tabs</span>
+        tabBar={(props) =&gt; (
+          &lt;<span class="fn">CollapsingTabBar</span> {...props} /&gt;
+        )}
+      /&gt;
+    &lt;/<span class="fn">MotionifyProvider</span>&gt;
+  );
+}
+
+<span class="cm">// One provider. One direction source. No prop-drilling.</span></pre>
+    <div class="number">REACT NATIVE / UI</div>
+    <div class="note">React Native + Expo Router</div>
+  </section>
+
+  <section class="card" id="card-2">
+    <div class="eyebrow">02 / Feed Wiring</div>
+    <h1>Let the real list report scrolling. Do not create a second scroll container.</h1>
+    <pre class="code"><span class="kw">function</span> <span class="fn">HomeScreen</span>() {
+  <span class="kw">const</span> { onScroll } = <span class="fn">useMotionify</span>();
+
+  <span class="kw">return</span> (
+      &lt;<span class="fn">FlashList</span>
+      data={items}
+      renderItem={renderItem}
+      onScroll={onScroll}
+      scrollEventThrottle={<span class="num">16</span>}
+    /&gt;
+  );
+}</pre>
+    <div class="number">REACT NATIVE / UI</div>
+    <div class="note">FlashList reports scroll direction</div>
+  </section>
+
+  <section class="card" id="card-3">
+    <div class="eyebrow">03 / Collapse And Reveal</div>
+    <h1>Translate the floating tabs beyond the screen edge when direction is down.</h1>
+    <pre class="code"><span class="kw">const</span> hideDistance =
+  Platform.OS === <span class="str">'ios'</span>
+    ? TAB_BAR_HEIGHT + Math.max(insets.bottom, <span class="num">17</span>) + <span class="num">24</span>
+    : <span class="num">80</span>;
+
+&lt;<span class="fn">MotionifyView</span>
+  animatedY
+  hideOn=<span class="str">"down"</span>
+  translateRange={{ from: <span class="num">0</span>, to: hideDistance }}
+  animationDuration={<span class="num">150</span>}
+  style={styles.floatingTabBar}
+&gt;
+  &lt;<span class="fn">AnimatedTabBar</span> {...props} /&gt;
+&lt;/<span class="fn">MotionifyView</span>&gt;</pre>
+    <div class="number">REACT NATIVE / UI</div>
+    <div class="note">Bottom bar hide/reveal animation</div>
+  </section>
+
+  <section class="card" id="card-4">
+    <div class="eyebrow">04 / Active Tab Spring</div>
+    <h1>Animate selection separately from scroll visibility.</h1>
+    <pre class="code"><span class="kw">const</span> ROUTE_SLOT = {
+  index: <span class="num">0</span>,
+  search: <span class="num">1</span>,
+  favorites: <span class="num">3</span>,
+  menu: <span class="num">4</span>,
+};
+
+<span class="kw">function</span> <span class="fn">getIndicatorX</span>(routeName: <span class="kw">string</span>) {
+  <span class="kw">const</span> slot = ROUTE_SLOT[routeName];
+  <span class="kw">if</span> (slot === <span class="kw">undefined</span>) <span class="kw">return null</span>;
+  <span class="kw">return</span> slot * TAB_ITEM_WIDTH + INDICATOR_PADDING;
+}
+
+indicatorX.value = <span class="fn">withSpring</span>(targetX, {
+  damping: <span class="num">25</span>, stiffness: <span class="num">250</span>, mass: <span class="num">0.8</span>,
+});</pre>
+    <div class="number">REACT NATIVE / UI</div>
+    <div class="note">Active indicator spring animation</div>
+  </section>
+</body>
+</html>

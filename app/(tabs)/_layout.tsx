@@ -7,10 +7,10 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { MotionifyProvider, MotionifyView } from 'react-native-motionify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// iOS-only tuning: the pill (62px) + iPhone safe-area (~34px) is taller than the
+// iOS-only tuning: the pill + iPhone safe-area is taller than the
 // previous 80px slide, so the bar peeked. We compute the slide from the bar
 // height + safe area + buffer. Android worked fine with the original 80.
-const TAB_BAR_HEIGHT = 62;
+const TAB_BAR_HEIGHT = 56;
 const HIDE_BUFFER = 24;
 const ANDROID_HIDE_DISTANCE = 80;
 
